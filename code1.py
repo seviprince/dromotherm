@@ -31,8 +31,8 @@ kb=1.76 #  conductivité thermique de la couche de base en W/m.K
 qf=50/3600 # en m^3/s
 k=10.83 # coefficient d'échange entre le fluide et la couche drainante 
 mf=qf # débit massique mf =1kg/l * qf 
-rd_s=27 # coefficient d'échange surfacique entre la couche drainate et la surface
-rd_b=3.23 # coefficient d'échange surfacique entre la couche drainate et la surface
+rd_s=27 # coefficient d'échange surfacique entre la couche drainante et la surface
+rd_b=3.23 # coefficient d'échange surfacique entre la couche drainante et la surface
 S=4 # surface de chaussée
 
 A1=rho_Cp_s * h_s # A1,B2, C3 sont des valeurs intermédaires de calculs
