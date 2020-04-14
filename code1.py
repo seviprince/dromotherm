@@ -11,7 +11,9 @@ import xlrd
 def F(X,temps):
     x,y,z = X[0],X[1],X[2] 
     
-    return [(1/A1)*(rd_s*(y-x)-Hv*(x+273.15)+ks*(x-y)-epsilon*sigma*(x+273.15)**4+B1),-(1/B2)*(rd_s*(y-x)+rd_b*(y-z)-k*(y+273.15)/((rho_Cp_f*qf)/S+k/2)),-rd_b*(z-y)/C3]
+    return [(1/A1)*(rd_s*(y-x)-Hv[int(temps/3600)]*(x+273.15)+ks*(x-y)-epsilon*sigma*(x+273.15)**4+B1[int(temps/3600)]),
+            -(1/B2)*(rd_s*(y-x)+rd_b*(y-z)-k*(y+273.15)/((rho_Cp_f*qf)/S+k/2)),
+            -rd_b*(z-y)/C3]
 
 # LES DONNEES NUMERIQUES
 # LES DONNES CONSTANTES
@@ -77,7 +79,7 @@ solution = odeint(F,[5,5,5], temps)
 temps=temps/3600 # on ramène le temps en heure
 
 #Graphique
-plt.xlabel('Temps (en seconde)')
+plt.xlabel('Temps (en heure)')
 plt.ylabel('Températures (en °C)')
 plt.title("Profils de températures")
 plt.plot(temps,solution)
