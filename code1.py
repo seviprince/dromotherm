@@ -20,7 +20,7 @@ def F(X,temps):
 rho_Cp_s=22546665 # capacité calorifique volumique de la couche de surface en (J/m^3.K)
 rho_Cp_d=1769723 # capacité calorifique volumique de la couche drainante en (J/m^3.K)
 rho_Cp_b=2676723 # capacité calorifique volumique de la couche de base en (J/m^3.K)
-rho_Cp_f=4181000 # capacité calorifique volumique de couche deen (J/m^3.K)
+rho_Cp_f=4181000 # capacité calorifique volumique de couche du fluide (J/m^3.K)
 h_s=0.06 # épaisseur de la couche de surface en m
 h_d= 0.08 # épaisseur de la couche drainante en m
 h_b=1 # épaisseur de la couche de base
