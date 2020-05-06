@@ -61,36 +61,3 @@ plt.fill_between(xrange,float_data[:,5], label="ray. atm. (W/m2)", color="orange
 plt.fill_between(xrange,float_data[:,4], label="glob. rad. (W/m2)", color="yellow", alpha=0.4)
 plt.legend(loc='upper right')
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-              
-       
-        
-    
-        
-        
-        
-        
-        
-     
-        
-
-
-
-
-
-
-
