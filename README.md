@@ -1,2 +1,3 @@
-# Mes_codes
-Code Python
+# Codes et Notebooks liés au projet Dromotherm
+
+http://www.dromotherm.com
