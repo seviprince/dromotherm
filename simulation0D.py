@@ -76,10 +76,9 @@ theta_air=np.asarray(theta_air)
 Vent=np.asarray(Vent)
 Rg=np.asarray(Rg)
 Rat=np.asarray(Rat)
-B1=[] # B1 est créé pour des calculs intermédiaires pour des raisons de clarté
-Hv=[] # Coefficients convectifs entre la surface et l'air: il varie en fction de la vitesse du vent
-B1=np.asarray(B1)
-Hv=np.asarray(Hv)
+
+# B1 est créé pour des calculs intermédiaires pour des raisons de clarté
+# Coefficients convectifs entre la surface et l'air: il varie en fction de la vitesse du vent
 Hv=5.8+4.1*Vent
 B1=Hv*(theta_air+273.15)+Rat+(1-albedo)*Rg 
 
@@ -101,6 +100,7 @@ plt.plot(temps,solution[:,1],label="Température couche drainante")
 plt.plot(temps,solution[:,2],label="Température couche de base")
 plt.plot(temps,Tsortie_fluide,label="Température de sortie du fluide")
 plt.legend(loc=4)
+plt.show()
 
 
 
