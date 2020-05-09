@@ -99,7 +99,7 @@ plt.plot(temps,solution[:,0],label="Température couche de surface")
 plt.plot(temps,solution[:,1],label="Température couche drainante")
 plt.plot(temps,solution[:,2],label="Température couche de base")
 plt.plot(temps,Tsortie_fluide,label="Température de sortie du fluide")
-plt.legend(loc=4)
+plt.legend(loc="upper right")
 plt.show()
 
 
