@@ -53,7 +53,7 @@ epsilon=0.92
 sigma=5.67e-8
 
 # température d'injection du fluide dans le dromotherme en °C
-T_e=10
+T_injection=10
 
 # surface du dromotherme en m2
 S_dromo=8
