@@ -1,2 +1,3 @@
 /dromosense.egg-info/*
 /dromosense/__pycache__/*
+/tests_python/*
