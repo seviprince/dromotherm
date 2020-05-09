@@ -32,8 +32,9 @@ Rat=np.asarray(Rat)
 #AUTRES DONNEES NUMERIQUES
 
 Hv=np.array([]) # Coefficients convectifs entre la surface et l'air: il varie en fction de la vitesse du vent
-Hv=5.8+4.1*Vent
- 
+#Hv=5.8+4.1*Vent
+Hv=4.65+3.96*Vent
+
 rho_Cp_s=2144309.0 # capacite calorifique volumique de la couche de surface en (J/m^3.K)
 rho_Cp_d=1769723.0 # capacite calorifique volumique de la couche drainante en (J/m^3.K)
 rho_Cp_b=2676728.0 # capacite calorifique volumique de la couche de base en (J/m^3.K)
@@ -58,8 +59,12 @@ rd_s=2*ks*kd/(h_s*kd+h_d*ks) # coefficient d'echange surfacique entre la couche 
 
 rd_b=2*kb*kd/(h_b*kd+h_d*kb) # coefficient d'echange surfacique entre la couche drainante et la surface 
 
+rho_Cp_d=1.*1769723.0
+rd_b=1
+qf= 0.0/3600         # debit volumique du fluide (m^3/s)
 
-qf= 0.05/3600         # debit volumique du fluide (m^3/s)
+
+
 phi=0.27     #( porosite de la couche drainante)
 p=0.03       # ( la pente )
 Kdr=qf/(h_d*p*L) # la permeabilite de la couche drainante
@@ -134,7 +139,8 @@ for n in range(0,Nt):
         A[3*j]=rho_Cp_s*h_s/dt+rd_s+Hv[n+1]+4*epsilon*sigma*(Ts[n][j])**3
         Ds=(1-albedo)*Rg[n+1]+Rat[n+1]+Hv[n+1]*(theta_air[n+1]+273.15)+3*epsilon*sigma*(Ts[n][j])**4 + rho_Cp_s*h_s*Ts[n][j]/dt
         #Df=((1/dt)*((1-phi)*rho_Cp_d*h_d+phi*rho_Cp_f*h_d))*(Tf[n][j])+(Kdr*p*rho_Cp_f*h_d/dx)*(Tf[n][j-1])
-        Df=((1.0/dt)*((1.0-phi)*rho_Cp_d*h_d+phi*rho_Cp_f*h_d)-qf*rho_Cp_f*h_d/dx)*(Tf[n][j])+(qf*rho_Cp_f*h_d/dx)*(Tf[n][j-1])
+        #Df=((1.0/dt)*((1.0-phi)*rho_Cp_d*h_d+phi*rho_Cp_f*h_d)-qf*rho_Cp_f*h_d/dx)*(Tf[n][j])+(qf*rho_Cp_f*h_d/dx)*(Tf[n][j-1])
+        Df=((1.0/dt)*((1.0-phi)*rho_Cp_d*h_d+phi*rho_Cp_f*h_d)-qf*rho_Cp_f*1/(L*dx))*(Tf[n][j])+(qf*rho_Cp_f*1/(L*dx))*(Tf[n][j-1])
         #print Df
         Db=(rho_Cp_b*h_b/dt)*(Tb[n][j])
         D=np.append(D,[Ds,Df,Db])
@@ -171,22 +177,22 @@ plt.xlabel('Temps (en heure)')
 plt.ylabel('Températures (en °C)')
 plt.title("Profils de températures ")
 
-plt.plot(temps,Ts[:,10]-273.15,label="Température couche de surface") 
-plt.plot(temps,Tf[:,10]-273.15,label="Température du fluide")
-plt.plot(temps,Tb[:,10]-273.15,label="Température couche de base")
+plt.plot(temps,Ts[:,Nx]-273.15,label="Température couche de surface") 
+plt.plot(temps,Tf[:,Nx]-273.15,label="Température du fluide")
+plt.plot(temps,Tb[:,Nx]-273.15,label="Température couche de base")
 #plt.plot(temps,Q,label="Chaleur récupérée")
 #plt.show()     
 plt.legend(loc=1)  
    
-P=rho_Cp_f*qf*(Tf[:,10]-Tf[:,0]) # Puissance instantanée     
+P=rho_Cp_f*qf*(Tf[:,Nx]-Tf[:,0]) # Puissance instantanée     
 Energie=(np.sum(P))*dt/(3600*1000)
 print('Energie récupérée=', Energie,'kWh')
 
  #Graphique
-figure2 = plt.figure(figsize = (10, 5))
+#figure2 = plt.figure(figsize = (10, 5))
 plt.xlabel('Temps (en heure)')
 plt.ylabel('Puissance (en W)')
-plt.plot(temps,P,label="La puissanceTf")     
+#♦plt.plot(temps,P,label="La puissanceTf")     
         
 
 

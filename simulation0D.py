@@ -10,11 +10,11 @@ import xlrd
 # fonction définissant le système d'équations différentielles 
 def F(X,temps):
     Tentree_fluide=10
-    Surface=8
+    Surface=4
     x,y,z = X[0],X[1],X[2] 
     y1=(1/A1)*(rd_s*(y-x)-Hv[int(temps/3600)]*(x+273.15)-epsilon*sigma*(x+273.15)**4+B1[int(temps/3600)])
     #y2=-(1/B2)*(rd_s*(y-x)+rd_b*(y-z)-k*(y+273.15)/((rho_Cp_f*qf)/S+k/2))
-    y2=-(1/(B2*Surface)*(rd_s*Surface*(y-x)+rd_b*Surface*(y-z)-(qf*rho_Cp_f*(Tentree_fluide-(y-(y-Tentree_fluide)*np.exp(-k*S/(qf*rho_Cp_f)))))))
+    y2=-(1/(B2*Surface)*(rd_s*Surface*(y-x)+rd_b*Surface*(y-z)-(qf*rho_Cp_f*(Tentree_fluide-(y-(y-Tentree_fluide)*np.exp(-k*S_echange/(qf*rho_Cp_f)))))))
     y3=-rd_b*(z-y)/C3
     return [y1,y2,y3]
 
@@ -44,7 +44,7 @@ mf=1*qf # débit massique mf =1kg/l * qf
 
 rd_s=27 # coefficient d'échange surfacique entre la couche drainante et la surface
 rd_b=3.28 # coefficient d'échange surfacique entre la couche drainante et la surface
-S=1000 # surface d'échange fluide/solide
+S_echange=1000 # surface d'échange fluide/solide
 
 A1=rho_Cp_s * h_s # A1,B2, C3 sont des valeurs intermédaires de calculs
 B2=rho_Cp_d * h_d
@@ -76,23 +76,27 @@ theta_air=np.asarray(theta_air)
 Vent=np.asarray(Vent)
 Rg=np.asarray(Rg)
 Rat=np.asarray(Rat)
-B1=[] # B1 est créé pour des calculs intermédiaires pour des raisons de clarté
-Hv=[] # Coefficients convectifs entre la surface et l'air: il varie en fction de la vitesse du vent
-B1=np.asarray(B1)
-Hv=np.asarray(Hv)
-Hv=5.8+4.1*Vent
-B1=Hv*(theta_air+273.15)+Rat+(1-albedo)*Rg 
+
+
+Hv=5.8+4.1*Vent # Coefficients convectifs entre la surface et l'air: il varie en fction de la vitesse du vent
+
+B1=Hv*(theta_air+273.15)+Rat+(1-albedo)*Rg # B1 est créé pour des calculs intermédiaires pour des raisons de clarté
 
 # Calcul des solutions
 solution = odeint(F,[10,10,10], temps)
 Tentree_fluide=10
 theta_d=solution[:,1]
 #Tsortie_fluide=Tentree_fluide+ k*(theta_d+273.15)/((rho_Cp_f*qf)/S+k/2)
-Tsortie_fluide=theta_d-(theta_d-Tentree_fluide)*np.exp(-k*S/(qf*rho_Cp_f))
+Tsortie_fluide=theta_d-(theta_d-Tentree_fluide)*np.exp(-k*S_echange/(qf*rho_Cp_f))
 temps=temps/3600 # on ramène le temps en heure
 
+# Calcul du flux de chaleur instantanée et de l'énergie récupérée en été
+Surface=4
+P0=rho_Cp_f*qf*(Tsortie_fluide-Tentree_fluide)/Surface     
+Energie0=(np.sum(P0))*1/(1000) # multiplication par 1h= pas de temps
+print('Energie récupérée 0D=', Energie0,'kWh/m2')
 #Graphique
-figure = plt.figure(figsize = (10, 5))
+figure1 = plt.figure(figsize = (10, 5))
 plt.xlabel('Temps (en heure)')
 plt.ylabel('Températures (en °C)')
 plt.title("Profils de températures 0D")
@@ -102,6 +106,10 @@ plt.plot(temps,solution[:,2],label="Température couche de base")
 plt.plot(temps,Tsortie_fluide,label="Température de sortie du fluide")
 plt.legend(loc=4)
 
+figure2 = plt.figure(figsize = (10, 5))
+plt.xlabel('Temps (en heure)')
+plt.ylabel('Densité de flux de chaleur instantanée (W/m^2)')
+plt.plot(temps,P0,label="Densité de flux de chaleur instantanée") 
 
 
 
