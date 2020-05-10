@@ -42,7 +42,7 @@ hb=10
 Tinjection=10
 
 """
-on part du principe que l'on travaille à débit fixe de 50 l/h
+on part du principe que l'on travaille à débit fixe de 50 l/h par mètre linéaire de chaussée dans le profil en long
 """
 qf=0.05/3600 # en m^3/s
 
