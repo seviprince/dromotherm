@@ -1,3 +1,4 @@
 /dromosense.egg-info/*
 /dromosense/__pycache__/*
+/dromosense/constantes/__pycache__/*
 /tests_python/*

@@ -4,21 +4,29 @@ import os
 
 verbose=False
 
-"""
-IMPORTATION de données depuis un fichier CSV
-The timeserie must be a fixed interval timeserie
-première colonne : le temps en seconde
-colonnes 1 à x : données
 
-name: file name
-dir: relative folder's path of the file
-preview: boolean - do yu want to preview the datas as plot charts ?
-
-return :
-step : interval in seconds
-float_data : the matrix containing the datas
-"""
 def getCsvDatas(name, dir="../datas", preview=False):
+    """
+    IMPORTATION de données depuis un fichier CSV
+    
+    The timeserie must be a fixed interval timeserie
+    
+    première colonne : le temps en seconde
+    
+    colonnes 1 à x : données
+
+    name: file name
+    
+    dir: relative folder's path of the file
+    
+    preview: boolean - do yu want to preview the datas as plot charts ?
+
+    return :
+    
+    step : interval in seconds
+    
+    float_data : the matrix containing the datas
+    """
     fpath = "{}/{}".format(dir,name)
     f = open (fpath)
     data = f.read()

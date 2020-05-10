@@ -1,4 +1,5 @@
 from dromosense import getCsvDatas
+from dromosense.constantes import *
 import numpy as np
 from scipy.integrate import odeint
 from scipy.integrate import solve_ivp
@@ -17,13 +18,6 @@ step, datas = getCsvDatas("meteo.csv",preview=True)
 
 
 """
-albedo et émissivité
-grandeurs sans unité
-"""
-albedo=0.08
-epsilon=0.92
-
-"""
 L : Largeur de la chaussée en m
 """
 L=4
@@ -35,22 +29,6 @@ en W/(m2K)
 Hv = 5.8 + 4.1*datas[:,3]
 B1 = (1-albedo)*datas[:,4] + datas[:,5] + Hv*datas[:,0]
 
-"""
-conductivités thermiques des couches de surface, drainante et de base
-unité : W/(m.K)
-"""
-ks=2.34
-kd=1.56
-kb=1.76
-
-"""
-capacités calorifiques volumiques des différentes couches
-unité J/(m^3.K)
-"""
-Cs=2144309
-Cd=1769723
-Cb=2676728
-Cf=4181000
 
 """
 épaisseurs en m
@@ -59,9 +37,6 @@ hs=0.06
 hd= 0.08
 hb=10
 
-# constante de Stefan-Boltzmann en W/(m2K4)
-#sigma=5.67*10**(-8)
-sigma=5.67e-8
 
 # température d'injection du fluide dans le dromotherme en °C
 Tinjection=10
@@ -89,14 +64,13 @@ def rd(k1,k2,h1,h2):
     return 2*k1*k2/(h1*k2+h2*k1)
 
 """
-il faudrait les calculer dynamiquement à partir des valeurs de conductivité
+les valeurs initialement utilisées en dur
 """
-rds=27 # coefficient d'échange surfacique entre la couche drainante et la surface
+#rds=27 # coefficient d'échange surfacique entre la couche drainante et la surface
+#rdb=3.28 # coefficient d'échange surfacique entre la couche drainante et la surface
 
-rdb=3.28 # coefficient d'échange surfacique entre la couche drainante et la surface
-
-print(rd(ks,kd,hs,hd))
-print(rd(kd,kb,hd,hb))
+rds=rd(ks,kd,hs,hd)
+rdb=rd(kd,kb,hd,hb)
 input("press any key")
 
 def Tf_out(Td):
