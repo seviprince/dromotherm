@@ -5,8 +5,6 @@ from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 import math
 
-verbose=False
-
 """
 col 0 : Température air (°C)
 col 1 : Température point de rosée (°C)
@@ -70,7 +68,7 @@ sigma=5.67e-8
 Tinjection=10
 
 """
-on part du principe que l'on travaille à débit fixe de 50 l/h, ce qui est très faible
+on part du principe que l'on travaille à débit fixe de 50 l/h
 """
 qf=0.05/3600 # en m^3/s
 
@@ -109,6 +107,14 @@ def Tf_out(Td):
     """
     calcule la température sortante du fluide pour une température de la couche drainante donnée
     varie selon la température d'injection....
+    Td : scalaire ou vecteur
+    
+    E en Watt
+    C en Jm-3K-1
+    q en m3/s
+    h en Wm-2K-1
+    E = qf*Cf*(Tsortie-Tinjection) = h*S*deltaTLM = h*S*(Tsortie-Tinjection)/ln[(Tsortie-Td)/((Tinjection-Td)]
+    Rappel : 1 W = 1 J/s
     """
     return Td+(Tinjection-Td)*math.exp(-h*S/(qf*Cf))
 
@@ -122,14 +128,7 @@ def F(t, X):
     Td=X[1]
     Tb=X[2]
     i=int(t/step)
-    """
-    E en Watt
-    C en Jm-3K-1
-    q en m3/s
-    h en Wm-2K-1
-    E = qf*Cf*(Tsortie-Tinjection) = h*S*deltaTLM = h*S*(Tsortie-Tinjection)/ln[(Tsortie-Td)/((Tinjection-Td)]
-    Rappel : 1 W = 1 J/s
-    """
+
     Tsortie=Tf_out(Td)
     
     y1 = ( B1[i] - Hv[i]*Ts - epsilon*sigma*(Ts+273.15)**4 - rds*(Ts-Td) ) / ( Cs*hs )
@@ -150,6 +149,9 @@ on recrée le temps discrétisé
 """
 t=step*np.arange(datas.shape[0])
 
+"""
+cf https://docs.scipy.org/doc/scipy/reference/integrate.html
+"""
 solution = solve_ivp(F,[0,(datas.shape[0]-1)*step],[10,10,10],t_eval=t)
 oldsol = odeint(G,[10,10,10],t)
 
