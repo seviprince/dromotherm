@@ -24,10 +24,9 @@ albedo=0.08
 epsilon=0.92
 
 """
-Largeur de la chaussée en m
+L : Largeur de la chaussée en m
 """
 L=4
-
 
 """
 Hv Coefficient convectif entre la surface et l'air (fonction affine de la vitesse du vent)
@@ -74,17 +73,14 @@ qf=0.05/3600 # en m^3/s
 
 """
 surface d'échange entre le fluide et une paroi solide (couche drainante)
-On suppose qu'elle est 100 fois plus grande de la surface du dromotherme et on arrondi !
-çà je ne comprend pas bien d'où celà sort ? quant on fait l'équilibre énergétique avec le deltaTLM, on travaille sur une surface de qf/hd m2 non ?
+On suppose qu'elle est 100 fois plus grande de la surface du dromotherme
 """
-#S=qf/hd*100
-S=1000
+S=L*100
 """
 coefficient d'échange convectif entre le fluide et la couche drainante en W/(m2K)
 perso, je trouve que c'est beaucoup, ce n'est quant même pas de l'eau bouillante ?
 """
 h=2000
-#h=900
 
 def rd(k1,k2,h1,h2):
     """
@@ -108,13 +104,6 @@ def Tf_out(Td):
     calcule la température sortante du fluide pour une température de la couche drainante donnée
     varie selon la température d'injection....
     Td : scalaire ou vecteur
-    
-    E en Watt
-    C en Jm-3K-1
-    q en m3/s
-    h en Wm-2K-1
-    E = qf*Cf*(Tsortie-Tinjection) = h*S*deltaTLM = h*S*(Tsortie-Tinjection)/ln[(Tsortie-Td)/((Tinjection-Td)]
-    Rappel : 1 W = 1 J/s
     """
     return Td+(Tinjection-Td)*math.exp(-h*S/(qf*Cf))
 
