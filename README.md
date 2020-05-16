@@ -4,8 +4,18 @@ http://www.dromotherm.com
 
 ## master Energie
 
-depuis mars 2020
+Depuis mars 2020
 
-dimensionnement/modélisation/choix de l’implantation d’un démonstrateur sur le site du Bourget de Lac à proximité de Chambéry
+Dimensionnement/modélisation/choix de l’implantation d’un démonstrateur sur le site du Bourget de Lac à proximité de Chambéry
+
+```
+git clone https://github.com/seviprince/dromotherm
+cd dromotherm
+```
 
 
+Pour installer la bibliothèque en mode développement : `pip install -e ./` ou `python3 setup.py develop`
+
+Privilégier le travail en environnement virtuel
+
+Si vous êtes sous windows avec la distribution Anaconda, lancer la console après avoir lancé Anaconda
