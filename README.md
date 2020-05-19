@@ -8,11 +8,28 @@ Depuis mars 2020
 
 Dimensionnement/modélisation/choix de l’implantation d’un démonstrateur sur le site du Bourget de Lac à proximité de Chambéry
 
+## bibliothèque dromosense
+
+Le répertoire `dromosense` est appelé à herberger la bibliothèque d'outils liés au projet dromotherm
+
 ```
 git clone https://github.com/seviprince/dromotherm
 cd dromotherm
 ```
 Pour installer la bibliothèque en mode développement : `pip install -e ./` ou `python3 setup.py develop`
+
+Pour accéder à la documentation : https://seviprince.github.io/dromotherm/dromosense/
+
+La documentation se construit automatiquement à partir du code à l'aide de l'outil [pdoc](https://pdoc3.github.io/pdoc/)
+```
+pdoc --html -o docs dromosense
+```
+
+pour installer pdoc :
+
+```
+pip install pdoc3
+```
 
 ## Privilégier le travail en environnement virtuel
 
