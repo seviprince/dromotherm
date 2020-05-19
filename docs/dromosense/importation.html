@@ -34,23 +34,23 @@ verbose=False
 def getCsvDatas(name, dir=&#34;../datas&#34;, preview=False):
     &#34;&#34;&#34;
     IMPORTATION de données depuis un fichier CSV
-    
+
     The timeserie must be a fixed interval timeserie
-    
+
     première colonne : le temps en seconde
-    
+
     colonnes 1 à x : données
 
     name: file name
-    
+
     dir: relative folder&#39;s path of the file
-    
+
     preview: boolean - do yu want to preview the datas as plot charts ?
 
     return :
-    
+
     step : interval in seconds
-    
+
     float_data : the matrix containing the datas
     &#34;&#34;&#34;
     fpath = &#34;{}/{}&#34;.format(dir,name)
@@ -62,7 +62,7 @@ def getCsvDatas(name, dir=&#34;../datas&#34;, preview=False):
     2) split into a list of lines
     3) extract the header and remove it from the object lines
     &#34;&#34;&#34;
-    data = data.rstrip(&#39;\n\r&#39;) 
+    data = data.rstrip(&#39;\n\r&#39;)
     lines = data.split(&#39;\n&#39;)
     header = lines[0].split(&#39;,&#39;)
     lines = lines[1:]
@@ -78,7 +78,7 @@ def getCsvDatas(name, dir=&#34;../datas&#34;, preview=False):
     float_data shape is (time,features)
     on crée un tenseur rempli de zéros:
     - la dimension 0 (ou premier axe du tenseur) va être le nombre de données
-    - la dimension 1 (ou second axe du tenseur) va être len(header)-1 
+    - la dimension 1 (ou second axe du tenseur) va être len(header)-1
     En effet, on met de côté la colonne liée au temps, qui ne sert a rien vu qu&#39;on travaille à intervalle de temps fixe
     Généralement, dans un tenseur, on dit que le premier axe (axis 0) est le &#34;samples axis&#34;
     Ensuite on parcourt l&#39;objet lines, on splite au niveau des , et on ne conserve que la partie [1:], c&#39;est à dire tous les éléments sauf la premier valeur qui est le temps
@@ -92,7 +92,7 @@ def getCsvDatas(name, dir=&#34;../datas&#34;, preview=False):
     for i,line in enumerate(lines):
         values = [float(x) for x in line.split(&#39;,&#39;)[1:]]
         float_data[i,:]=values
-    
+
     print(&#34;data shape is {}&#34;.format(float_data.shape))
     print(&#34;interval is {}&#34;.format(step))
 
@@ -115,8 +115,47 @@ def getCsvDatas(name, dir=&#34;../datas&#34;, preview=False):
         plt.fill_between(xrange,float_data[:,4], label=&#34;glob. rad. (W/m2)&#34;, color=&#34;yellow&#34;, alpha=0.4)
         plt.legend(loc=&#39;upper right&#39;)
         plt.show()
-    
-    return step, float_data</code></pre>
+
+    return step, float_data
+
+def getTxtModelicaDatas(name, dir=&#34;../datas&#34;, preview=False):
+    &#34;&#34;&#34;
+    IMPORTATION de données txt comme attendu par Modelica
+
+    Attention, modelica permet souvent de travailler avec des fichiers à pas de temps variable
+
+    la colonne temps est donc à conserver
+    &#34;&#34;&#34;
+    fpath = &#34;{}/{}&#34;.format(dir,name)
+    f = open (fpath)
+    data = f.read()
+    f.close()
+    data = data.rstrip(&#39;\n\r&#39;)
+    lines = data.split(&#39;\n&#39;)
+    header = lines[1].split(&#39;#Columns:&#39;)[1].rstrip(&#39;\t&#39;).split(&#39;;&#39;)
+    lines = lines[2:]
+    if verbose:
+        print(header)
+    line1=[float(x) for x in lines[0].split(&#39;\t&#39;)]
+
+    float_data=np.zeros((len(lines),len(line1)))
+    for i,line in enumerate(lines):
+        values = [float(x) for x in line.split(&#39;\t&#39;)]
+        float_data[i,:]=values
+
+    print(&#34;data shape is {}&#34;.format(float_data.shape))
+
+    if preview:
+        ax1=plt.subplot(111)
+        plt.title(&#34;test d&#39;importation&#34;)
+        plt.xlabel(&#39;secondes&#39;)
+        ax1.set_ylabel(&#34;W/m2&#34;)
+        for i in range(1,3):
+            plt.plot(float_data[:,0],float_data[:,i], label=header[i].strip())
+        plt.legend(loc=&#39;upper left&#39;)
+        plt.show()
+
+    return float_data</code></pre>
 </details>
 </section>
 <section>
@@ -147,23 +186,23 @@ def getCsvDatas(name, dir=&#34;../datas&#34;, preview=False):
 <pre><code class="python">def getCsvDatas(name, dir=&#34;../datas&#34;, preview=False):
     &#34;&#34;&#34;
     IMPORTATION de données depuis un fichier CSV
-    
+
     The timeserie must be a fixed interval timeserie
-    
+
     première colonne : le temps en seconde
-    
+
     colonnes 1 à x : données
 
     name: file name
-    
+
     dir: relative folder&#39;s path of the file
-    
+
     preview: boolean - do yu want to preview the datas as plot charts ?
 
     return :
-    
+
     step : interval in seconds
-    
+
     float_data : the matrix containing the datas
     &#34;&#34;&#34;
     fpath = &#34;{}/{}&#34;.format(dir,name)
@@ -175,7 +214,7 @@ def getCsvDatas(name, dir=&#34;../datas&#34;, preview=False):
     2) split into a list of lines
     3) extract the header and remove it from the object lines
     &#34;&#34;&#34;
-    data = data.rstrip(&#39;\n\r&#39;) 
+    data = data.rstrip(&#39;\n\r&#39;)
     lines = data.split(&#39;\n&#39;)
     header = lines[0].split(&#39;,&#39;)
     lines = lines[1:]
@@ -191,7 +230,7 @@ def getCsvDatas(name, dir=&#34;../datas&#34;, preview=False):
     float_data shape is (time,features)
     on crée un tenseur rempli de zéros:
     - la dimension 0 (ou premier axe du tenseur) va être le nombre de données
-    - la dimension 1 (ou second axe du tenseur) va être len(header)-1 
+    - la dimension 1 (ou second axe du tenseur) va être len(header)-1
     En effet, on met de côté la colonne liée au temps, qui ne sert a rien vu qu&#39;on travaille à intervalle de temps fixe
     Généralement, dans un tenseur, on dit que le premier axe (axis 0) est le &#34;samples axis&#34;
     Ensuite on parcourt l&#39;objet lines, on splite au niveau des , et on ne conserve que la partie [1:], c&#39;est à dire tous les éléments sauf la premier valeur qui est le temps
@@ -205,7 +244,7 @@ def getCsvDatas(name, dir=&#34;../datas&#34;, preview=False):
     for i,line in enumerate(lines):
         values = [float(x) for x in line.split(&#39;,&#39;)[1:]]
         float_data[i,:]=values
-    
+
     print(&#34;data shape is {}&#34;.format(float_data.shape))
     print(&#34;interval is {}&#34;.format(step))
 
@@ -228,8 +267,59 @@ def getCsvDatas(name, dir=&#34;../datas&#34;, preview=False):
         plt.fill_between(xrange,float_data[:,4], label=&#34;glob. rad. (W/m2)&#34;, color=&#34;yellow&#34;, alpha=0.4)
         plt.legend(loc=&#39;upper right&#39;)
         plt.show()
-    
+
     return step, float_data</code></pre>
+</details>
+</dd>
+<dt id="dromosense.importation.getTxtModelicaDatas"><code class="name flex">
+<span>def <span class="ident">getTxtModelicaDatas</span></span>(<span>name, dir='../datas', preview=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>IMPORTATION de données txt comme attendu par Modelica</p>
+<p>Attention, modelica permet souvent de travailler avec des fichiers à pas de temps variable</p>
+<p>la colonne temps est donc à conserver</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getTxtModelicaDatas(name, dir=&#34;../datas&#34;, preview=False):
+    &#34;&#34;&#34;
+    IMPORTATION de données txt comme attendu par Modelica
+
+    Attention, modelica permet souvent de travailler avec des fichiers à pas de temps variable
+
+    la colonne temps est donc à conserver
+    &#34;&#34;&#34;
+    fpath = &#34;{}/{}&#34;.format(dir,name)
+    f = open (fpath)
+    data = f.read()
+    f.close()
+    data = data.rstrip(&#39;\n\r&#39;)
+    lines = data.split(&#39;\n&#39;)
+    header = lines[1].split(&#39;#Columns:&#39;)[1].rstrip(&#39;\t&#39;).split(&#39;;&#39;)
+    lines = lines[2:]
+    if verbose:
+        print(header)
+    line1=[float(x) for x in lines[0].split(&#39;\t&#39;)]
+
+    float_data=np.zeros((len(lines),len(line1)))
+    for i,line in enumerate(lines):
+        values = [float(x) for x in line.split(&#39;\t&#39;)]
+        float_data[i,:]=values
+
+    print(&#34;data shape is {}&#34;.format(float_data.shape))
+
+    if preview:
+        ax1=plt.subplot(111)
+        plt.title(&#34;test d&#39;importation&#34;)
+        plt.xlabel(&#39;secondes&#39;)
+        ax1.set_ylabel(&#34;W/m2&#34;)
+        for i in range(1,3):
+            plt.plot(float_data[:,0],float_data[:,i], label=header[i].strip())
+        plt.legend(loc=&#39;upper left&#39;)
+        plt.show()
+
+    return float_data</code></pre>
 </details>
 </dd>
 </dl>
@@ -251,6 +341,7 @@ def getCsvDatas(name, dir=&#34;../datas&#34;, preview=False):
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="dromosense.importation.getCsvDatas" href="#dromosense.importation.getCsvDatas">getCsvDatas</a></code></li>
+<li><code><a title="dromosense.importation.getTxtModelicaDatas" href="#dromosense.importation.getTxtModelicaDatas">getTxtModelicaDatas</a></code></li>
 </ul>
 </li>
 </ul>
