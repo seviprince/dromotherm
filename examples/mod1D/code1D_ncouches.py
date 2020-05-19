@@ -6,7 +6,8 @@ from dromosense.constantes import *
 """
 
 # IMPORTATION DES DONNEES DES COUCHES DE CHAUSSEE
-# on ne peut pas utiliser input comme nom de variable car c'est une variable python
+# on ne peut pas utiliser input comme nom de variable car c'est une fo,nction python
+# ex : input("press any key")
 _input = np.loadtxt('input.txt')
 nc = _input.shape[0] # nombre de couches
 ha = _input[:,0] # hauteur des couches
@@ -35,8 +36,6 @@ for i in range(1,T2d.shape[1]):
     plt.plot(T2d[:,i],label=labels[i-1])
 plt.legend()
 plt.show()
-
-input("press any key")
 
 
 albedo = 0.08
