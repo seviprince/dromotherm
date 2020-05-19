@@ -6,13 +6,13 @@ from dromosense.constantes import *
 """
 
 # IMPORTATION DES DONNEES DES COUCHES DE CHAUSSEE
-# on ne peut pas utiliser input comme nom de variable car c'est une fo,nction python
+# on ne peut pas utiliser input comme nom de variable car c'est une fonction python
 # ex : input("press any key")
 _input = np.loadtxt('input.txt')
 nc = _input.shape[0] # nombre de couches
-ha = _input[:,0] # hauteur des couches
-le = _input[:,1] # coef d'echanges des couches (derniere valeur non utilisee)
-rc = _input[:,2] # capacites calorifiques des couches
+ha = _input[:,0] # hauteur des couches en m 
+le = _input[:,1] # coef d'echanges des couches (derniere valeur non utilisee) en W/(m2.K)
+rc = _input[:,2] # capacites calorifiques des couches en J/(m3.K)
 
 kelvin = 273.15
 
@@ -55,10 +55,7 @@ IMPORTATION DES DONNES METEOS (VARIABLES EN FONCTION DU TEMPS)
 meteo = np.loadtxt('meteo2.txt')
 f2 = 1000.0*1.1*(0.0036*meteo[:,4]+0.00423)
 f1 = (1.0-albedo)*meteo[:,5] + meteo[:,6] + f2*(meteo[:,1]+kelvin)
-print(f1)
 t = meteo[:,0]
-print(t.shape)
-
 
 L = 4.0 # Largeur de chaussee en m
 dx = 0.75 # pas d'espace en m
