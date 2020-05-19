@@ -1,4 +1,4 @@
-from dromosense import getCsvDatas
+from dromosense import getCsvDatas, rd
 from dromosense.constantes import *
 import numpy as np
 from scipy.integrate import odeint
@@ -57,20 +57,17 @@ perso, je trouve que c'est beaucoup, ce n'est quant même pas de l'eau bouillant
 """
 h=2000
 
-def rd(k1,k2,h1,h2):
-    """
-    calcule le coefficient d'échange surfacique entre 2 couches de conductivité k1 et k2 et d'épaisseurs h1 et h2 
-    """
-    return 2*k1*k2/(h1*k2+h2*k1)
 
 """
 les valeurs initialement utilisées en dur
 """
 #rds=27 # coefficient d'échange surfacique entre la couche drainante et la surface
-#rdb=3.28 # coefficient d'échange surfacique entre la couche drainante et la surface
+#rdb=3.28 # coefficient d'échange surfacique entre la couche drainante et la couche de base
 
 rds=rd(ks,kd,hs,hd)
 rdb=rd(kd,kb,hd,hb)
+print("coefficient d'échange surfacique surface/drainant {} W/(m2K)".format(rds))
+print("coefficient d'échange surfacique drainant/base {} W/(m2K)".format(rdb))
 input("press any key")
 
 def Tf_out(Td):
@@ -84,7 +81,7 @@ def Tf_out(Td):
 
 def F(t, X):
     """
-    Définition du système d'équations différentielles 
+    Définition du système d'équations différentielles
     i is the time
     """
     Ts=X[0]
@@ -93,11 +90,11 @@ def F(t, X):
     i=int(t/step)
 
     Tsortie=Tf_out(Td)
-    
+
     y1 = ( B1[i] - Hv[i]*Ts - epsilon*sigma*(Ts+273.15)**4 - rds*(Ts-Td) ) / ( Cs*hs )
     y2 = ( rds*(Ts-Td) - rdb*(Td-Tb) - qf*Cf/L*(Tsortie-Tinjection) ) / ( Cd*hd )
     y3 = rdb*(Td-Tb) / ( Cb * hb )
-    
+
     return [y1,y2,y3]
 
 
