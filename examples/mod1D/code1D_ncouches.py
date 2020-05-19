@@ -6,7 +6,7 @@ from dromosense.constantes import *
 """
 
 # IMPORTATION DES DONNEES DES COUCHES DE CHAUSSEE
-# on ne peut pas utiliser input comme nom de variable car c'est une fo,nction python
+# on ne peut pas utiliser input comme nom de variable car c'est une fonction python
 # ex : input("press any key")
 _input = np.loadtxt('input.txt')
 nc = _input.shape[0] # nombre de couches
