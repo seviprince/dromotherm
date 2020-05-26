@@ -1,6 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from dromosense.tools import besoin_bat
+from datetime import datetime
+import time
+from dateutil import tz
+CET=tz.gettz('Europe/Paris')
+
 """
 IMPORTATION DES DONNES METEOS (VARIABLES EN FONCTION DU TEMPS)
 0 : temps exprime en heure 
@@ -30,6 +35,36 @@ il s'agit de données fictives, compilées à partir à partir d'une dizaine d'a
 à tout à l'heure, peut-être ce sera plutôt 16h30 !
 """
 start = 1483232400
+summerStart = 1496278800
+summerEnd = 1506819600
+
+"""
+building an agenda indicating wether people are working or not
+1: work
+0: rest
+here we go for fixed working hours each day
+start at 8 and stop at 17
+"""
+agenda=np.zeros(datas.shape[0])
+time=start
+tpl=tsToTuple(time)
+work=0
+if tpl.tm_hour in range(8,17):
+    if tpl.tm_wday not in [5,6]:
+        work=1
+agenda[0]=work
+for i in range (0,datas.shape[0]-1):
+    tpl=tsToTuple(time)
+    if tpl.tm_hour==17 and previous.tm_hour==16:
+        if tpl.tm_wday not in [5,6]:
+            work=0
+    if tpl.tm_hour==8 and previous.tm_hour==7:
+        if tpl.tm_wday not in [5,6]:
+            work=1
+    agenda[i]=work
+    previous=tpl
+    time+=step
+
 
 Tconsigne=19
 Rm=8.24E-02 # Résistance thermique des murs (K/W)
