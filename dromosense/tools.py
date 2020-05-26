@@ -18,7 +18,7 @@ def besoin_bat(Tconsigne,Text,Rm,Ri,Rf):
     
     Ri : Résistance superficielle intérieure (K/W)
     
-    Rf : résistance de fuite (infiltrations+vitre et au renouvellement d'air) K/W
+    Rf : résistance de fuite (infiltrations+vitre+renouvellement d'air) K/W
     
     return : vecteur numpy du besoin instantanné de chauffage en W
     
