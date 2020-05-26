@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+from dromosense.tools import besoin_bat
 """
 IMPORTATION DES DONNES METEOS (VARIABLES EN FONCTION DU TEMPS)
 0 : temps exprime en heure 
@@ -9,9 +9,7 @@ IMPORTATION DES DONNES METEOS (VARIABLES EN FONCTION DU TEMPS)
 3 : rayonnement atmospherique (en W/m2)
 4 : vitesse du vent (en m/s)
 """
-def besoin_bat(Tconsigne,Text,Rm,Ri,Rf):
-    Rthe=1/(1/(Rm+Ri)+1/Rf)# Résistance thermique équivalente 
-    return (Tconsigne-Text)/Rthe
+
 
 meteo = np.loadtxt('../../datas/corr1_RT2012_H1c_toute_annee.txt')
 Tconsigne=19
