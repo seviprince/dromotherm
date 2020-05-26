@@ -16,10 +16,21 @@ def besoin_bat(Tconsigne,Text,Rm,Ri,Rf):
     
     Rm : Résistance thermique des murs (K/W)
     
-    etc etc
+    Ri : Résistance superficielle intérieure (K/W)
+    
+    Rf : résistance de fuite (infiltrations+vitre et au renouvellement d'air) K/W
     
     return : vecteur numpy du besoin instantanné de chauffage en W
     
+    Par analogie électrique, on assimile les températures à des tensions et les puissance à des intensités
+    
+    en première approximation, on a donc (Tint-Text)/(Rm+Ri) + (Tc-Text)/Rf + C dTint/dt = Qchauffage
+    
+    soit C dTint/dt = Qchauffage - (Tint-Text) * (1/(Rm+Ri) + 1/Rf)
+    
+    Pour maintenir Tint = Tconsigne constante, on dot donc développer :
+    
+    Qchauffage = (Tconsigne-Text) * (1/(Rm+Ri) + 1/Rf)
+    
     """
-    Rthe=1/(1/(Rm+Ri)+1/Rf)# Résistance thermique équivalente 
-    return (Tconsigne-Text)/Rthe
+    return (Tconsigne-Text)*(1/(Rm+Ri)+1/Rf)
