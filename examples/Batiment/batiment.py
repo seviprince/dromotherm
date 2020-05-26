@@ -10,8 +10,27 @@ IMPORTATION DES DONNES METEOS (VARIABLES EN FONCTION DU TEMPS)
 4 : vitesse du vent (en m/s)
 """
 
+def tsToTuple(ts):
+    """
+    ts : unix time stamp en s
+    
+    return date tuple tm_year, tm_mon, tm_mday, tm_hour, tm_min, tm_sec, tm_wday, tm_yday, tm_isdst
+    """
+    _time=datetime.fromtimestamp(ts,CET)
+    _tuple=_time.timetuple()
+    return(_tuple)
+
 
 meteo = np.loadtxt('../../datas/corr1_RT2012_H1c_toute_annee.txt')
+"""
+cf https://www.unixtimestamp.com
+01/01/2017 00:00:00 UTC+1 ou 01/01/2017 01:00:00 UTC
+l'année est une hypothèse : Frédéric a téléchargé ces données sur le site de la RT2012 où la France est découpée en secteur
+il s'agit de données fictives, compilées à partir à partir d'une dizaine d'années de données météo....
+à tout à l'heure, peut-être ce sera plutôt 16h30 !
+"""
+start = 1483232400
+
 Tconsigne=19
 Rm=8.24E-02 # Résistance thermique des murs (K/W)
 Ri=1.43E-03 # Résistance superficielle intérieure
