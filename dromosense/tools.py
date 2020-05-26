@@ -28,7 +28,7 @@ def besoin_bat(Tconsigne,Text,Rm,Ri,Rf):
     
     soit C dTint/dt = Qchauffage - (Tint-Text) * (1/(Rm+Ri) + 1/Rf)
     
-    Pour maintenir Tint = Tconsigne constante, on dot donc développer :
+    Pour maintenir Tint constante et égale à Tconsigne, on doit donc développer :
     
     Qchauffage = (Tconsigne-Text) * (1/(Rm+Ri) + 1/Rf)
     
