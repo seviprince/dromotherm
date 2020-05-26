@@ -22,7 +22,7 @@ def besoin_bat(Tconsigne,Text,Rm,Ri,Rf):
     
     return : vecteur numpy du besoin instantanné de chauffage en W
     
-    Par analogie électrique, on assimile les températures à des tensions et les puissance à des intensités
+    Par analogie électrique, on assimile les températures à des tensions et les puissances à des intensités
     
     en première approximation, on a donc (Tint-Text)/(Rm+Ri) + (Tc-Text)/Rf + C dTint/dt = Qchauffage
     
