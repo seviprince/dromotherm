@@ -8,8 +8,17 @@ def rd(k1,k2,h1,h2):
 
 def besoin_bat(Tconsigne,Text,Rm,Ri,Rf):
     """
-    Calcul les besoins du bâtiment avec le modèle RC
-
+    Calcule les besoins du bâtiment avec le modèle RC
+    
+    Tconsigne : température de consigne en °C
+    
+    Text : vecteur numpy de la température extérieure
+    
+    Rm : Résistance thermique des murs (K/W)
+    
+    etc etc
+    
+    return : vecteur numpy du besoin instantanné de chauffage en W
     
     """
     Rthe=1/(1/(Rm+Ri)+1/Rf)# Résistance thermique équivalente 
