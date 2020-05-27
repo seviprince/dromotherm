@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from dromosense.tools import sol_tridiag
 """
 on peut importer automatiquement albedo, epsilon et sigma
 from dromosense.constantes import *
@@ -98,24 +99,6 @@ print(A)
 B[0:nc-1] = - dt * le[0:nc-1]
 C[1:nc] = - dt * le[0:nc-1]
 
-
-def sol_tridiag(A,B,C,D):
-    N = A.size
-    alpha=np.zeros((N))
-    beta=np.zeros((N))
-    X=np.zeros((N))
-    alpha[0]=A[0]
-
-    beta[0]=D[0]/alpha[0]
-    for i in range(0,N-1):
-        alpha[i+1]=A[i+1]-(C[i+1]*B[i])/alpha[i]
-        beta[i+1]=(D[i+1]-B[i]*beta[i])/alpha[i+1]
-    X[N-1]=beta[N-1]
-    for i in range(N-2,-1,-1):
-        X[i]=beta[i]-(B[i]*X[i+1]/alpha[i])
-    return X
-
-
 for n in range(1,nt):
     for j in range(0,nx):
         A[0] = dt * (f2[n] + le[0] + 4.0*epsilon*sigma*T[n-1,0,j]**3) + ha[0] * rc[0]
@@ -144,11 +127,11 @@ _test[:,0] : couche de surface
 _test[:,1] : couche drainante
 """
 np.savetxt('T1d.txt', T[:,:,-1]-kelvin, fmt='%.2e')
-
+t=t/3600
 plt.subplot(111)
 plt.title("modèle 1D vs modèle 2D")
 plt.ylabel("°C")
-plt.xlabel("secondes")
+plt.xlabel("heures")
 plt.plot(t,T[:,1,-1]-kelvin,label="1D model")
 plt.plot(t,T2d[:,2]-kelvin,'--',label="2D model")
 plt.legend(loc="upper right")
@@ -174,7 +157,7 @@ c2='red'
 plt.subplot(111)
 plt.title("Modèle 1D - couche drainante \n gradient de température dans le fluide fonction de x\n profil en travers découpé en {} couches".format(nx))
 plt.ylabel("°C")
-plt.xlabel("secondes")
+plt.xlabel("heures")
 for i in range(nx-1,-1,-1):
     plt.fill_between(t,T[:,1,i]-kelvin,label="1D model",color=colorFader(c1,c2,i/nx))
 plt.show()
@@ -182,7 +165,8 @@ plt.show()
 plt.subplot(111)
 plt.title("Modèle 1D \n Sortie de l'échangeur \n gradient de température fonction de z")
 plt.ylabel("°C")
-plt.xlabel("secondes")
+plt.xlabel("heures")
 for i in range(0,nc):
     plt.fill_between(t,T[:,i,-1]-kelvin,label="1D model",color=colorFader(c2,c1,i/nx))
 plt.show()
+
