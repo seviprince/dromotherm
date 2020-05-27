@@ -40,7 +40,7 @@ def sol_tridiag(A,B,C,D):
     """
     Résout un système matriciel de la forme MX=D avec M une matrice 
     tridiagonale ayant:
-    A: vecteur constituant la diagonale pricipale 
+    A: vecteur constituant la diagonale principale 
     B: vecteur constituant la diagonale supérieure
     C: le vecteur constituant la diagonale inférieure
     """
