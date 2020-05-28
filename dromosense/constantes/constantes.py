@@ -63,7 +63,7 @@ unité J/(m^3.K)
 
 Cf=4181000
 """
-capacité calorifique de l'eau
+capacité calorifique volumique de l'eau
 
 unité J/(m^3.K)
 """
@@ -72,4 +72,16 @@ unité J/(m^3.K)
 sigma=5.67e-8
 """
 constante de Stefan-Boltzmann en W/(m2K4)
+"""
+
+rho_eau=1000
+"""
+masse volumique de l'eau
+unité (kg/m^3)
+"""
+Cpf=4181
+"""
+capacité calorifique massique de l'eau
+
+unité J/(kg.K)
 """
