@@ -58,3 +58,41 @@ def sol_tridiag(A,B,C,D):
     for i in range(N-2,-1,-1):
         X[i]=beta[i]-(B[i]*X[i+1]/alpha[i])
     return X
+
+def Tsorties_echangeur(Te1,Te2,mf1,mf2,Cp1,Cp2,eff):
+    """
+    Calcul les températures au niveau des sorties d'un échangeur thermique'
+
+    Parameters
+    ----------
+    Te1 : Température d'entrée du fluide chaud
+        
+    Te2 : Température d'entrée du fluide froid
+        
+    mf1 : Débit massique du fluide chaud
+        
+    mf2 : Débit massique du fluide froid
+        
+    Cp1 : Capacité calorifique massique du fluide chaud
+        
+    Cp2 : Capacité calorifique massique du fluide froid
+        
+    eff : efficacité de l'échangeur
+        
+
+    Returns
+    -------
+    Ts1 : Température de sortie du fluide chaud
+        
+    Ts2 : Température de sortie du fluide froid
+        
+
+    """
+    if (mf1*Cp1)<=(mf2*Cp2):
+        Ts1=Te1-eff*(Te1-Te2)
+        Ts2=Te2+(mf1*Cp1/(mf2*Cp2))*(Te1-Ts1)
+    else:
+        Ts2=Te2-eff*(Te1-Te2)
+        Ts1=Te1+(mf2*Cp2/(mf1*Cp1))*(Te1-Ts1)
+    return Ts1,Ts2
+
