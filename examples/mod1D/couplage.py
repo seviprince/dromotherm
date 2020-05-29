@@ -4,7 +4,7 @@ from dromosense.tools import sol_tridiag,Tsorties_echangeur
 from dromosense.constantes import rho_eau,Cpf
 from scipy.integrate import odeint
 from scipy.integrate import solve_ivp
-from examples.mod1D.batiment2 import Besoin
+from examples.mod1D.batiment2 import Besoin,start,summerStart,summerEnd,step
 #from examples.mod1D.code1D_ncouches1 import T,kelvin,qf,meteo
 import cmath as math
 """
@@ -34,8 +34,9 @@ def F(y,t):
     Ts1=Tsorties_stockage(rho_eau*qf,Cpf,Te1,y,k_global)
     """
     print(t)
-    Te1=Ts2_ech[int(t)]
-    Te2=Te2_sto[int(t)]
+    i=int(t)
+    Te1=Ts2_ech[i]
+    Te2=Te2_sto[i]
     return (1/(m_sable*Cp_sable))*((m1*Cpf))*(Te1-Tsorties_stockage(rho_eau*qf,Cpf,Te1,y,k_global))+m2*C2*(Te2-Tsorties_stockage(m2,C2,Te2,y,k_global))
     
 def Tsorties_stockage(m,Cp,Te,Tsable,k):
@@ -85,16 +86,44 @@ Tsol=10.0
 e_iso=0.001
 S_iso=2*math.pi*2*R2*N_tube*L_tube
 
-for i in range (0,meteo.shape[0]-1):
+
+"""
+SUMMER SIMULATION
+
+il faut séquencer le code exactement comme celà doit se passer dans la réalité
+
+on calcule les index permettant de boucler sur l'été
+"""
+i_summerStart=(summerStart-start)//step
+i_summerEnd=i_summerStart+(summerEnd-summerStart)//step
+print(i_summerStart)
+print(i_summerEnd)
+input("press any key")
+for i in range (i_summerStart,i_summerEnd):
 
     # Températures fluides sortant de l'échangeur vers le stockage
     """
-    Ts1_ech: Température de sortie du fluide chaud venant du dromotherm (Ts1=)
-    Ts2_ech: Température de sortie du fluide allant vers le stockage
-    Te2_ech: Température d'entrée du fluide venant du stockage vers l'échangeur
+    1 = SC : source chaude = fournie par le dromotherme
+    
+    2 = SF : source froide = fournie par les sondes ou les corbeilles
+    
+    Ts1_ech: Température de sortie de SC dromothermique après passage dans l'échangeur de séparation de réseau
+    
+    Te2_ech: Température d'entrée de SF, du stockage vers l'échangeur de séparation de réseau = Ts1_sto ?
+    
+    Ts2_ech: Température de sortie de SF, de l'échangeur de séparation de réseau vers le stockage
+    
+    """
+    Ts1_ech[i],Ts2_ech[i] = Tsorties_echangeur(Tsf_dro[i], Ts1_sto[i], rho_eau*qf, m1, Cpf, Cpf, eff)
+    
     """
     
-    Ts1_ech[i],Ts2_ech[i]=Tsorties_echangeur(Tsf_dro[i], Ts1_sto[i], rho_eau*qf, rho_eau*q1,Cpf,Cpf, eff)
+    désormais il faut calculer la température du stockage, que tu appelles Tsable
+    
+    comment fait-on là ? 
+    
+    ???
+    """
     
     
 plt.subplot(211)
@@ -107,10 +136,10 @@ plt.plot(Ts2_ech,label="Ts2",color="orange")
 plt.legend()
 plt.show()
     
-"""
+
 #Température du stockage
 Tsable = odeint(F,10,meteo[0:-10,0])
-"""
+
 
 
 """
