@@ -3,46 +3,61 @@ import matplotlib.pyplot as plt
 from dromosense.tools import sol_tridiag,Tsorties_echangeur
 from dromosense.constantes import rho_eau,Cpf
 from scipy.integrate import odeint
+from scipy.integrate import solve_ivp
 from examples.mod1D.batiment2 import Besoin
-from examples.mod1D.code1D_ncouches1 import T,kelvin,qf,meteo
+#from examples.mod1D.code1D_ncouches1 import T,kelvin,qf,meteo
 import cmath as math
 """
 on peut importer automatiquement albedo, epsilon et sigma
 from dromosense.constantes import *
 """
 
+kelvin = 273.15
+meteo = np.loadtxt('../../datas/corr1_RT2012_H1c_toute_annee.txt')
+print(meteo.shape)
+qf = 0.035/3600.0
+T = np.loadtxt('T1d.txt')#+kelvin
+print(T.shape)
+input("press any key")
 
 # Stockage thermique
 
-# équation diff régisant la température du stockage 
+# équation diff régissant la température du stockage
 
 def F(y,t):
     """
     Le stockage a 2 entrées et 2 sorties
     Te1=Ts2 (entrée du fluide quittant le dromotherm vers le stockage)
-    Ts1=Tsorties_stockage(rho_eau*qf,Cpf,Ts2[int(t)],y,k_global)
-    Te2=Température d'entrée de l'eau glycolée quittant la PAC pour le stockage
-    """
     
-    return (1/(m_sable*Cp_sable))*((m1*Cpf))*(Ts2_ech[int(t)]-Tsorties_stockage(rho_eau*qf,Cpf,Ts2_ech[int(t)],y,k_global))+m2*C2*(Te2_sto[int(t)]-Tsorties_stockage(m2,C2,Te2_sto[int(t)],y,k_global))
+    Te2=Température d'entrée de l'eau glycolée quittant la PAC pour le stockage
+    
+    Ts1=Tsorties_stockage(rho_eau*qf,Cpf,Te1,y,k_global)
+    """
+    print(t)
+    Te1=Ts2_ech[int(t)]
+    Te2=Te2_sto[int(t)]
+    return (1/(m_sable*Cp_sable))*((m1*Cpf))*(Te1-Tsorties_stockage(rho_eau*qf,Cpf,Te1,y,k_global))+m2*C2*(Te2-Tsorties_stockage(m2,C2,Te2,y,k_global))
     
 def Tsorties_stockage(m,Cp,Te,Tsable,k):
+    """
+    expliquer
+    """
     return (1/(m*Cp+0.5*k))*((m*Cp-0.5*k)*Te+k*Tsable)
 
 
 Ts1_ech=np.zeros(meteo.shape[0]) # Ts1_ech=Te1_sto
 Ts2_ech=np.zeros(meteo.shape[0]) 
-Ts1_sto=np.zeros(meteo.shape[0])
+Ts1_sto=10*np.ones(meteo.shape[0])
 Ts2_sto=np.zeros(meteo.shape[0])
 Te2_sto=np.zeros(meteo.shape[0])
 # Températures initailes de tout le système
-Ts1_ech[0]=10+kelvin
-Ts2_ech[0]=10+kelvin
-Ts1_sto[0]=10+kelvin
-Ts2_sto[0]=10+kelvin
-Te2_sto[0]=10+kelvin
+Ts1_ech[0]=10#+kelvin
+Ts2_ech[0]=10#+kelvin
+Ts1_sto[0]=10#+kelvin
+Ts2_sto[0]=10#+kelvin
+Te2_sto[0]=10#+kelvin
 # Température fluide circulant dans le dromotherm
-Tsf_dro=T[:,1,-1]
+Tsf_dro=T[:,1]
 
 # DONNES SUR LE STOCKAGE
 eff=0.8 # efficacité de l'échangeur 
@@ -82,10 +97,23 @@ for i in range (0,meteo.shape[0]-1):
     Ts1_ech[i],Ts2_ech[i]=Tsorties_echangeur(Tsf_dro[i], Ts1_sto[i], rho_eau*qf, rho_eau*q1,Cpf,Cpf, eff)
     
     
-
+plt.subplot(211)
+plt.plot(Tsf_dro,label="Te1",color="red")
+plt.plot(Ts1_ech,label="Ts1",color="purple")
+plt.legend()
+plt.subplot(212)
+plt.plot(Ts1_sto,label="Te2",color="blue")
+plt.plot(Ts2_ech,label="Ts2",color="orange")
+plt.legend()
+plt.show()
+    
+"""
 #Température du stockage
-Tsable = odeint(F,10,meteo[:,0])
+Tsable = odeint(F,10,meteo[0:-10,0])
+"""
 
+
+"""
 # Pompe à Chaleur
 
 COP=3
@@ -94,7 +122,7 @@ for i in range (0,meteo.shape[0]-1):
     Te2_sto[i]=Ts2_sto[i]-COP*Besoin[i]/((COP-1)*m2*Cp2)
     Ts1_sto[i]=Tsorties_stockage(m1,Cpf,Ts2_ech[i],Tsable[i],k_global)
     Ts2_sto[i]=Tsorties_stockage(m2,Cp2,Te2_sto[i],Tsable[i],k_global)
-
+"""
     
 
 
