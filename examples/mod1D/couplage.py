@@ -11,34 +11,42 @@ import cmath as math
 on peut importer automatiquement albedo, epsilon et sigma
 from dromosense.constantes import *
 """
+verbose = False
 
+# pour l'instant tous les calculs sont en degrés
 kelvin = 273.15
+
 meteo = np.loadtxt('../../datas/corr1_RT2012_H1c_toute_annee.txt')
 print(meteo.shape)
-qf = 0.035/3600.0
 T = np.loadtxt('T1d.txt')#+kelvin
 print(T.shape)
 input("press any key")
 
-# Stockage thermique
-
-# équation diff régissant la température du stockage
 
 def F(y,t):
     """
-    Le stockage a 2 entrées et 2 sorties
+    y : Tsable = Tstockage
+    
+    t : time index
+    
+    result : dy/dt = dTsable/dt = dTstockage/dt
     """
-    print("we have t={} and y={}".format(t,y))
+    i = int(t)
+    if verbose:
+        print("we have t={} and y={}".format(i,y))
     
-    i=int(t)
-    
-    Tsor_sto[i] = ( k * y - coeff * eff * Tsor_dro[i] ) / a
+    Tsor_sto[i] = ( k * y / (msto * cpsto + k/2) - coeff * eff * Tsor_dro[i] ) / a
     
     Tinj_sto[i] = Tsor_sto[i] + coeff * eff * (Tsor_dro[i] - Tsor_sto[i])
     
     Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
     
-    return msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) / (m_sable * Cp_sable)
+    der=msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) / (m_sable * Cp_sable)
+    
+    if verbose:
+        print("dTsable/dt is {}".format(der))
+    
+    return der
 
 
 # température d'entrée et de sortie du fluide dans le stockage
@@ -65,7 +73,8 @@ Cp2=3942.0 # capacité calorifique massique de l'eau glycolée
 """
 massif de stockage
 """
-m_sable=70200.0 # masse de sable en kg
+#m_sable=70200.0 # masse de sable en kg
+m_sable=100
 Cp_sable=1470.0 # capacité calorifique massique du sable en J/Kg.K
 
 """
@@ -82,7 +91,7 @@ Rconv=1/(math.pi*N_tube*L_tube*lambda2)
 # unités ?
 k_global=1/(Rcond+Rconv)
 
-print("le k du système géothermique vaut {}".format(k_global))
+print("le k du système géothermique vaut {} W/K".format(k_global))
 
 # pas utilisé ?
 Nu=4.36 #Nombre de tube
@@ -104,7 +113,7 @@ k = k_global
     
 coeff = (mdro * cpdro) / (msto * cpsto)
 
-print((msto * cpsto - k/2) / (msto * cpsto + k/2)) 
+print("(msto cpsto -k/2) / (msto cpsto + k/2) est égal à {}".format((msto * cpsto - k/2) / (msto * cpsto + k/2))) 
     
 a = 1 - coeff * eff - (msto * cpsto - k/2) / (msto * cpsto + k/2)
 
@@ -127,12 +136,11 @@ on calcule les index permettant de boucler sur l'été
 """
 i_summerStart=(summerStart-start)//step
 i_summerEnd=i_summerStart+(summerEnd-summerStart)//step
-print(i_summerStart)
-print(i_summerEnd)
+print("nous allons simuler la récolte énergétique entre les heures {} et {}".format(i_summerStart,i_summerEnd))
 input("press any key")
     
 
-#Température du stockage
+#Température du stockage/sable
 #Tsable = odeint(F,10,meteo[0:-10,0])
 Tsable = odeint(F,10,meteo[i_summerStart:i_summerEnd,0])
 
@@ -145,7 +153,7 @@ plt.subplot(212)
 plt.plot(Tinj_sto,label="Tinj_sto",color="orange")
 plt.plot(Tsor_sto,label="Tsor_sto",color="blue")
 
-plt.plot(Tsable,label="Tsable",color="red")
+plt.plot(meteo[i_summerStart:i_summerEnd,0],Tsable,label="Tsable",color="red")
 
 plt.legend()
 plt.show()
