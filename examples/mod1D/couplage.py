@@ -87,15 +87,13 @@ N_tube=16  # Nombre de tubes
 # conductivités en W/(K.m)
 lambda2=15.8
 lambda_tube=1.32
+Nu=4.36 # Nombre de Nusselt de l'écoulement du fluide à l'intérieur des tubes
 Rcond=np.log(R2/R1)/(2*math.pi*N_tube*L_tube*lambda_tube)
-Rconv=1/(math.pi*N_tube*L_tube*lambda2)
+Rconv=1/(math.pi*Nu*L_tube*lambda2)
 # k exprimé en W/K
 k_global=1/(Rcond+Rconv)
 
 print("le k du système géothermique vaut {} W/K".format(k_global))
-
-# pas utilisé ?
-Nu=4.36
 
 
 # efficacité de l'échangeur
