@@ -78,23 +78,24 @@ m_sable=100
 Cp_sable=1470.0 # capacité calorifique massique du sable en J/Kg.K
 
 """
-paramètres dimensionnant le système géothermique qui équipera le stockage
+paramètres définissant le système géothermique qui équipant le stockage
 """
 R1=0.0102 # Rayon intérieur du tube
 R2=0.0125 # Rayon extérieur 
 L_tube=5 # Longueur tube en m
 N_tube=16  # Nombre de tubes
+# conductivités en W/(K.m)
 lambda2=15.8
 lambda_tube=1.32
 Rcond=np.log(R2/R1)/(2*math.pi*N_tube*L_tube*lambda_tube)
 Rconv=1/(math.pi*N_tube*L_tube*lambda2)
-# unités ?
+# k exprimé en W/K
 k_global=1/(Rcond+Rconv)
 
 print("le k du système géothermique vaut {} W/K".format(k_global))
 
 # pas utilisé ?
-Nu=4.36 #Nombre de tube
+Nu=4.36
 
 
 # efficacité de l'échangeur
