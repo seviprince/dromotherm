@@ -3,15 +3,16 @@ import matplotlib.pyplot as plt
 from dromosense.tools import sol_tridiag,Tsorties_echangeur
 from dromosense.constantes import rho_eau,Cpf
 from scipy.integrate import odeint
-from scipy.integrate import solve_ivp
-from examples.mod1D.batiment2 import Besoin,start,summerStart,summerEnd,step
-#from examples.mod1D.code1D_ncouches1 import T,kelvin,qf,meteo
+#from scipy.integrate import solve_ivp
 import cmath as math
-"""
-on peut importer automatiquement albedo, epsilon et sigma
-from dromosense.constantes import *
-"""
+
 verbose = False
+
+start = 1483232400
+summerStart = 1496278800
+#summerEnd = 1506819600 : On s'était trompé sur la période de récupération de chaleur que Monsieur Frédéric a envoyée..c'est du 1er juin au 31 août et non au 30 septembre
+summerEnd=1504141200
+step=3600
 
 # pour l'instant tous les calculs sont en degrés
 kelvin = 273.15
