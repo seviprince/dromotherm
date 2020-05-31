@@ -35,7 +35,9 @@ def F(y,t):
     if verbose:
         print("we have t={} and y={}".format(i,y))
     
-    Tsor_sto[i] = ( k * y / (msto * cpsto + k/2) - coeff * eff * Tsor_dro[i] ) / a
+    #Tsor_sto[i] = ( k * y / (msto * cpsto + k/2) - coeff * eff * Tsor_dro[i] ) / a
+    
+    Tsor_sto[i] = ( k * y - B * Tsor_dro[i] ) / A
     
     Tinj_sto[i] = Tsor_sto[i] + coeff * eff * (Tsor_dro[i] - Tsor_sto[i])
     
@@ -116,9 +118,15 @@ coeff = (mdro * cpdro) / (msto * cpsto)
 
 print("(msto cpsto -k/2) / (msto cpsto + k/2) est égal à {}".format((msto * cpsto - k/2) / (msto * cpsto + k/2))) 
     
-a = 1 - coeff * eff - (msto * cpsto - k/2) / (msto * cpsto + k/2)
+#a = 1 - coeff * eff - (msto * cpsto - k/2) / (msto * cpsto + k/2)
 
-print("coeff vaut {} et a vaut {}".format(coeff, a))
+#print("coeff vaut {} et a vaut {}".format(coeff, a))
+
+B = (msto * cpsto +k/2) * coeff * eff
+
+A = k - B
+
+print("coeff vaut {} B vaut {} et A vaut {}".format(coeff, B, A))
 
 """
 m2=1000*q2
