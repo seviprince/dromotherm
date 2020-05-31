@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 path="examples/mod1D"
 
 #IMPORTATION DES DONNEES DES COUCHES DE CHAUSSEE
-input = np.loadtxt('{}/input.txt'.format(path))
-nc = input.shape[0] # nombre de couches
-ha = input[:,0] # hauteur des couches
-le = input[:,1] # coef d'echanges des couches (derniere valeur non utilisee)
-rc = input[:,2] # capacites calorifiques des couches
+_input = np.loadtxt('{}/input.txt'.format(path))
+nc = _input.shape[0] # nombre de couches
+ha = _input[:,0] # hauteur des couches
+le = _input[:,1] # coef d'echanges des couches (derniere valeur non utilisee)
+rc = _input[:,2] # capacites calorifiques des couches
 
 kelvin = 273.15
 
@@ -70,7 +70,7 @@ for i in range(nx) :
 
 # Conditions aux limites
 Tinj = 10.0 + kelvin
-lambd = 0.1 # raideur pour imposer Tinj
+lambd = 10000000 # raideur pour imposer Tinj
 
 # RESOLUTION DU CHAMP THERMIQUE       
 # Calcul des differents elements des vecteurs diagonaux (A), sur-diagonaux (B) et sous-diagonaux (C) 
@@ -111,8 +111,8 @@ for n in range(1,nt):
         R[0] = R[0] + dt * (f1[n] + 3.0*epsilon*sigma*T[n-1,0,j]**4)    
         if j==0:
            #R[1] = R[1] - dt * lambd * Tinj
-           R[1] = dt*10000000*Tinj
-           A[1] = dt*10000000*1.0
+           R[1] = dt*lambd*Tinj
+           A[1] = dt*lambd*1.0
            C[1] = 0.0
            B[1] = 0.0
         else:
