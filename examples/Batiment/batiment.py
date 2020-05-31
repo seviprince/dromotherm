@@ -1,10 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from dromosense.tools import besoin_bat
-from datetime import datetime
-import time
-from dateutil import tz
-CET=tz.gettz('Europe/Paris')
+from dromosense.tools import *
 
 """
 IMPORTATION DES DONNES METEOS (VARIABLES EN FONCTION DU TEMPS)
@@ -15,16 +11,6 @@ IMPORTATION DES DONNES METEOS (VARIABLES EN FONCTION DU TEMPS)
 4 : vitesse du vent (en m/s)
 """
 meteo = np.loadtxt('../../datas/corr1_RT2012_H1c_toute_annee.txt')
-
-def tsToTuple(ts):
-    """
-    ts : unix time stamp en s
-    
-    return date tuple tm_year, tm_mon, tm_mday, tm_hour, tm_min, tm_sec, tm_wday, tm_yday, tm_isdst
-    """
-    _time=datetime.fromtimestamp(ts,CET)
-    _tuple=_time.timetuple()
-    return(_tuple)
 
 Sm=49.5
 FSm=0.0048
@@ -45,42 +31,19 @@ summerStart = 1496278800
 #summerEnd = 1506819600 : On s'était trompé sur la période de récupération de chaleur que Monsieur Frédéric a envoyée..c'est du 1er juin au 31 août et non au 30 septembre
 summerEnd=1504141200
 step=3600
-"""
-building an agenda indicating wether people are working or not
-1: work
-0: rest
-here we go for fixed working hours each day
-start at 8 and stop at 17
-"""
-agenda=np.zeros(meteo.shape[0])
-time=start
-tpl=tsToTuple(time)
-work=0
-if tpl.tm_hour in range(8,17):
-    if tpl.tm_wday not in [5,6]:
-        work=1
-agenda[0]=work
-for i in range (0,meteo.shape[0]-1):
-    if time<=summerEnd and time>=summerStart:
-        agenda[i]=0
-    else:
-        tpl=tsToTuple(time)
-        if tpl.tm_hour==17 and previous.tm_hour==16:
-             if tpl.tm_wday not in [5,6]:
-                 work=0
-        if tpl.tm_hour==8 and previous.tm_hour==7:
-            if tpl.tm_wday not in [5,6]:
-                 work=1
-        agenda[i]=work
-        previous=tpl
-    time+=step
-plt.subplot(111)
-plt.plot(agenda)
+
+nbpts=meteo.shape[0]
+schedule=np.array([[8,17],[8,17],[8,17],[8,17],[8,17],[-1,-1],[-1,-1]])
+agenda=basicAgenda(nbpts,step,start,summerStart,summerEnd,schedule=schedule)
 
 Tconsigne=19
 Rm=8.24E-02 # Résistance thermique des murs (K/W)
 Ri=1.43E-03 # Résistance superficielle intérieure
 Rf=0.034 # Résistance due aux infiltrations+vitre et au renouvellement d'air 
+"""
+pour l'instant, les capacités ne sont pas utilisées, mais es-tu sur que tu veux les exprimer en Wh/K ?
+je pense qu'il vaut mieux les exprimer en W/K
+"""
 Ci=18.407 # Capacité thermique de l'air (Wh/K)
 Cm=2636 # Capacité thermique des murs 
 Besoin1= (besoin_bat(Tconsigne,meteo[:,1],Rm,Ri,Rf))
@@ -110,5 +73,3 @@ ax2=ax1.twinx()
 plt.plot(meteo[:,0],meteo[:,1],label="Text en °C")
 plt.legend(loc="upper right")
 plt.show()
-
-
