@@ -105,7 +105,7 @@ Nu=4.36
 eff = 0.8
 # débits dans chacune des parties de l'échangeur
 qdro = 0.035/3600 # m3/s
-qsto = 2*qdro/3
+qsto = 3*qdro/2
 # rho_eau en provenance du fichier constantes est expérimée en kg/m3
 # Cpf en provenance du fichier constantes est exprimée en J/(kg.K)
 mdro = qdro * rho_eau
