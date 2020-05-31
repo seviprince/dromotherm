@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from dromosense.tools import sol_tridiag,Tsorties_echangeur
+from dromosense.tools import *
 from dromosense.constantes import rho_eau,Cpf
 from scipy.integrate import odeint
 #from scipy.integrate import solve_ivp
@@ -149,23 +149,57 @@ i_summerEnd=i_summerStart+(summerEnd-summerStart)//step
 print("nous allons simuler la récolte énergétique entre les heures {} et {}".format(i_summerStart,i_summerEnd))
 input("press any key")
     
-
 #Température du stockage/sable
-#Tsable = odeint(F,10,meteo[0:-10,0])
 Tsable = odeint(F,10,meteo[i_summerStart:i_summerEnd,0])
 
-plt.subplot(211)
+"""
+WINTER SIMULATION 
+
+agenda de présence et besoin en chauffage
+"""
+nbpts=meteo.shape[0]
+schedule=np.array([[8,17],[8,17],[8,17],[8,17],[8,17],[-1,-1],[-1,-1]])
+agenda=basicAgenda(nbpts,step,start,summerStart,summerEnd,schedule=schedule)
+
+Tconsigne=19
+Rm=8.24E-02 # Résistance thermique des murs (K/W)
+Ri=1.43E-03 # Résistance superficielle intérieure
+Rf=0.034 # Résistance due aux infiltrations+vitre et au renouvellement d'air 
+
+Sm=49.5
+FSm=0.0048
+Sv=3.5
+FSv=0.8
+"""
+hypothèse : la maison fait 5 mètres de large sur 5 mètres de long
+vu du ciel c'est donc un carré de 25m2 de surface
+"""
+Scap = 25
+
+apport_solaire=Scap * FSm * meteo[:,2]
+
+besoinBrut = besoin_bat(Tconsigne,meteo[:,1],Rm,Ri,Rf) * agenda
+
+besoin = besoinBrut - apport_solaire * agenda
+
+plt.subplot(311)
 plt.plot(Tsor_dro,label="Tsor_dro",color="red")
 plt.plot(Tinj_dro,label="Tinj_dro",color="purple")
 plt.legend()
-plt.subplot(212)
 
+plt.subplot(312)
 plt.plot(Tinj_sto,label="Tinj_sto",color="orange")
 plt.plot(Tsor_sto,label="Tsor_sto",color="blue")
-
 plt.plot(meteo[i_summerStart:i_summerEnd,0],Tsable,label="Tsable",color="red")
-
 plt.legend()
+
+plt.subplot(313)
+plt.plot(besoinBrut,label="besoin brut W")
+plt.plot(besoin,label="besoin W")
+#plt.plot(meteo[:,2],label="apport solaires en W/m2")
+plt.plot(apport_solaire,label="apport solaires en W")
+plt.legend()
+
 plt.show()
 
 
