@@ -195,9 +195,9 @@ plt.legend()
 
 plt.subplot(313)
 plt.plot(besoinBrut,label="besoin brut W")
-plt.plot(besoin,label="besoin W")
+plt.plot(besoin,label="besoin net W = besoin brut - apport solaire")
 #plt.plot(meteo[:,2],label="apport solaires en W/m2")
-plt.plot(apport_solaire,label="apport solaires en W")
+plt.plot(apport_solaire,label="apport solaire en W")
 plt.legend()
 
 plt.show()
