@@ -197,7 +197,7 @@ def Tsorties_echangeur(Te1,Te2,mf1,mf2,Cp1,Cp2,eff):
         Ts1=Te1-eff*(Te1-Te2)
         Ts2=Te2+(mf1*Cp1/(mf2*Cp2))*(Te1-Ts1)
     else:
-        Ts2=Te2-eff*(Te1-Te2)
-        Ts1=Te1+(mf2*Cp2/(mf1*Cp1))*(Te1-Ts1)
+        Ts2=Te2+eff*(Te1-Te2)
+        Ts1=Te1+(mf2*Cp2/(mf1*Cp1))*(Te2-Ts2)
     return Ts1,Ts2    
 
