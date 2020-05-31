@@ -117,7 +117,7 @@ k = k_global
     
 coeff = (mdro * cpdro) / (msto * cpsto)
 
-print("(msto cpsto -k/2) / (msto cpsto + k/2) est égal à {}".format((msto * cpsto - k/2) / (msto * cpsto + k/2))) 
+#print("(msto cpsto -k/2) / (msto cpsto + k/2) est égal à {}".format((msto * cpsto - k/2) / (msto * cpsto + k/2))) 
     
 #a = 1 - coeff * eff - (msto * cpsto - k/2) / (msto * cpsto + k/2)
 
