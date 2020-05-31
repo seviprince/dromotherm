@@ -27,7 +27,7 @@ colonne 3 : température couche de base
 colonne 4 : température couche fictive ?
 colonne 5 : température massif
 """
-labels=["T surface","T drainant", "T base", "T fictive", "T massif"]
+labels=["T surface","T drainant", "T base 1", "T base 2", "T massif"]
 T2d = kelvin + np.loadtxt('T2d2.txt')
 plt.subplot(111)
 plt.title("données du modèle 2D")
