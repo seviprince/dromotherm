@@ -130,15 +130,3 @@ plt.plot(t,T[:,1,-1]-kelvin,label="1D model")
 plt.plot(t,T2d[:,2]-kelvin,'r-',label="T2d")
 plt.legend()
 plt.show()
-        
-    
-
-        
-        
-     
-        
-
-
-
-
-
