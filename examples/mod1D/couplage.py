@@ -127,7 +127,7 @@ B = (msto * cpsto +k/2) * coeff * eff
 
 A = k - B
 
-print("coeff vaut {} B vaut {} et A vaut {}".format(coeff, B, A))
+print("coeff vaut {} B vaut {} W/K et A vaut {} W/K".format(coeff, B, A))
 
 """
 m2=1000*q2
