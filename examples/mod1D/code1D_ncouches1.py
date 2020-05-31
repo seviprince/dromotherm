@@ -1,14 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from dromosense.tools import sol_tridiag,Tsorties_echangeur
-from dromosense.constantes import rho_eau,Cpf
-from scipy.integrate import odeint
-import cmath as math
-"""
-on peut importer automatiquement albedo, epsilon et sigma
-from dromosense.constantes import *
-"""
-
+from dromosense.tools import sol_tridiag
 """
 on peut importer automatiquement albedo, epsilon et sigma
 from dromosense.constantes import *
