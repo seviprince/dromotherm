@@ -45,7 +45,12 @@ def F(y,t):
     
     Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
     
-    der=msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) / (m_sable * Cp_sable)
+    Tinj_pac[i]=y-C*Pgeo[i]/k
+    
+    Tsor_pac[i]=Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
+    
+    #der=msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) / (m_sable * Cp_sable)
+    der=(msto * cpsto * (Tinj_sto[i] - Tsor_sto[i])-mpac*cpac*(Tinj_pac[i]-Tsor_pac[i])*agenda[i]) / (m_sable * Cp_sable)
     
     if verbose:
         print("dTsable/dt is {}".format(der))
@@ -57,7 +62,10 @@ def F(y,t):
 Tinj_sto=np.zeros(meteo.shape[0])
 # température de sortie du fluide après transit dans le stockage
 Tsor_sto=np.zeros(meteo.shape[0])
-
+# température d'entrée du fluide géothermique dans le stockage (sortie de la PAC)
+Tsor_pac=np.zeros(meteo.shape[0])
+# température de sortie du fluide géothermique dans le stockage (entrée  de la PAC)
+Tinj_pac=np.zeros(meteo.shape[0])
 # température d'injection du fluide dans le dromotherme
 Tinj_dro=10*np.ones(meteo.shape[0])
 # température de sortie de fluide après collecte de chaleur dans le dromotherme
@@ -150,7 +158,7 @@ print("nous allons simuler la récolte énergétique entre les heures {} et {}".
 input("press any key")
     
 #Température du stockage/sable
-Tsable = odeint(F,10,meteo[i_summerStart:i_summerEnd,0])
+#Tsable = odeint(F,10,meteo[i_summerStart:i_summerEnd,0])
 
 """
 WINTER SIMULATION 
@@ -182,6 +190,19 @@ besoinBrut = besoin_bat(Tconsigne,meteo[:,1],Rm,Ri,Rf) * agenda
 
 besoin = besoinBrut - apport_solaire * agenda
 
+# PAC
+COP=3
+Pgeo=COP*besoin/(COP-1)
+mpac=msto
+cpac=4180.0 
+C=1-k/(2*mpac*cpac)
+
+
+#Température du stockage/sable
+Tsable = odeint(F,10,meteo[:,0])
+
+
+
 plt.subplot(311)
 plt.plot(Tsor_dro,label="Tsor_dro",color="red")
 plt.plot(Tinj_dro,label="Tinj_dro",color="purple")
@@ -190,7 +211,10 @@ plt.legend()
 plt.subplot(312)
 plt.plot(Tinj_sto,label="Tinj_sto",color="orange")
 plt.plot(Tsor_sto,label="Tsor_sto",color="blue")
-plt.plot(meteo[i_summerStart:i_summerEnd,0],Tsable,label="Tsable",color="red")
+plt.plot(Tinj_pac,label="Tinj_pac",color="k")
+plt.plot(Tsor_pac,label="Tsor_pac",color="green")
+#plt.plot(meteo[i_summerStart:i_summerEnd,0],Tsable,label="Tsable",color="red")
+plt.plot(meteo[:,0],Tsable,label="Tsable",color="red")
 plt.legend()
 
 plt.subplot(313)
