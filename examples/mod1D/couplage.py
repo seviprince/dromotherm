@@ -38,7 +38,8 @@ def F(y,t):
     
     #Tsor_sto[i] = ( k * y / (msto * cpsto + k/2) - coeff * eff * Tsor_dro[i] ) / a
     
-    Tsor_sto[i] = ( k * y - B * Tsor_dro[i] ) / A
+    #Tsor_sto[i] = ( k * y - B * Tsor_dro[i] ) / A
+    Tsor_sto[i] = ( k * y + B * Tsor_dro[i] ) / A
     
     Tinj_sto[i] = Tsor_sto[i] + coeff * eff * (Tsor_dro[i] - Tsor_sto[i])
     
@@ -121,9 +122,10 @@ coeff = (mdro * cpdro) / (msto * cpsto)
 
 #print("coeff vaut {} et a vaut {}".format(coeff, a))
 
-B = (msto * cpsto +k/2) * coeff * eff
-
-A = k - B
+#B = (msto * cpsto +k/2) * coeff * eff
+B = (msto * cpsto -k/2) * coeff * eff
+#A = k - B
+A = k + B
 
 print("coeff vaut {} B vaut {} W/K et A vaut {} W/K".format(coeff, B, A))
 
