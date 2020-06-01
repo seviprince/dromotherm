@@ -50,7 +50,7 @@ def F(y,t):
     Tsor_pac[i]=Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
     
     #der=msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) / (m_sable * Cp_sable)
-    der=(msto * cpsto * (Tinj_sto[i] - Tsor_sto[i])-mpac*cpac*(Tinj_pac[i]-Tsor_pac[i])*agenda[i]) / (m_sable * Cp_sable)
+    der=(msto * cpsto * (Tinj_sto[i] - Tsor_sto[i])+mpac*cpac*(Tsor_pac[i]-Tinj_pac[i])*agenda[i]) / (m_sable * Cp_sable)
     
     if verbose:
         print("dTsable/dt is {}".format(der))
@@ -71,16 +71,7 @@ Tinj_dro=10*np.ones(meteo.shape[0])
 # température de sortie de fluide après collecte de chaleur dans le dromotherme
 Tsor_dro=T[:,1]
 
-"""
-# DONNES SUR LE STOCKAGE
-eff=0.8 # efficacité de l'échangeur 
-q1=qf # débit du fluide circulant de l'échangeur vers le stockage
-m1=rho_eau*q1
-q2=0.004/60 # débit du fluide caloporteur (eau glycolée)
-rho2=1040.0 # masse volumique de l'eau glycolée
-m2=rho2*q2 # débit massique de l'eau glycolée
-Cp2=3942.0 # capacité calorifique massique de l'eau glycolée
-"""
+
 
 """
 massif de stockage
@@ -227,16 +218,7 @@ plt.legend()
 plt.show()
 
 
-"""
-# Pompe à Chaleur
 
-COP=3
-for i in range (0,meteo.shape[0]-1):
-    
-    Te2_sto[i]=Ts2_sto[i]-COP*Besoin[i]/((COP-1)*m2*Cp2)
-    Ts1_sto[i]=Tsorties_stockage(m1,Cpf,Ts2_ech[i],Tsable[i],k_global)
-    Ts2_sto[i]=Tsorties_stockage(m2,Cp2,Te2_sto[i],Tsable[i],k_global)
-"""
     
 
 
