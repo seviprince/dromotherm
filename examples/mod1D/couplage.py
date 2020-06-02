@@ -173,7 +173,7 @@ FSv=0.8
 hypothèse : la maison fait 5 mètres de large sur 5 mètres de long
 vu du ciel c'est donc un carré de 25m2 de surface
 """
-Scap = 25
+Scap = 20
 
 apport_solaire=Scap * FSm * meteo[:,2]
 
@@ -193,7 +193,7 @@ C=1-k/(2*mpac*cpac)
 Tsable = odeint(F,10,meteo[:,0])
 
 
-
+figure = plt.figure(figsize = (10, 10))
 plt.subplot(311)
 plt.plot(Tsor_dro,label="Tsor_dro",color="red")
 plt.plot(Tinj_dro,label="Tinj_dro",color="purple")
