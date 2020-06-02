@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 from dromosense.tools import *
 from dromosense.constantes import rho_eau,Cpf
@@ -27,34 +28,34 @@ input("press any key")
 def F(y,t):
     """
     y : Tsable = Tstockage
-    
+
     t : time index
-    
+
     result : dy/dt = dTsable/dt = dTstockage/dt
     """
     i = int(t)
     if verbose:
         print("we have t={} and y={}".format(i,y))
-    
+
     #Tsor_sto[i] = ( k * y / (msto * cpsto + k/2) - coeff * eff * Tsor_dro[i] ) / a
-    
+
     #Tsor_sto[i] = ( k * y - B * Tsor_dro[i] ) / A
     Tsor_sto[i] = ( k * y + B * Tsor_dro[i] ) / A
-    
+
     Tinj_sto[i] = Tsor_sto[i] + coeff * eff * (Tsor_dro[i] - Tsor_sto[i])
-    
+
     Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
-    
+
     Tinj_pac[i]=y-C*Pgeo[i]/k
-    
+
     Tsor_pac[i]=Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
-    
+
     #der=msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) / (m_sable * Cp_sable)
     der=(msto * cpsto * (Tinj_sto[i] - Tsor_sto[i])+mpac*cpac*(Tsor_pac[i]-Tinj_pac[i])*agenda[i]) / (m_sable * Cp_sable)
-    
+
     if verbose:
         print("dTsable/dt is {}".format(der))
-    
+
     return der
 
 
@@ -84,7 +85,7 @@ Cp_sable=1470.0 # capacité calorifique massique du sable en J/Kg.K
 paramètres définissant le système géothermique qui équipant le stockage
 """
 R1=0.0102 # Rayon intérieur du tube
-R2=0.0125 # Rayon extérieur 
+R2=0.0125 # Rayon extérieur
 L_tube=5 # Longueur tube en m
 N_tube=16  # Nombre de tubes
 # conductivités en W/(K.m)
@@ -112,11 +113,11 @@ cpdro = Cpf
 cpsto = Cpf
 
 k = k_global
-    
+
 coeff = (mdro * cpdro) / (msto * cpsto)
 
-#print("(msto cpsto -k/2) / (msto cpsto + k/2) est égal à {}".format((msto * cpsto - k/2) / (msto * cpsto + k/2))) 
-    
+#print("(msto cpsto -k/2) / (msto cpsto + k/2) est égal à {}".format((msto * cpsto - k/2) / (msto * cpsto + k/2)))
+
 #a = 1 - coeff * eff - (msto * cpsto - k/2) / (msto * cpsto + k/2)
 
 #print("coeff vaut {} et a vaut {}".format(coeff, a))
@@ -130,7 +131,7 @@ print("coeff vaut {} B vaut {} W/K et A vaut {} W/K".format(coeff, B, A))
 
 """
 m2=1000*q2
-C2=4180.0 
+C2=4180.0
 Tsol=10.0
 e_iso=0.001
 S_iso=2*math.pi*2*R2*N_tube*L_tube
@@ -147,12 +148,12 @@ i_summerStart=(summerStart-start)//step
 i_summerEnd=i_summerStart+(summerEnd-summerStart)//step
 print("nous allons simuler la récolte énergétique entre les heures {} et {}".format(i_summerStart,i_summerEnd))
 input("press any key")
-    
+
 #Température du stockage/sable
 #Tsable = odeint(F,10,meteo[i_summerStart:i_summerEnd,0])
 
 """
-WINTER SIMULATION 
+WINTER SIMULATION
 
 agenda de présence et besoin en chauffage
 """
@@ -163,7 +164,7 @@ agenda=basicAgenda(nbpts,step,start,summerStart,summerEnd,schedule=schedule)
 Tconsigne=19
 Rm=8.24E-02 # Résistance thermique des murs (K/W)
 Ri=1.43E-03 # Résistance superficielle intérieure
-Rf=0.034 # Résistance due aux infiltrations+vitre et au renouvellement d'air 
+Rf=0.034 # Résistance due aux infiltrations+vitre et au renouvellement d'air
 
 Sm=49.5
 FSm=0.0048
@@ -185,48 +186,41 @@ besoin = besoinBrut - apport_solaire * agenda/Scap
 COP=3
 Pgeo=COP*besoin/(COP-1)
 mpac=msto
-cpac=4180.0 
+cpac=4180.0
 C=1-k/(2*mpac*cpac)
 
 
 #Température du stockage/sable
 Tsable = odeint(F,10,meteo[:,0])
 
+Tsor_pac_wastewater=10-Pgeo/(mpac*cpac)
 
-figure = plt.figure(figsize = (10, 10))
-plt.subplot(311)
-plt.plot(Tsor_dro,label="Tsor_dro",color="red")
-plt.plot(Tinj_dro,label="Tinj_dro",color="purple")
-plt.legend()
 
-plt.subplot(312)
-plt.plot(Tinj_sto,label="Tinj_sto",color="orange")
-plt.plot(Tsor_sto,label="Tsor_sto",color="blue")
-plt.plot(Tinj_pac,label="Tinj_pac",color="k")
-plt.plot(Tsor_pac,label="Tsor_pac",color="green")
+matplotlib.rc('font', size=8)
+
+ax1 = plt.subplot(411)
+ax1.plot(Tsor_dro,label="Tsor_dro",color="red")
+ax1.plot(Tinj_dro,label="Tinj_dro",color="purple")
+ax1.legend()
+
+ax2 = plt.subplot(412, sharex=ax1)
+ax2.plot(Tinj_sto,label="Tinj_sto",color="orange")
+ax2.plot(meteo[:,0],Tsable,label="Tsable",color="red")
+ax2.plot(Tsor_sto,label="Tsor_sto",color="blue")
+ax2.legend()
+
+ax3 = plt.subplot(413, sharex=ax1)
+ax3.plot(Tsor_pac_wastewater,label="Tsor_pac_wastewater10°C",color="blue")
+ax3.plot(Tinj_pac,label="Tinj_pac",color="k")
+ax3.plot(Tsor_pac,label="Tsor_pac",color="#7cb0ff")
 #plt.plot(meteo[i_summerStart:i_summerEnd,0],Tsable,label="Tsable",color="red")
-plt.plot(meteo[:,0],Tsable,label="Tsable",color="red")
-plt.legend()
+ax3.legend()
 
-plt.subplot(313)
-plt.plot(besoinBrut,label="besoin brut W/m^2")
-plt.plot(besoin,label="besoin net W/m^2 = besoin brut - apport solaire")
-#plt.plot(meteo[:,2],label="apport solaires en W/m2")
-plt.plot(apport_solaire,label="apport solaire en W")
-#plt.plot(Pdro,label="Flux de chaleur produit par le dromotherm en W/m^2")
-plt.legend()
+ax4 = plt.subplot(414, sharex=ax1)
+ax4.plot(besoinBrut,label="bes.brut W",color="red")
+ax4.plot(besoin,label="bes.net W = bes.brut - app.sol",color="orange")
+#ax4.plot(meteo[:,2],label="app.sol W/m2")
+ax4.plot(apport_solaire,label="app.sol en W",color="yellow")
+ax4.legend()
 
 plt.show()
-
-
-
-    
-
-
-
-
-
-
-
-
-
