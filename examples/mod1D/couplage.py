@@ -177,9 +177,9 @@ Scap = 20
 
 apport_solaire=Scap * FSm * meteo[:,2]
 
-besoinBrut = besoin_bat(Tconsigne,meteo[:,1],Rm,Ri,Rf) * agenda
+besoinBrut = besoin_bat(Tconsigne,meteo[:,1],Rm,Ri,Rf) * agenda/Scap
 
-besoin = besoinBrut - apport_solaire * agenda
+besoin = besoinBrut - apport_solaire * agenda/Scap
 
 # PAC
 COP=3
@@ -209,10 +209,11 @@ plt.plot(meteo[:,0],Tsable,label="Tsable",color="red")
 plt.legend()
 
 plt.subplot(313)
-plt.plot(besoinBrut,label="besoin brut W")
-plt.plot(besoin,label="besoin net W = besoin brut - apport solaire")
+plt.plot(besoinBrut,label="besoin brut W/m^2")
+plt.plot(besoin,label="besoin net W/m^2 = besoin brut - apport solaire")
 #plt.plot(meteo[:,2],label="apport solaires en W/m2")
 plt.plot(apport_solaire,label="apport solaire en W")
+#plt.plot(Pdro,label="Flux de chaleur produit par le dromotherm en W/m^2")
 plt.legend()
 
 plt.show()
