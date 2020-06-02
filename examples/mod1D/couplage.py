@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 from dromosense.tools import *
 from dromosense.constantes import rho_eau,Cpf
@@ -192,28 +193,35 @@ C=1-k/(2*mpac*cpac)
 #Température du stockage/sable
 Tsable = odeint(F,10,meteo[:,0])
 
+Tsor_pac_wastewater=10-Pgeo/(mpac*cpac)
 
 
-plt.subplot(311)
-plt.plot(Tsor_dro,label="Tsor_dro",color="red")
-plt.plot(Tinj_dro,label="Tinj_dro",color="purple")
-plt.legend()
+matplotlib.rc('font', size=8)
 
-plt.subplot(312)
-plt.plot(Tinj_sto,label="Tinj_sto",color="orange")
-plt.plot(Tsor_sto,label="Tsor_sto",color="blue")
-plt.plot(Tinj_pac,label="Tinj_pac",color="k")
-plt.plot(Tsor_pac,label="Tsor_pac",color="green")
+ax1 = plt.subplot(411)
+ax1.plot(Tsor_dro,label="Tsor_dro",color="red")
+ax1.plot(Tinj_dro,label="Tinj_dro",color="purple")
+ax1.legend()
+
+ax2 = plt.subplot(412, sharex=ax1)
+ax2.plot(Tinj_sto,label="Tinj_sto",color="orange")
+ax2.plot(meteo[:,0],Tsable,label="Tsable",color="red")
+ax2.plot(Tsor_sto,label="Tsor_sto",color="blue")
+ax2.legend()
+
+ax3 = plt.subplot(413, sharex=ax1)
+ax3.plot(Tsor_pac_wastewater,label="Tsor_pac_wastewater10°C",color="blue")
+ax3.plot(Tinj_pac,label="Tinj_pac",color="k")
+ax3.plot(Tsor_pac,label="Tsor_pac",color="#7cb0ff")
 #plt.plot(meteo[i_summerStart:i_summerEnd,0],Tsable,label="Tsable",color="red")
-plt.plot(meteo[:,0],Tsable,label="Tsable",color="red")
-plt.legend()
+ax3.legend()
 
-plt.subplot(313)
-plt.plot(besoinBrut,label="besoin brut W")
-plt.plot(besoin,label="besoin net W = besoin brut - apport solaire")
-#plt.plot(meteo[:,2],label="apport solaires en W/m2")
-plt.plot(apport_solaire,label="apport solaire en W")
-plt.legend()
+ax4 = plt.subplot(414, sharex=ax1)
+ax4.plot(besoinBrut,label="bes.brut W",color="red")
+ax4.plot(besoin,label="bes.net W = bes.brut - app.sol",color="orange")
+#ax4.plot(meteo[:,2],label="app.sol W/m2")
+ax4.plot(apport_solaire,label="app.sol en W",color="yellow")
+ax4.legend()
 
 plt.show()
 
