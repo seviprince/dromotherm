@@ -33,7 +33,7 @@ def F(y,t):
 
     result : dy/dt = dTsable/dt = dTstockage/dt
     """
-    i = int(t)
+    i = int(t/3600)
     if verbose:
         print("we have t={} and y={}".format(i,y))
 
@@ -51,7 +51,12 @@ def F(y,t):
     Tsor_pac[i]=Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
 
     #der=msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) / (m_sable * Cp_sable)
-    der=(msto * cpsto * (Tinj_sto[i] - Tsor_sto[i])+mpac*cpac*(Tsor_pac[i]-Tinj_pac[i])*agenda[i]) / (m_sable * Cp_sable)
+    # agenda n'est pas utile là.....Pgeo intègre déjà les effets de l'agenda vu sa construction.....
+    der=(msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) + mpac*cpac*(Tsor_pac[i]-Tinj_pac[i])) / (m_sable * Cp_sable)
+    # tu n'as pas besoin de refaire ce calcul de mpac*cpac*(Tsor_pac[i]-Tinj_pac[i])
+    # normalement vu la ligne 51, mpac*cpac*(Tsor_pac[i]-Tinj_pac[i]) vaut exactement Pgeo[i]
+    # pourquoi n'obtient-on pas les mêmes résultats quant on utilise la ligne 59 en lieu et place de la ligne 55 ?
+    #der = ( msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) + Pgeo[i] ) / (m_sable * Cp_sable)
 
     if verbose:
         print("dTsable/dt is {}".format(der))
@@ -77,8 +82,8 @@ Tsor_dro=T[:,1]
 """
 massif de stockage
 """
-#m_sable=70200.0 # masse de sable en kg
-m_sable=70000
+m_sable=70200.0 # masse de sable en kg
+#m_sable=100
 Cp_sable=1470.0 # capacité calorifique massique du sable en J/Kg.K
 
 """
@@ -166,7 +171,7 @@ Rm=8.24E-02 # Résistance thermique des murs (K/W)
 Ri=1.43E-03 # Résistance superficielle intérieure
 Rf=0.034 # Résistance due aux infiltrations+vitre et au renouvellement d'air
 Ci=18.407 # Capacité thermique de l'air (Wh/K)
-Cm=2636 # Capacité thermique des murs 
+Cm=2636 # Capacité thermique des murs
 Sm=49.5
 FSm=0.0048
 Sv=3.5
@@ -197,7 +202,8 @@ Eprimaire=2.58*Eelec
 print('Energie électrique consommée par la PAC est:', Eelec,'kWh/m2')
 print('Energie primaire consommée par la PAC est:', Eprimaire,'kWh/m2')
 #Température du stockage/sable
-Tsable = odeint(F,10,3600*meteo[:,0])
+#pourquoi le stock serait-il à 10°C au milieu de l'hiver??? c'est au sortir de l'hiver quon pense qu'il sera à 10
+Tsable = odeint(F,10,meteo[:,0]*3600)
 
 Tsor_pac_wastewater=10-Pgeo/(mpac*cpac)
 
@@ -206,8 +212,8 @@ Tsor_pac_wastewater=10-Pgeo/(mpac*cpac)
 # DENSITE DE FLUX ET ENERGIE RECUPEREE PAR LE DROMOTHERM
 Surface_dro=4
 Pdro=mdro*cpdro*(Tsor_dro-Tinj_dro)/Surface_dro # en W/m^2
-Edro=(np.sum(Pdro))*step/(3600*1000) 
-print('Energie récupérée par le dromotherm', Edro,'kWh/m2') 
+Edro=(np.sum(Pdro))*step/(3600*1000)
+print('Energie récupérée par le dromotherm', Edro,'kWh/m2')
 
 Esolaire=(np.sum(meteo[:,2]))*step/(3600*1000)
 Taux=Edro*100/Esolaire
@@ -245,11 +251,3 @@ ax4.plot(Pdro,label="Densité de lux du dromotherm en W/m^2",color="green")
 ax4.legend()
 
 plt.show()
-
-# Température intérieure du bâtiment
-Tint=np.zeros(meteo.shape[0])
-Tint[0]=Tconsigne
-Cth=Ci+Cm
-Rth=1/(1/(Ri+Rm)+1/Rf)
-for i in range (0,meteo.shape[0]-1):
-    Tint[i+1]=Tint[i]+(step/3600)/Cth*(besoinBrut[i]-(Tint[i]-meteo[i,1])/Rth)
