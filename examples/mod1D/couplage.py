@@ -60,7 +60,7 @@ def F(y,t):
 
 
 # température d'entrée et de sortie du fluide dans le stockage
-Tinj_sto=np.zeros(meteo.shape[0])
+Tinj_sto=np.zeros(meteo.shape[0]+1)
 # température de sortie du fluide après transit dans le stockage
 Tsor_sto=np.zeros(meteo.shape[0])
 # température d'entrée du fluide géothermique dans le stockage (sortie de la PAC)
@@ -78,7 +78,7 @@ Tsor_dro=T[:,1]
 massif de stockage
 """
 #m_sable=70200.0 # masse de sable en kg
-m_sable=100
+m_sable=70000
 Cp_sable=1470.0 # capacité calorifique massique du sable en J/Kg.K
 
 """
@@ -165,7 +165,8 @@ Tconsigne=19
 Rm=8.24E-02 # Résistance thermique des murs (K/W)
 Ri=1.43E-03 # Résistance superficielle intérieure
 Rf=0.034 # Résistance due aux infiltrations+vitre et au renouvellement d'air
-
+Ci=18.407 # Capacité thermique de l'air (Wh/K)
+Cm=2636 # Capacité thermique des murs 
 Sm=49.5
 FSm=0.0048
 Sv=3.5
@@ -178,24 +179,42 @@ Scap = 20
 
 apport_solaire=Scap * FSm * meteo[:,2]
 
-besoinBrut = besoin_bat(Tconsigne,meteo[:,1],Rm,Ri,Rf) * agenda/Scap
+besoinBrut = besoin_bat(Tconsigne,meteo[:,1],Rm,Ri,Rf) * agenda
 
-besoin = besoinBrut - apport_solaire * agenda/Scap
+besoin = besoinBrut - apport_solaire * agenda
 
+besoin_surfacique=besoin/Scap
+conso_bat=(np.sum(besoin_surfacique))*step/(3600*1000)
+print('Consommation du bâtiment', conso_bat,'kWh/m2')
 # PAC
 COP=3
 Pgeo=COP*besoin/(COP-1)
 mpac=msto
 cpac=4180.0
 C=1-k/(2*mpac*cpac)
-
-
+Eelec=conso_bat/COP
+Eprimaire=2.58*Eelec
+print('Energie électrique consommée par la PAC est:', Eelec,'kWh/m2')
+print('Energie primaire consommée par la PAC est:', Eprimaire,'kWh/m2')
 #Température du stockage/sable
-Tsable = odeint(F,10,meteo[:,0])
+Tsable = odeint(F,10,3600*meteo[:,0])
 
 Tsor_pac_wastewater=10-Pgeo/(mpac*cpac)
 
+# BILAN ENERGETIQUE
 
+# DENSITE DE FLUX ET ENERGIE RECUPEREE PAR LE DROMOTHERM
+Surface_dro=4
+Pdro=mdro*cpdro*(Tsor_dro-Tinj_dro)/Surface_dro # en W/m^2
+Edro=(np.sum(Pdro))*step/(3600*1000) 
+print('Energie récupérée par le dromotherm', Edro,'kWh/m2') 
+
+Esolaire=(np.sum(meteo[:,2]))*step/(3600*1000)
+Taux=Edro*100/Esolaire
+print('Energie solaire recue=', Esolaire,'kWh/m2')
+print('Taux de récupération 0D=', Taux,'%')
+
+figure = plt.figure(figsize = (10, 10))
 matplotlib.rc('font', size=8)
 
 ax1 = plt.subplot(411)
@@ -217,10 +236,20 @@ ax3.plot(Tsor_pac,label="Tsor_pac",color="#7cb0ff")
 ax3.legend()
 
 ax4 = plt.subplot(414, sharex=ax1)
-ax4.plot(besoinBrut,label="bes.brut W",color="red")
-ax4.plot(besoin,label="bes.net W = bes.brut - app.sol",color="orange")
+#ax4.plot(besoinBrut,label="bes.brut W",color="red")
+#ax4.plot(besoin,label="bes.net W = bes.brut - app.sol",color="orange")
+ax4.plot(besoin_surfacique,label="besoin net par unité de surface W/m^2",color="orange")
 #ax4.plot(meteo[:,2],label="app.sol W/m2")
-ax4.plot(apport_solaire,label="app.sol en W",color="yellow")
+#ax4.plot(apport_solaire,label="app.sol en W",color="yellow")
+ax4.plot(Pdro,label="Densité de lux du dromotherm en W/m^2",color="green")
 ax4.legend()
 
 plt.show()
+
+# Température intérieure du bâtiment
+Tint=np.zeros(meteo.shape[0])
+Tint[0]=Tconsigne
+Cth=Ci+Cm
+Rth=1/(1/(Ri+Rm)+1/Rf)
+for i in range (0,meteo.shape[0]-1):
+    Tint[i+1]=Tint[i]+(step/3600)/Cth*(besoinBrut[i]-(Tint[i]-meteo[i,1])/Rth)
