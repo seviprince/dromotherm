@@ -33,7 +33,7 @@ def F(y,t):
     
     result : dy/dt = dTsable/dt = dTstockage/dt
     """
-    i = int(t/3600)
+    i = int(t)
     if verbose:
         print("we have t={} and y={}".format(i,y))
     
@@ -51,12 +51,7 @@ def F(y,t):
     Tsor_pac[i]=Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
     
     #der=msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) / (m_sable * Cp_sable)
-    # agenda n'est pas utile là.....Pgeo intègre déjà les effets de l'agenda vu sa construction.....
-    der=(msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) + mpac*cpac*(Tsor_pac[i]-Tinj_pac[i])) / (m_sable * Cp_sable)
-    # tu n'as pas besoin de refaire ce calcul de mpac*cpac*(Tsor_pac[i]-Tinj_pac[i])
-    # normalement vu la ligne 51, mpac*cpac*(Tsor_pac[i]-Tinj_pac[i]) vaut exactement Pgeo[i] 
-    # pourquoi n'obtient-on pas les mêmes résultats quant on utilise la ligne 59 en lieu et place de la ligne 54 ?
-    #der = ( msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) + Pgeo[i] ) / (m_sable * Cp_sable)
+    der=(msto * cpsto * (Tinj_sto[i] - Tsor_sto[i])+mpac*cpac*(Tsor_pac[i]-Tinj_pac[i])*agenda[i]) / (m_sable * Cp_sable)
     
     if verbose:
         print("dTsable/dt is {}".format(der))
@@ -82,8 +77,8 @@ Tsor_dro=T[:,1]
 """
 massif de stockage
 """
-m_sable=70200.0 # masse de sable en kg
-#m_sable=100
+#m_sable=70200.0 # masse de sable en kg
+m_sable=100
 Cp_sable=1470.0 # capacité calorifique massique du sable en J/Kg.K
 
 """
@@ -196,8 +191,7 @@ C=1-k/(2*mpac*cpac)
 
 
 #Température du stockage/sable
-#pourquoi le stock serait-il à 10°C au milieu de l'hiver??? c'est au sortir de l'hiver quon pense qu'il sera à 10
-Tsable = odeint(F,10,meteo[:,0]*3600)
+Tsable = odeint(F,10,meteo[:,0])
 
 Tsor_pac_wastewater=10-Pgeo/(mpac*cpac)
 
@@ -230,3 +224,16 @@ ax4.plot(apport_solaire,label="app.sol en W",color="yellow")
 ax4.legend()
 
 plt.show()
+
+
+
+    
+
+
+
+
+
+
+
+
+
