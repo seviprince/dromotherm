@@ -1,22 +1,66 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from dromosense.tools import sol_tridiag
+from dromosense.tools import *
+"""
+permet d'importer automatiquement albedo, epsilon et sigma, kelvin, Cpf en J/(kg.K)
+"""
+from dromosense.constantes import *
 
 """
-on peut importer automatiquement albedo, epsilon et sigma
-from dromosense.constantes import *
+IMPORTATION DES DONNES METEOS (VARIABLES EN FONCTION DU TEMPS)
+0 : temps exprime en secondes depuis le 01/06 00:00
+1 : temperature d'air (en deg Celsius)
+2 : temperature du point de rosee (pas utile)
+3 : nature des precipitations (pas utile)
+4 : vitesse du vent (en m/s)
+5 : rayonnement global (en W/m2)
+6 : rayonnement atmospherique (en W/m2)
 """
+meteo = np.loadtxt('meteo2.txt')
+f2 = 1000.0*1.1*(0.0036*meteo[:,4]+0.00423)
+f1 = (1.0-albedo)*meteo[:,5] + meteo[:,6] + f2*(meteo[:,1]+kelvin)
+t = meteo[:,0]
+nt = t.size # le nombre de points dans la discretisation temporelle
+dt = 3600.0
+
+"""
+l'initialisation complète de l'objet se fait de la manière suivante :
+dromo=OneDModel('input.txt',dt,nt,L,dx,qf)
+avec :
+- dt : pas de temps en secondes
+- nt : nombre de points dans la discrétisation temporelle
+- L : largeur de la chaussée en m
+- dx : pas d'espace en m
+- qf : débit en m3
+le fluide est de l'eau
+la classe OneDModel va chercher les valeurs de Cpf et rho_eau dans le fichier des constantes
+içi on ne donne pas L, dx ni qf car la classe dispose de valeurs par défaut (4,0.75,0/035/3600)
+mais dans la pratique, il faut fournir les bonnes valeurs
+
+ensuite :
+- il faut affecter les vecteurs dromo.f1 et dromo.f2 issus de l'exploitation du monitoring :-)
+- il faut fixer la condition initiale pour dromo.T[0,:,:] - cf plus loin en utilisant T2d[0,1:]
+
+Nota : les variables de classe sont publiques en python, contrairement au C++
+on y accède via nom_instance.nom_variable
+içi l'instance est dromo
+"""
+# instanciation.....
+dromo=OneDModel('input.txt',dt,nt)
+#dromo.showVectors()
+dromo.f1=f1
+dromo.f2=f2
+input("press any key")
 
 # IMPORTATION DES DONNEES DES COUCHES DE CHAUSSEE
 # on ne peut pas utiliser input comme nom de variable car c'est une fonction python
 # ex : input("press any key")
 _input = np.loadtxt('input.txt')
 nc = _input.shape[0] # nombre de couches
-ha = _input[:,0] # hauteur des couches en m 
+ha = _input[:,0] # hauteur des couches en m
 le = _input[:,1] # coef d'echanges des couches (derniere valeur non utilisee) en W/(m2.K)
 rc = _input[:,2] # capacites calorifiques des couches en J/(m3.K)
 
-kelvin = 273.15
 
 """
 IMPORTATION DES TEMPERATURES DU MODELE 2D
@@ -40,35 +84,15 @@ plt.legend()
 plt.show()
 
 
-albedo = 0.08
-epsilon = 0.92
-sigma = 5.67e-8
-
-"""
-IMPORTATION DES DONNES METEOS (VARIABLES EN FONCTION DU TEMPS)
-0 : temps exprime en secondes depuis le 01/06 00:00
-1 : temperature d'air (en deg Celsius)
-2 : temperature du point de rosee (pas utile)
-3 : nature des precipitations (pas utile)
-4 : vitesse du vent (en m/s)
-5 : rayonnement global (en W/m2)
-6 : rayonnement atmospherique (en W/m2)
-"""
-meteo = np.loadtxt('meteo2.txt')
-f2 = 1000.0*1.1*(0.0036*meteo[:,4]+0.00423)
-f1 = (1.0-albedo)*meteo[:,5] + meteo[:,6] + f2*(meteo[:,1]+kelvin)
-t = meteo[:,0]
 
 L = 4.0 # Largeur de chaussee en m
 dx = 0.75 # pas d'espace en m
 qf = 0.035/3600.0         # debit volumique du fluide (m^3/s)
-Cf = 4200000.0 # capacite calorifique volumique de l'eau (J/(m3.K))
+Cf = Cpf*rho_eau #4200000.0 # capacite calorifique volumique de l'eau (J/(m3.K))
 phi = 0.0     #( porosite de la couche drainante)
 
-dt = 3600.0
-
 nx = int(L/dx) # Nombre de blocs
-nt = t.size # le nomnre de points dans la discretisation temporelle
+
 
 
 """
@@ -81,6 +105,7 @@ T = np.zeros((nt,nc,nx)) # Champ de temperature
 # Conditions initiales
 for i in range(nx) :
     T[0,:,i] = T2d[0,1:]
+    dromo.T[0,:,i] = T2d[0,1:]
 
 # Conditions aux limites
 Tinj = 10.0 + kelvin
@@ -101,6 +126,7 @@ B[0:nc-1] = - dt * le[0:nc-1]
 C[1:nc] = - dt * le[0:nc-1]
 
 for n in range(1,nt):
+    dromo.iterate(n,Tinj)
     for j in range(0,nx):
         A[0] = dt * (f2[n] + le[0] + 4.0*epsilon*sigma*T[n-1,0,j]**3) + ha[0] * rc[0]
         R = ha*rc*T[n-1,:,j]
@@ -138,6 +164,15 @@ plt.plot(t/3600,T2d[:,2]-kelvin,'--',label="2D model")
 plt.legend(loc="upper right")
 plt.show()
 
+plt.subplot(111)
+plt.title("modèle 1D vs classe")
+plt.ylabel("°C")
+plt.xlabel("heures")
+plt.plot(t/3600,T[:,1,-1]-kelvin,label="1D model")
+plt.plot(t/3600,dromo.T[:,1,-1]-kelvin,label="classe")
+plt.legend(loc="upper right")
+plt.show()
+
 import matplotlib as mpl
 
 def colorFader(c1,c2,mix=0):
@@ -170,4 +205,3 @@ plt.xlabel("heures")
 for i in range(0,nc):
     plt.fill_between(t/3600,T[:,i,-1]-kelvin,label="1D model",color=colorFader(c2,c1,i/nx))
 plt.show()
-
