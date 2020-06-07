@@ -6,6 +6,13 @@ albedo
 grandeurs sans unité
 """
 
+kelvin = 273.15
+"""
+
+zero °C expressed in K
+
+"""
+
 
 epsilon=0.92
 """
