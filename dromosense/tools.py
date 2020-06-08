@@ -255,7 +255,7 @@ class OneDModel:
         self.f1 = np.zeros((nt))
         self.f2 = np.zeros((nt))
 
-        self.T = np.zeros((nt,nc,nx))
+        self.T = np.zeros((nt,nc,nx)) + kelvin
         self.dt = dt
         self.L = L
         self.dx = dx
