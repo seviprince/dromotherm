@@ -36,6 +36,24 @@ def basicAgenda(nbpts,step,start,summerStart,summerEnd,schedule=np.array([[8,17]
     schedule : numpy array of size (7,2) with the presence hours for each day of the week
 
     returns : numpy vector of size nbpoints with activity indication (1: human presence , 0: no presence)
+    
+    utilisation :
+    ```
+    start = 1483232400
+    
+    summerStart = 1496278800
+    
+    summerEnd=1504141200
+    
+    step=3600
+    
+    nbpts=365*24 # un an avec une donnée à pas horaire
+    
+    schedule=np.array([[6,17],[8,18],[8,17],[8,17],[8,17],[-1,-1],[-1,-1]])
+    
+    agenda=basicAgenda(nbpts,step,start,summerStart,summerEnd,schedule=schedule)
+    ```
+
     """
     verbose=False
 
