@@ -52,7 +52,7 @@ def F(y,t):
 
     result : dy/dt = dTsable/dt = dTstockage/dt
     """
-    i = int(t/3600)
+    i = int(t/step)
     if verbose:
         print("we have t={} and y={}".format(i,y))
     
