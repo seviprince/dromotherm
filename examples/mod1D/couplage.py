@@ -89,7 +89,7 @@ def F(y,t):
 
 
 # température d'entrée et de sortie du fluide dans le stockage
-Tinj_sto=np.zeros(meteo.shape[0]+1)
+Tinj_sto=np.zeros(meteo.shape[0])
 # température de sortie du fluide après transit dans le stockage
 Tsor_sto=np.zeros(meteo.shape[0])
 # température d'entrée du fluide géothermique dans le stockage (sortie de la PAC)
