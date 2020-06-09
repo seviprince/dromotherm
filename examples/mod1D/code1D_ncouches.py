@@ -17,6 +17,7 @@ IMPORTATION DES DONNES METEOS (VARIABLES EN FONCTION DU TEMPS)
 6 : rayonnement atmospherique (en W/m2)
 """
 meteo = np.loadtxt('meteo2.txt')
+#meteo[:,1:]=meteo[0,1:]
 f2 = 1000.0*1.1*(0.0036*meteo[:,4]+0.00423)
 f1 = (1.0-albedo)*meteo[:,5] + meteo[:,6] + f2*(meteo[:,1]+kelvin)
 t = meteo[:,0]
