@@ -33,25 +33,31 @@ dromo=OneDModel('input.txt',step,meteo.shape[0],4,0.75,qdro)
 dromo.f1 = f1
 dromo.f2 = f2
 
-T = np.loadtxt('T1d.txt')
-print(T.shape)
-input("press any key")
-
 Tinj=10+kelvin
 
 i_summerStart=(summerStart-start)//step
 i_summerEnd=i_summerStart+(summerEnd-summerStart)//step
 
 dromo.T[i_summerStart,:,:] = np.ones((dromo.T.shape[1],dromo.T.shape[2]))*10+kelvin
-print("activation du droomotherm a l'index {} avec la condition initiale suivante :".format(i_summerStart))
+print("activation du dromotherm a l'index {} avec la condition initiale suivante :".format(i_summerStart))
 print(dromo.T[i_summerStart,:,:])
 input("press any key")
 
 for n in range(i_summerStart,i_summerEnd):
     dromo.iterate(n,Tinj)
     
+"""
+T1d contiendra les températures des couches à la sortie du dromotherme
+pour charger T1d.txt
+_test = np.loadtxt('T1d.txt')
+axe 0 : temps
+axe 1 : z
+_test[:,0] : couche de surface
+_test[:,1] : couche drainante
+"""
+np.savetxt('T1d.txt', dromo.T[:,:,-1]-kelvin, fmt='%.2e')
+    
 plt.subplot(111)
-plt.plot(T[:,1],label="1D model approche procédurale")
-plt.plot(dromo.T[:,1,-1]-kelvin,label="1D model approche objet")
+plt.plot(dromo.T[:,1,-1]-kelvin,label="1D model T sortie couche drainante")
 plt.legend()
 plt.show()

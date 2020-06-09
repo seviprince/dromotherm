@@ -145,16 +145,7 @@ for n in range(1,nt):
            A[1] = dt * (le[0] + le[1]) + ha[1] * rc[1] #+ dt * (qf * Cf) / dx
         T[n,:,j] = sol_tridiag(A,B,C,R)
 
-"""
-T1d contiendra les températures des couches à la sortie du dromotherme
-pour charger T1d.txt
-_test = np.loadtxt('T1d.txt')
-axe 0 : temps
-axe 1 : z
-_test[:,0] : couche de surface
-_test[:,1] : couche drainante
-"""
-np.savetxt('T1d.txt', T[:,:,-1]-kelvin, fmt='%.2e')
+np.savetxt('T1d_summer.txt', T[:,:,-1]-kelvin, fmt='%.2e')
 
 plt.subplot(111)
 plt.title("modèle 1D vs modèle 2D")
