@@ -272,11 +272,4 @@ ax4.legend()
 plt.show()
 
 
-plt.subplot(111)
-plt.title("modèle 1D vs classe")
-plt.ylabel("°C")
-plt.xlabel("heures")
-#plt.plot(t/3600,T[:,1,-1]-kelvin,label="1D model")
-plt.plot(t/3600,dromo.T[:,1,-1]-kelvin,label="classe")
-plt.legend(loc="upper right")
-plt.show()
+
