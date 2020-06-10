@@ -31,6 +31,13 @@ albedo
 grandeurs sans unité
 &#34;&#34;&#34;
 
+kelvin = 273.15
+&#34;&#34;&#34;
+
+zero °C expressed in K
+
+&#34;&#34;&#34;
+
 
 epsilon=0.92
 &#34;&#34;&#34;
@@ -88,7 +95,7 @@ unité J/(m^3.K)
 
 Cf=4181000
 &#34;&#34;&#34;
-capacité calorifique de l&#39;eau
+capacité calorifique volumique de l&#39;eau
 
 unité J/(m^3.K)
 &#34;&#34;&#34;
@@ -97,6 +104,18 @@ unité J/(m^3.K)
 sigma=5.67e-8
 &#34;&#34;&#34;
 constante de Stefan-Boltzmann en W/(m2K4)
+&#34;&#34;&#34;
+
+rho_eau=1000
+&#34;&#34;&#34;
+masse volumique de l&#39;eau
+unité (kg/m^3)
+&#34;&#34;&#34;
+Cpf=4181
+&#34;&#34;&#34;
+capacité calorifique massique de l&#39;eau
+
+unité J/(kg.K)
 &#34;&#34;&#34;</code></pre>
 </details>
 </section>
@@ -117,8 +136,13 @@ constante de Stefan-Boltzmann en W/(m2K4)
 </dd>
 <dt id="dromosense.constantes.constantes.Cf"><code class="name">var <span class="ident">Cf</span></code></dt>
 <dd>
-<div class="desc"><p>capacité calorifique de l'eau</p>
+<div class="desc"><p>capacité calorifique volumique de l'eau</p>
 <p>unité J/(m^3.K)</p></div>
+</dd>
+<dt id="dromosense.constantes.constantes.Cpf"><code class="name">var <span class="ident">Cpf</span></code></dt>
+<dd>
+<div class="desc"><p>capacité calorifique massique de l'eau</p>
+<p>unité J/(kg.K)</p></div>
 </dd>
 <dt id="dromosense.constantes.constantes.Cs"><code class="name">var <span class="ident">Cs</span></code></dt>
 <dd>
@@ -145,10 +169,19 @@ constante de Stefan-Boltzmann en W/(m2K4)
 <div class="desc"><p>conductivité thermique couche drainante</p>
 <p>unité : W/(m.K)</p></div>
 </dd>
+<dt id="dromosense.constantes.constantes.kelvin"><code class="name">var <span class="ident">kelvin</span></code></dt>
+<dd>
+<div class="desc"><p>zero °C expressed in K</p></div>
+</dd>
 <dt id="dromosense.constantes.constantes.ks"><code class="name">var <span class="ident">ks</span></code></dt>
 <dd>
 <div class="desc"><p>conductivité thermique couche de surface</p>
 <p>unité : W/(m.K)</p></div>
+</dd>
+<dt id="dromosense.constantes.constantes.rho_eau"><code class="name">var <span class="ident">rho_eau</span></code></dt>
+<dd>
+<div class="desc"><p>masse volumique de l'eau
+unité (kg/m^3)</p></div>
 </dd>
 <dt id="dromosense.constantes.constantes.sigma"><code class="name">var <span class="ident">sigma</span></code></dt>
 <dd>
@@ -177,12 +210,15 @@ constante de Stefan-Boltzmann en W/(m2K4)
 <li><code><a title="dromosense.constantes.constantes.Cb" href="#dromosense.constantes.constantes.Cb">Cb</a></code></li>
 <li><code><a title="dromosense.constantes.constantes.Cd" href="#dromosense.constantes.constantes.Cd">Cd</a></code></li>
 <li><code><a title="dromosense.constantes.constantes.Cf" href="#dromosense.constantes.constantes.Cf">Cf</a></code></li>
+<li><code><a title="dromosense.constantes.constantes.Cpf" href="#dromosense.constantes.constantes.Cpf">Cpf</a></code></li>
 <li><code><a title="dromosense.constantes.constantes.Cs" href="#dromosense.constantes.constantes.Cs">Cs</a></code></li>
 <li><code><a title="dromosense.constantes.constantes.albedo" href="#dromosense.constantes.constantes.albedo">albedo</a></code></li>
 <li><code><a title="dromosense.constantes.constantes.epsilon" href="#dromosense.constantes.constantes.epsilon">epsilon</a></code></li>
 <li><code><a title="dromosense.constantes.constantes.kb" href="#dromosense.constantes.constantes.kb">kb</a></code></li>
 <li><code><a title="dromosense.constantes.constantes.kd" href="#dromosense.constantes.constantes.kd">kd</a></code></li>
+<li><code><a title="dromosense.constantes.constantes.kelvin" href="#dromosense.constantes.constantes.kelvin">kelvin</a></code></li>
 <li><code><a title="dromosense.constantes.constantes.ks" href="#dromosense.constantes.constantes.ks">ks</a></code></li>
+<li><code><a title="dromosense.constantes.constantes.rho_eau" href="#dromosense.constantes.constantes.rho_eau">rho_eau</a></code></li>
 <li><code><a title="dromosense.constantes.constantes.sigma" href="#dromosense.constantes.constantes.sigma">sigma</a></code></li>
 </ul>
 </li>

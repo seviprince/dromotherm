@@ -1,0 +1,959 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>dromosense.tools API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>dromosense.tools</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import numpy as np
+import matplotlib.pyplot as plt
+
+from dromosense.constantes import *
+
+from datetime import datetime
+import time
+from dateutil import tz
+CET=tz.gettz(&#39;Europe/Paris&#39;)
+
+&#34;&#34;&#34;
+fonctions généralistes
+&#34;&#34;&#34;
+def tsToTuple(ts):
+    &#34;&#34;&#34;
+    ts : unix time stamp en s
+
+    return date tuple tm_year, tm_mon, tm_mday, tm_hour, tm_min, tm_sec, tm_wday, tm_yday, tm_isdst
+    &#34;&#34;&#34;
+    _time=datetime.fromtimestamp(ts,CET)
+    _tuple=_time.timetuple()
+    return(_tuple)
+
+def basicAgenda(nbpts,step,start,summerStart,summerEnd,schedule=np.array([[8,17],[8,17],[8,17],[8,17],[8,17],[-1,-1],[-1,-1]])):
+    &#34;&#34;&#34;
+    building an agenda indicating wether people are present or not
+
+    nbpts : number of points the agenda will store
+
+    step : time step in seconds
+
+    start : starting unix time stamp in seconds
+
+    summerStart,summerEnd : unix time stamps to define the summer period
+
+    schedule : numpy array of size (7,2) with the presence hours for each day of the week
+
+    returns : numpy vector of size nbpoints with activity indication (1: human presence , 0: no presence)
+    
+    utilisation :
+    ```
+    start = 1483232400
+    
+    summerStart = 1496278800
+    
+    summerEnd=1504141200
+    
+    step=3600
+    
+    nbpts=365*24 # un an avec une donnée à pas horaire
+    
+    schedule=np.array([[6,17],[8,18],[8,17],[8,17],[8,17],[-1,-1],[-1,-1]])
+    
+    agenda=basicAgenda(nbpts,step,start,summerStart,summerEnd,schedule=schedule)
+    ```
+
+    &#34;&#34;&#34;
+    verbose=False
+
+    agenda=np.zeros(nbpts)
+    time=start
+    tpl=tsToTuple(time)
+    work=0
+
+    # do we have a summer ?
+    summer=False
+    if start&lt;summerStart&lt;summerEnd&lt;=start+nbpts*step:
+        summer=True
+    print(summer)
+
+    # fetching which day of the week have no presence at all if any
+    weekend=[]
+    for i in range(schedule.shape[0]):
+        if -1 in schedule[i]:
+            weekend.append(i)
+
+    if verbose:
+        print(weekend)
+
+    # initial condition
+    horaires=schedule[tpl.tm_wday]
+    if tpl.tm_hour in range(horaires[0],horaires[1]):
+        if tpl.tm_wday not in weekend:
+            work=1
+
+    agenda[0]=work
+
+    previous=tpl
+
+    for i in range(1,nbpts):
+
+        goToNexti=False
+
+        if summer and time&lt;=summerEnd and time&gt;=summerStart:
+            agenda[i]=0
+            goToNexti=True
+
+        if not goToNexti:
+            tpl=tsToTuple(time)
+            horaires=schedule[tpl.tm_wday]
+            if verbose:
+                print(&#34;we are day {}&#34;.format(tpl.tm_wday))
+                print(&#34;{} vs {} and {} vs {}&#34;.format(tpl.tm_hour,horaires[1],previous.tm_hour,horaires[1]-1))
+            if tpl.tm_hour==horaires[1] and previous.tm_hour==horaires[1]-1:
+                if tpl.tm_wday not in weekend:
+                    work=0
+            if tpl.tm_hour==horaires[0] and previous.tm_hour==horaires[0]-1:
+                if tpl.tm_wday not in weekend:
+                    work=1
+            agenda[i]=work
+            previous=tpl
+
+        if verbose:
+            print(agenda[i])
+            input(&#34;press a key&#34;)
+
+        time+=step
+
+    return agenda
+
+&#34;&#34;&#34;
+fonctions techniques
+&#34;&#34;&#34;
+def rd(k1,k2,h1,h2):
+    &#34;&#34;&#34;
+    calcule le coefficient d&#39;échange surfacique entre 2 couches de conductivité k1 et k2 et d&#39;épaisseurs h1 et h2
+
+    W/(m2K)
+    &#34;&#34;&#34;
+    return 2*k1*k2/(h1*k2+h2*k1)
+
+def besoin_bat(Tconsigne,Text,Rm,Ri,Rf):
+    &#34;&#34;&#34;
+    Calcule les besoins du bâtiment avec le modèle RC
+
+    Tconsigne : température de consigne en °C
+
+    Text : vecteur numpy de la température extérieure
+
+    Rm : Résistance thermique des murs (K/W)
+
+    Ri : Résistance superficielle intérieure (K/W)
+
+    Rf : résistance de fuite (infiltrations+vitre+renouvellement d&#39;air) K/W
+
+    return : vecteur numpy du besoin instantanné de chauffage en W
+
+    Par analogie électrique, on assimile les températures à des tensions et les puissances à des intensités
+
+    en première approximation, on a donc (Tint-Text)/(Rm+Ri) + (Tc-Text)/Rf + C dTint/dt = Qchauffage
+
+    soit C dTint/dt = Qchauffage - (Tint-Text) * (1/(Rm+Ri) + 1/Rf)
+
+    Pour maintenir Tint constante et égale à Tconsigne, on doit donc développer :
+
+    Qchauffage = (Tconsigne-Text) * (1/(Rm+Ri) + 1/Rf)
+
+    &#34;&#34;&#34;
+    return (Tconsigne-Text)*(1/(Rm+Ri)+1/Rf)
+
+def sol_tridiag(A,B,C,D):
+    &#34;&#34;&#34;
+    Résout un système matriciel de la forme MX=D avec M une matrice tridiagonale ayant:
+
+    A: vecteur constituant la diagonale principale
+
+    B: vecteur constituant la diagonale supérieure
+
+    C: le vecteur constituant la diagonale inférieure
+
+    &#34;&#34;&#34;
+    N = A.size
+    alpha=np.zeros((N))
+    beta=np.zeros((N))
+    X=np.zeros((N))
+    alpha[0]=A[0]
+
+    beta[0]=D[0]/alpha[0]
+    for i in range(0,N-1):
+        alpha[i+1]=A[i+1]-(C[i+1]*B[i])/alpha[i]
+        beta[i+1]=(D[i+1]-B[i]*beta[i])/alpha[i+1]
+    X[N-1]=beta[N-1]
+    for i in range(N-2,-1,-1):
+        X[i]=beta[i]-(B[i]*X[i+1]/alpha[i])
+    return X
+
+def Tsorties_echangeur(Te1,Te2,mf1,mf2,Cp1,Cp2,eff):
+    &#34;&#34;&#34;
+    Calcul les températures au niveau des sorties d&#39;un échangeur thermique&#39;
+
+    Parameters
+    ----------
+    Te1 : Température d&#39;entrée du fluide chaud
+
+    Te2 : Température d&#39;entrée du fluide froid
+
+    mf1 : Débit massique du fluide chaud
+
+    mf2 : Débit massique du fluide froid
+
+    Cp1 : Capacité calorifique massique du fluide chaud
+
+    Cp2 : Capacité calorifique massique du fluide froid
+
+    eff : efficacité de l&#39;échangeur
+
+
+    Returns
+    -------
+    Ts1 : Température de sortie du fluide chaud
+
+    Ts2 : Température de sortie du fluide froid
+
+
+    &#34;&#34;&#34;
+    if (mf1*Cp1)&lt;=(mf2*Cp2):
+        Ts1=Te1-eff*(Te1-Te2)
+        Ts2=Te2+(mf1*Cp1/(mf2*Cp2))*(Te1-Ts1)
+    else:
+        Ts2=Te2+eff*(Te1-Te2)
+        Ts1=Te1+(mf2*Cp2/(mf1*Cp1))*(Te2-Ts2)
+    return Ts1,Ts2
+
+class OneDModel:
+    &#34;&#34;&#34;
+    dromotherm 1D model
+    &#34;&#34;&#34;
+    def __init__(self,fname,dt,nt,L=4,dx=0.75,qf=0.035/3600):
+        &#34;&#34;&#34;
+        fname : nom du fichier contenant les paramètres définissant la chaussée.
+        chaque ligne est une couche et contient 3 valeurs séparées par des espaces :
+        hauteur, coeff d&#39;échanges, capacité calo
+
+        dt : pas de temps en secondes
+
+        nt : nombre de points dans la discrétisation temporelle
+
+        L : largeur de chaussée en m
+
+        dx : pas d&#39;espace en m
+
+        qf : débit volumique du fluide (m^3/s)
+
+        objets construits lors de l&#39;initialisation :
+
+        ha : vecteur des hauteurs des couches en m
+
+        le : vecteur des coef d&#39;echanges des couches (derniere valeur non utilisee) en W/(m2.K)
+
+        rc : vecteur des capacités calorifiques des couches en J/(m3.K)
+
+        A,B,C : vecteurs définissant le système tridiagonal
+
+        A : diagonale
+
+        B : sur-diagonale
+
+        C : sous-diagonale
+
+        T : tenseur du champ de température exprimé en Kelvin !!
+
+        - axe 0 : Temps
+
+        - axe 1 : nombre de couches ou z
+
+        - axe 2 : nombre de blocs ou x
+
+        &#34;&#34;&#34;
+        _input = np.loadtxt(fname)
+        nx = int(L/dx)
+        nc = _input.shape[0]
+
+        self.f1 = np.zeros((nt))
+        self.f2 = np.zeros((nt))
+
+        self.T = np.zeros((nt,nc,nx)) + kelvin
+        self.dt = dt
+        self.L = L
+        self.dx = dx
+        self.qf = qf
+
+        self.ha = _input[:,0]
+        self.le = _input[:,1]
+        self.rc = _input[:,2]
+
+        self.A = np.zeros((nc))
+        self.B = np.zeros((nc))
+        self.C = np.zeros((nc))
+
+        self.A[1:nc-1] = dt * (self.le[0:nc-2] + self.le[1:nc-1])
+        self.A[nc-1] = dt * self.le[nc-2]
+        self.A = self.A + self.ha*self.rc
+        self.B[0:nc-1] = - dt * self.le[0:nc-1]
+        self.C[1:nc] = - dt * self.le[0:nc-1]
+
+    def iterate(self,n,Tinj):
+        &#34;&#34;&#34;
+        n : time index (number of time steps)
+
+        Tinj : injection temperature expressed in K
+        &#34;&#34;&#34;
+        lambd = 10000000 # raideur pour imposer Tinj
+        nx = self.T.shape[2]
+        dt = self.dt
+        for j in range(0,nx):
+            self.A[0] = dt * (self.f2[n] + self.le[0] + 4.0*epsilon*sigma*self.T[n-1,0,j]**3) + self.ha[0] * self.rc[0]
+            R = self.ha*self.rc*self.T[n-1,:,j]
+            R[0] = R[0] + dt * (self.f1[n] + 3.0*epsilon*sigma*self.T[n-1,0,j]**4)
+            if j==0:
+               R[1] = dt*lambd*Tinj
+               self.A[1] = dt*lambd*1.0
+               self.C[1] = 0.0
+               self.B[1] = 0.0
+            else:
+               R[1] = R[1] + dt * (self.qf * Cpf * rho_eau / self.dx) * (self.T[n-1,1,j-1]-self.T[n-1,1,j])
+               self.C[1] = - dt * self.le[0]
+               self.B[1] = - dt * self.le[1]
+               self.A[1] = dt * (self.le[0] + self.le[1]) + self.ha[1] * self.rc[1]
+            self.T[n,:,j] = sol_tridiag(self.A,self.B,self.C,R)
+
+    def showVectors(self):
+        &#34;&#34;&#34;
+        affiche les vecteurs A,B,C
+        &#34;&#34;&#34;
+        print(&#34;A is {}&#34;.format(self.A))
+        print(&#34;B is {}&#34;.format(self.B))
+        print(&#34;C is {}&#34;.format(self.C))</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="dromosense.tools.CET"><code class="name">var <span class="ident">CET</span></code></dt>
+<dd>
+<div class="desc"><p>fonctions généralistes</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="dromosense.tools.Tsorties_echangeur"><code class="name flex">
+<span>def <span class="ident">Tsorties_echangeur</span></span>(<span>Te1, Te2, mf1, mf2, Cp1, Cp2, eff)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calcul les températures au niveau des sorties d'un échangeur thermique'</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>Te1</code></strong> :&ensp;<code>Température d'entrée du fluide chaud</code></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>Te2</code></strong> :&ensp;<code>Température d'entrée du fluide froid</code></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>mf1</code></strong> :&ensp;<code>Débit massique du fluide chaud</code></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>mf2</code></strong> :&ensp;<code>Débit massique du fluide froid</code></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>Cp1</code></strong> :&ensp;<code>Capacité calorifique massique du fluide chaud</code></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>Cp2</code></strong> :&ensp;<code>Capacité calorifique massique du fluide froid</code></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>eff</code></strong> :&ensp;<code>efficacité de l'échangeur</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>Ts1</code></strong> :&ensp;<code>Température de sortie du fluide chaud</code></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>Ts2</code></strong> :&ensp;<code>Température de sortie du fluide froid</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Tsorties_echangeur(Te1,Te2,mf1,mf2,Cp1,Cp2,eff):
+    &#34;&#34;&#34;
+    Calcul les températures au niveau des sorties d&#39;un échangeur thermique&#39;
+
+    Parameters
+    ----------
+    Te1 : Température d&#39;entrée du fluide chaud
+
+    Te2 : Température d&#39;entrée du fluide froid
+
+    mf1 : Débit massique du fluide chaud
+
+    mf2 : Débit massique du fluide froid
+
+    Cp1 : Capacité calorifique massique du fluide chaud
+
+    Cp2 : Capacité calorifique massique du fluide froid
+
+    eff : efficacité de l&#39;échangeur
+
+
+    Returns
+    -------
+    Ts1 : Température de sortie du fluide chaud
+
+    Ts2 : Température de sortie du fluide froid
+
+
+    &#34;&#34;&#34;
+    if (mf1*Cp1)&lt;=(mf2*Cp2):
+        Ts1=Te1-eff*(Te1-Te2)
+        Ts2=Te2+(mf1*Cp1/(mf2*Cp2))*(Te1-Ts1)
+    else:
+        Ts2=Te2+eff*(Te1-Te2)
+        Ts1=Te1+(mf2*Cp2/(mf1*Cp1))*(Te2-Ts2)
+    return Ts1,Ts2</code></pre>
+</details>
+</dd>
+<dt id="dromosense.tools.basicAgenda"><code class="name flex">
+<span>def <span class="ident">basicAgenda</span></span>(<span>nbpts, step, start, summerStart, summerEnd, schedule=array([[ 8, 17],
+[ 8, 17],
+[ 8, 17],
+[ 8, 17],
+[ 8, 17],
+[-1, -1],
+[-1, -1]]))</span>
+</code></dt>
+<dd>
+<div class="desc"><p>building an agenda indicating wether people are present or not</p>
+<p>nbpts : number of points the agenda will store</p>
+<p>step : time step in seconds</p>
+<p>start : starting unix time stamp in seconds</p>
+<p>summerStart,summerEnd : unix time stamps to define the summer period</p>
+<p>schedule : numpy array of size (7,2) with the presence hours for each day of the week</p>
+<p>returns : numpy vector of size nbpoints with activity indication (1: human presence , 0: no presence)</p>
+<p>utilisation :</p>
+<pre><code>start = 1483232400
+
+summerStart = 1496278800
+
+summerEnd=1504141200
+
+step=3600
+
+nbpts=365*24 # un an avec une donnée à pas horaire
+
+schedule=np.array([[6,17],[8,18],[8,17],[8,17],[8,17],[-1,-1],[-1,-1]])
+
+agenda=basicAgenda(nbpts,step,start,summerStart,summerEnd,schedule=schedule)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def basicAgenda(nbpts,step,start,summerStart,summerEnd,schedule=np.array([[8,17],[8,17],[8,17],[8,17],[8,17],[-1,-1],[-1,-1]])):
+    &#34;&#34;&#34;
+    building an agenda indicating wether people are present or not
+
+    nbpts : number of points the agenda will store
+
+    step : time step in seconds
+
+    start : starting unix time stamp in seconds
+
+    summerStart,summerEnd : unix time stamps to define the summer period
+
+    schedule : numpy array of size (7,2) with the presence hours for each day of the week
+
+    returns : numpy vector of size nbpoints with activity indication (1: human presence , 0: no presence)
+    
+    utilisation :
+    ```
+    start = 1483232400
+    
+    summerStart = 1496278800
+    
+    summerEnd=1504141200
+    
+    step=3600
+    
+    nbpts=365*24 # un an avec une donnée à pas horaire
+    
+    schedule=np.array([[6,17],[8,18],[8,17],[8,17],[8,17],[-1,-1],[-1,-1]])
+    
+    agenda=basicAgenda(nbpts,step,start,summerStart,summerEnd,schedule=schedule)
+    ```
+
+    &#34;&#34;&#34;
+    verbose=False
+
+    agenda=np.zeros(nbpts)
+    time=start
+    tpl=tsToTuple(time)
+    work=0
+
+    # do we have a summer ?
+    summer=False
+    if start&lt;summerStart&lt;summerEnd&lt;=start+nbpts*step:
+        summer=True
+    print(summer)
+
+    # fetching which day of the week have no presence at all if any
+    weekend=[]
+    for i in range(schedule.shape[0]):
+        if -1 in schedule[i]:
+            weekend.append(i)
+
+    if verbose:
+        print(weekend)
+
+    # initial condition
+    horaires=schedule[tpl.tm_wday]
+    if tpl.tm_hour in range(horaires[0],horaires[1]):
+        if tpl.tm_wday not in weekend:
+            work=1
+
+    agenda[0]=work
+
+    previous=tpl
+
+    for i in range(1,nbpts):
+
+        goToNexti=False
+
+        if summer and time&lt;=summerEnd and time&gt;=summerStart:
+            agenda[i]=0
+            goToNexti=True
+
+        if not goToNexti:
+            tpl=tsToTuple(time)
+            horaires=schedule[tpl.tm_wday]
+            if verbose:
+                print(&#34;we are day {}&#34;.format(tpl.tm_wday))
+                print(&#34;{} vs {} and {} vs {}&#34;.format(tpl.tm_hour,horaires[1],previous.tm_hour,horaires[1]-1))
+            if tpl.tm_hour==horaires[1] and previous.tm_hour==horaires[1]-1:
+                if tpl.tm_wday not in weekend:
+                    work=0
+            if tpl.tm_hour==horaires[0] and previous.tm_hour==horaires[0]-1:
+                if tpl.tm_wday not in weekend:
+                    work=1
+            agenda[i]=work
+            previous=tpl
+
+        if verbose:
+            print(agenda[i])
+            input(&#34;press a key&#34;)
+
+        time+=step
+
+    return agenda</code></pre>
+</details>
+</dd>
+<dt id="dromosense.tools.besoin_bat"><code class="name flex">
+<span>def <span class="ident">besoin_bat</span></span>(<span>Tconsigne, Text, Rm, Ri, Rf)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calcule les besoins du bâtiment avec le modèle RC</p>
+<p>Tconsigne : température de consigne en °C</p>
+<p>Text : vecteur numpy de la température extérieure</p>
+<p>Rm : Résistance thermique des murs (K/W)</p>
+<p>Ri : Résistance superficielle intérieure (K/W)</p>
+<p>Rf : résistance de fuite (infiltrations+vitre+renouvellement d'air) K/W</p>
+<p>return : vecteur numpy du besoin instantanné de chauffage en W</p>
+<p>Par analogie électrique, on assimile les températures à des tensions et les puissances à des intensités</p>
+<p>en première approximation, on a donc (Tint-Text)/(Rm+Ri) + (Tc-Text)/Rf + C dTint/dt = Qchauffage</p>
+<p>soit C dTint/dt = Qchauffage - (Tint-Text) * (1/(Rm+Ri) + 1/Rf)</p>
+<p>Pour maintenir Tint constante et égale à Tconsigne, on doit donc développer :</p>
+<p>Qchauffage = (Tconsigne-Text) * (1/(Rm+Ri) + 1/Rf)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def besoin_bat(Tconsigne,Text,Rm,Ri,Rf):
+    &#34;&#34;&#34;
+    Calcule les besoins du bâtiment avec le modèle RC
+
+    Tconsigne : température de consigne en °C
+
+    Text : vecteur numpy de la température extérieure
+
+    Rm : Résistance thermique des murs (K/W)
+
+    Ri : Résistance superficielle intérieure (K/W)
+
+    Rf : résistance de fuite (infiltrations+vitre+renouvellement d&#39;air) K/W
+
+    return : vecteur numpy du besoin instantanné de chauffage en W
+
+    Par analogie électrique, on assimile les températures à des tensions et les puissances à des intensités
+
+    en première approximation, on a donc (Tint-Text)/(Rm+Ri) + (Tc-Text)/Rf + C dTint/dt = Qchauffage
+
+    soit C dTint/dt = Qchauffage - (Tint-Text) * (1/(Rm+Ri) + 1/Rf)
+
+    Pour maintenir Tint constante et égale à Tconsigne, on doit donc développer :
+
+    Qchauffage = (Tconsigne-Text) * (1/(Rm+Ri) + 1/Rf)
+
+    &#34;&#34;&#34;
+    return (Tconsigne-Text)*(1/(Rm+Ri)+1/Rf)</code></pre>
+</details>
+</dd>
+<dt id="dromosense.tools.rd"><code class="name flex">
+<span>def <span class="ident">rd</span></span>(<span>k1, k2, h1, h2)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>calcule le coefficient d'échange surfacique entre 2 couches de conductivité k1 et k2 et d'épaisseurs h1 et h2</p>
+<p>W/(m2K)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rd(k1,k2,h1,h2):
+    &#34;&#34;&#34;
+    calcule le coefficient d&#39;échange surfacique entre 2 couches de conductivité k1 et k2 et d&#39;épaisseurs h1 et h2
+
+    W/(m2K)
+    &#34;&#34;&#34;
+    return 2*k1*k2/(h1*k2+h2*k1)</code></pre>
+</details>
+</dd>
+<dt id="dromosense.tools.sol_tridiag"><code class="name flex">
+<span>def <span class="ident">sol_tridiag</span></span>(<span>A, B, C, D)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Résout un système matriciel de la forme MX=D avec M une matrice tridiagonale ayant:</p>
+<p>A: vecteur constituant la diagonale principale</p>
+<p>B: vecteur constituant la diagonale supérieure</p>
+<p>C: le vecteur constituant la diagonale inférieure</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sol_tridiag(A,B,C,D):
+    &#34;&#34;&#34;
+    Résout un système matriciel de la forme MX=D avec M une matrice tridiagonale ayant:
+
+    A: vecteur constituant la diagonale principale
+
+    B: vecteur constituant la diagonale supérieure
+
+    C: le vecteur constituant la diagonale inférieure
+
+    &#34;&#34;&#34;
+    N = A.size
+    alpha=np.zeros((N))
+    beta=np.zeros((N))
+    X=np.zeros((N))
+    alpha[0]=A[0]
+
+    beta[0]=D[0]/alpha[0]
+    for i in range(0,N-1):
+        alpha[i+1]=A[i+1]-(C[i+1]*B[i])/alpha[i]
+        beta[i+1]=(D[i+1]-B[i]*beta[i])/alpha[i+1]
+    X[N-1]=beta[N-1]
+    for i in range(N-2,-1,-1):
+        X[i]=beta[i]-(B[i]*X[i+1]/alpha[i])
+    return X</code></pre>
+</details>
+</dd>
+<dt id="dromosense.tools.tsToTuple"><code class="name flex">
+<span>def <span class="ident">tsToTuple</span></span>(<span>ts)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>ts : unix time stamp en s</p>
+<p>return date tuple tm_year, tm_mon, tm_mday, tm_hour, tm_min, tm_sec, tm_wday, tm_yday, tm_isdst</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def tsToTuple(ts):
+    &#34;&#34;&#34;
+    ts : unix time stamp en s
+
+    return date tuple tm_year, tm_mon, tm_mday, tm_hour, tm_min, tm_sec, tm_wday, tm_yday, tm_isdst
+    &#34;&#34;&#34;
+    _time=datetime.fromtimestamp(ts,CET)
+    _tuple=_time.timetuple()
+    return(_tuple)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="dromosense.tools.OneDModel"><code class="flex name class">
+<span>class <span class="ident">OneDModel</span></span>
+<span>(</span><span>fname, dt, nt, L=4, dx=0.75, qf=9.722222222222223e-06)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>dromotherm 1D model</p>
+<p>fname : nom du fichier contenant les paramètres définissant la chaussée.
+chaque ligne est une couche et contient 3 valeurs séparées par des espaces :
+hauteur, coeff d'échanges, capacité calo</p>
+<p>dt : pas de temps en secondes</p>
+<p>nt : nombre de points dans la discrétisation temporelle</p>
+<p>L : largeur de chaussée en m</p>
+<p>dx : pas d'espace en m</p>
+<p>qf : débit volumique du fluide (m^3/s)</p>
+<p>objets construits lors de l'initialisation :</p>
+<p>ha : vecteur des hauteurs des couches en m</p>
+<p>le : vecteur des coef d'echanges des couches (derniere valeur non utilisee) en W/(m2.K)</p>
+<p>rc : vecteur des capacités calorifiques des couches en J/(m3.K)</p>
+<p>A,B,C : vecteurs définissant le système tridiagonal</p>
+<p>A : diagonale</p>
+<p>B : sur-diagonale</p>
+<p>C : sous-diagonale</p>
+<p>T : tenseur du champ de température exprimé en Kelvin !!</p>
+<ul>
+<li>
+<p>axe 0 : Temps</p>
+</li>
+<li>
+<p>axe 1 : nombre de couches ou z</p>
+</li>
+<li>
+<p>axe 2 : nombre de blocs ou x</p>
+</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class OneDModel:
+    &#34;&#34;&#34;
+    dromotherm 1D model
+    &#34;&#34;&#34;
+    def __init__(self,fname,dt,nt,L=4,dx=0.75,qf=0.035/3600):
+        &#34;&#34;&#34;
+        fname : nom du fichier contenant les paramètres définissant la chaussée.
+        chaque ligne est une couche et contient 3 valeurs séparées par des espaces :
+        hauteur, coeff d&#39;échanges, capacité calo
+
+        dt : pas de temps en secondes
+
+        nt : nombre de points dans la discrétisation temporelle
+
+        L : largeur de chaussée en m
+
+        dx : pas d&#39;espace en m
+
+        qf : débit volumique du fluide (m^3/s)
+
+        objets construits lors de l&#39;initialisation :
+
+        ha : vecteur des hauteurs des couches en m
+
+        le : vecteur des coef d&#39;echanges des couches (derniere valeur non utilisee) en W/(m2.K)
+
+        rc : vecteur des capacités calorifiques des couches en J/(m3.K)
+
+        A,B,C : vecteurs définissant le système tridiagonal
+
+        A : diagonale
+
+        B : sur-diagonale
+
+        C : sous-diagonale
+
+        T : tenseur du champ de température exprimé en Kelvin !!
+
+        - axe 0 : Temps
+
+        - axe 1 : nombre de couches ou z
+
+        - axe 2 : nombre de blocs ou x
+
+        &#34;&#34;&#34;
+        _input = np.loadtxt(fname)
+        nx = int(L/dx)
+        nc = _input.shape[0]
+
+        self.f1 = np.zeros((nt))
+        self.f2 = np.zeros((nt))
+
+        self.T = np.zeros((nt,nc,nx)) + kelvin
+        self.dt = dt
+        self.L = L
+        self.dx = dx
+        self.qf = qf
+
+        self.ha = _input[:,0]
+        self.le = _input[:,1]
+        self.rc = _input[:,2]
+
+        self.A = np.zeros((nc))
+        self.B = np.zeros((nc))
+        self.C = np.zeros((nc))
+
+        self.A[1:nc-1] = dt * (self.le[0:nc-2] + self.le[1:nc-1])
+        self.A[nc-1] = dt * self.le[nc-2]
+        self.A = self.A + self.ha*self.rc
+        self.B[0:nc-1] = - dt * self.le[0:nc-1]
+        self.C[1:nc] = - dt * self.le[0:nc-1]
+
+    def iterate(self,n,Tinj):
+        &#34;&#34;&#34;
+        n : time index (number of time steps)
+
+        Tinj : injection temperature expressed in K
+        &#34;&#34;&#34;
+        lambd = 10000000 # raideur pour imposer Tinj
+        nx = self.T.shape[2]
+        dt = self.dt
+        for j in range(0,nx):
+            self.A[0] = dt * (self.f2[n] + self.le[0] + 4.0*epsilon*sigma*self.T[n-1,0,j]**3) + self.ha[0] * self.rc[0]
+            R = self.ha*self.rc*self.T[n-1,:,j]
+            R[0] = R[0] + dt * (self.f1[n] + 3.0*epsilon*sigma*self.T[n-1,0,j]**4)
+            if j==0:
+               R[1] = dt*lambd*Tinj
+               self.A[1] = dt*lambd*1.0
+               self.C[1] = 0.0
+               self.B[1] = 0.0
+            else:
+               R[1] = R[1] + dt * (self.qf * Cpf * rho_eau / self.dx) * (self.T[n-1,1,j-1]-self.T[n-1,1,j])
+               self.C[1] = - dt * self.le[0]
+               self.B[1] = - dt * self.le[1]
+               self.A[1] = dt * (self.le[0] + self.le[1]) + self.ha[1] * self.rc[1]
+            self.T[n,:,j] = sol_tridiag(self.A,self.B,self.C,R)
+
+    def showVectors(self):
+        &#34;&#34;&#34;
+        affiche les vecteurs A,B,C
+        &#34;&#34;&#34;
+        print(&#34;A is {}&#34;.format(self.A))
+        print(&#34;B is {}&#34;.format(self.B))
+        print(&#34;C is {}&#34;.format(self.C))</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="dromosense.tools.OneDModel.iterate"><code class="name flex">
+<span>def <span class="ident">iterate</span></span>(<span>self, n, Tinj)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>n : time index (number of time steps)</p>
+<p>Tinj : injection temperature expressed in K</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def iterate(self,n,Tinj):
+    &#34;&#34;&#34;
+    n : time index (number of time steps)
+
+    Tinj : injection temperature expressed in K
+    &#34;&#34;&#34;
+    lambd = 10000000 # raideur pour imposer Tinj
+    nx = self.T.shape[2]
+    dt = self.dt
+    for j in range(0,nx):
+        self.A[0] = dt * (self.f2[n] + self.le[0] + 4.0*epsilon*sigma*self.T[n-1,0,j]**3) + self.ha[0] * self.rc[0]
+        R = self.ha*self.rc*self.T[n-1,:,j]
+        R[0] = R[0] + dt * (self.f1[n] + 3.0*epsilon*sigma*self.T[n-1,0,j]**4)
+        if j==0:
+           R[1] = dt*lambd*Tinj
+           self.A[1] = dt*lambd*1.0
+           self.C[1] = 0.0
+           self.B[1] = 0.0
+        else:
+           R[1] = R[1] + dt * (self.qf * Cpf * rho_eau / self.dx) * (self.T[n-1,1,j-1]-self.T[n-1,1,j])
+           self.C[1] = - dt * self.le[0]
+           self.B[1] = - dt * self.le[1]
+           self.A[1] = dt * (self.le[0] + self.le[1]) + self.ha[1] * self.rc[1]
+        self.T[n,:,j] = sol_tridiag(self.A,self.B,self.C,R)</code></pre>
+</details>
+</dd>
+<dt id="dromosense.tools.OneDModel.showVectors"><code class="name flex">
+<span>def <span class="ident">showVectors</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>affiche les vecteurs A,B,C</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def showVectors(self):
+    &#34;&#34;&#34;
+    affiche les vecteurs A,B,C
+    &#34;&#34;&#34;
+    print(&#34;A is {}&#34;.format(self.A))
+    print(&#34;B is {}&#34;.format(self.B))
+    print(&#34;C is {}&#34;.format(self.C))</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="dromosense" href="index.html">dromosense</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="dromosense.tools.CET" href="#dromosense.tools.CET">CET</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="dromosense.tools.Tsorties_echangeur" href="#dromosense.tools.Tsorties_echangeur">Tsorties_echangeur</a></code></li>
+<li><code><a title="dromosense.tools.basicAgenda" href="#dromosense.tools.basicAgenda">basicAgenda</a></code></li>
+<li><code><a title="dromosense.tools.besoin_bat" href="#dromosense.tools.besoin_bat">besoin_bat</a></code></li>
+<li><code><a title="dromosense.tools.rd" href="#dromosense.tools.rd">rd</a></code></li>
+<li><code><a title="dromosense.tools.sol_tridiag" href="#dromosense.tools.sol_tridiag">sol_tridiag</a></code></li>
+<li><code><a title="dromosense.tools.tsToTuple" href="#dromosense.tools.tsToTuple">tsToTuple</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="dromosense.tools.OneDModel" href="#dromosense.tools.OneDModel">OneDModel</a></code></h4>
+<ul class="">
+<li><code><a title="dromosense.tools.OneDModel.iterate" href="#dromosense.tools.OneDModel.iterate">iterate</a></code></li>
+<li><code><a title="dromosense.tools.OneDModel.showVectors" href="#dromosense.tools.OneDModel.showVectors">showVectors</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
