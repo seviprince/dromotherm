@@ -14,8 +14,9 @@ qdro = 0.035/3600 # m3/s
 
 start = 1483232400
 summerStart = 1496278800
-#summerEnd = 1506819600 # 30 septembre
-summerEnd=1504141200 # 30 août
+summerStart=1493600400 # 1er mai 
+summerEnd = 1506819600 # 30 septembre
+#summerEnd=1504141200 # 30 août
 step=3600
 
 """
@@ -61,27 +62,33 @@ def F(y,t):
     if i<=i_summerEnd and i>=i_summerStart:
         """
         en été, on récupère de l'énergie et on alimente le stockage
+    
         """
-        dromo.iterate(i,Tinj_dro[i-1]+kelvin)
-
-        Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
-
-        Tsor_sto[i] = ( k * y + B * Tsor_dro[i] ) / ( k + B)
-
-        Tinj_sto[i] = Tsor_sto[i] + coeff * eff * (Tsor_dro[i] - Tsor_sto[i])
-
-        Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
-
-        der = (msto * cpsto * (Tinj_sto[i] - Tsor_sto[i])) / (m_sable * Cp_sable)
+        work_dro=1
     else:
-        """
-        en hiver on consomme à hauteur de Pgeo
-        """
-        der = -Pgeo[i] / (m_sable * Cp_sable)
+        work_dro=0
+    dromo.iterate(i,Tinj_dro[i-1]+kelvin)
 
-        Tinj_pac[i]=y-C*Pgeo[i]/k
+    Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
 
-        Tsor_pac[i]=Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
+    Tsor_sto[i] = ( k * y + B * Tsor_dro[i] ) / ( k + B)
+
+    Tinj_sto[i] = Tsor_sto[i] + coeff * eff * (Tsor_dro[i] - Tsor_sto[i])
+
+    Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
+    Tinj_pac[i]=y-C*Pgeo[i]/k
+    Tsor_pac[i]=Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
+
+    der = (work_dro*msto * cpsto * (Tinj_sto[i] - Tsor_sto[i])-Pgeo[i] / (m_sable * Cp_sable)) / (m_sable * Cp_sable)
+    #else:
+       # """
+        #en hiver on consomme à hauteur de Pgeo
+       # """
+       # der = -Pgeo[i] / (m_sable * Cp_sable)
+
+        #Tinj_pac[i]=y-C*Pgeo[i]/k
+
+        #Tsor_pac[i]=Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
         #der = (mpac*cpac*(Tsor_pac[i]-Tinj_pac[i])) / (m_sable * Cp_sable)
 
     if verbose:
@@ -126,7 +133,7 @@ lambda2=15.8
 lambda_tube=1.32
 Nu=4.36 # Nombre de Nusselt de l'écoulement du fluide à l'intérieur des tubes
 Rcond=np.log(R2/R1)/(2*math.pi*N_tube*L_tube*lambda_tube)
-Rconv=1/(math.pi*Nu*L_tube*lambda2)
+Rconv=1/(math.pi*Nu*N_tube*L_tube*lambda2)
 # k exprimé en W/K
 k=1/(Rcond+Rconv)
 
@@ -189,6 +196,7 @@ besoin = besoinBrut - apport_solaire
 
 besoin[i_summerStart:i_summerEnd] = np.zeros(i_summerEnd-i_summerStart)
 
+besoin[i_summerStart+8760:i_summerEnd+8760]=np.zeros(i_summerEnd-i_summerStart)
 Pgeo=(COP-1)*besoin/COP
 
 besoin_surfacique=besoin/Scap
