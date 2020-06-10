@@ -90,8 +90,8 @@ L = 4.0 # Largeur de chaussee en m
 dx = 0.75 # pas d'espace en m
 qf = 0.035/3600.0         # debit volumique du fluide (m^3/s)
 Cf = Cpf*rho_eau #4200000.0 # capacite calorifique volumique de l'eau (J/(m3.K))
-phi = 0.0     #( porosite de la couche drainante)
-
+phi = 0.2     #( porosite de la couche drainante)
+l=3 # largeur de la chaussée
 nx = int(L/dx) # Nombre de blocs
 
 
@@ -139,7 +139,7 @@ for n in range(1,nt):
            C[1] = 0.0
            B[1] = 0.0
         else:
-           R[1] = R[1] + dt * (qf * Cf / dx) * (T[n-1,1,j-1]-T[n-1,1,j])
+           R[1] = R[1] + dt * (qf * Cf / (l*dx)) * (T[n-1,1,j-1]-T[n-1,1,j])
            C[1] = - dt * le[0]
            B[1] = - dt * le[1]
            A[1] = dt * (le[0] + le[1]) + ha[1] * rc[1] #+ dt * (qf * Cf) / dx
