@@ -28,6 +28,7 @@ IMPORTATION DES DONNES METEOS (VARIABLES EN FONCTION DU TEMPS)
 """
 meteo = np.loadtxt('../../datas/corr1_RT2012_H1c_toute_annee.txt')
 meteo=np.concatenate((meteo,meteo))
+meteo[8760:meteo.shape[0],0]=meteo[8760:meteo.shape[0],0]+8760
 print(meteo.shape)
 f2 = 1000.0*1.1*(0.0036*meteo[:,4]+0.00423)
 f1 = (1.0-albedo)*meteo[:,2] + meteo[:,3] + f2*(meteo[:,1]+kelvin)
@@ -196,7 +197,8 @@ besoin_surfacique=besoin/Scap
 SOLVEUR
 Tsable : Température du stockage/sable
 """
-simEnd=i_summerEnd+2000
+#simEnd=i_summerEnd+2000
+simEnd=i_summerStart+365*24
 Tsable = odeint(F,10,meteo[i_summerStart:simEnd,0]*3600)
 
 """
@@ -246,7 +248,7 @@ l1="couplage dromotherme/échangeur de séparation de réseau/stockage/PAC et si
 l2="température de consigne dans le bâtiment : {} °C".format(Tconsigne)
 plt.title("{}\n{}\n".format(l1,l2))
 plt.ylabel('dromotherme °C')
-ax1.plot(T[:,1],label="avec Tinj constante", color="orange")
+#ax1.plot(T[:,1],label="avec Tinj constante", color="orange")
 ax1.plot(Tsor_dro,label="Tsor_dro",color="red")
 ax1.plot(Tinj_dro,label="Tinj_dro",color="purple")
 ax1.legend()
