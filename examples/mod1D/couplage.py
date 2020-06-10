@@ -82,7 +82,7 @@ def F(y,t):
     
     Tsor_pac[i]=Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
 
-    der = (work_dro*msto * cpsto * (Tinj_sto[i] - Tsor_sto[i])-Pgeo[i] / (m_sable * Cp_sable)) / (m_sable * Cp_sable)
+    der = (work_dro*msto * cpsto * (Tinj_sto[i] - Tsor_sto[i])-Pgeo[i] / (m_sable * Cp_sable)) 
     #else:
        # """
         #en hiver on consomme à hauteur de Pgeo
