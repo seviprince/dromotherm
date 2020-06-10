@@ -25,10 +25,14 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from .importation import getCsvDatas, getTxtModelicaDatas
+from .tools import *
 from .constantes import *
 
+&#34;&#34;&#34;
 __all__ = [ &#34;getCsvDatas&#34;, &#34;getTxtModelicaDatas&#34;,
-          ]</code></pre>
+            &#34;rd&#34;,
+          ]
+&#34;&#34;&#34;</code></pre>
 </details>
 </section>
 <section>
@@ -42,171 +46,15 @@ __all__ = [ &#34;getCsvDatas&#34;, &#34;getTxtModelicaDatas&#34;,
 <dd>
 <div class="desc"></div>
 </dd>
+<dt><code class="name"><a title="dromosense.tools" href="tools.html">dromosense.tools</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 </dl>
 </section>
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="dromosense.getCsvDatas"><code class="name flex">
-<span>def <span class="ident">getCsvDatas</span></span>(<span>name, dir='../datas', preview=False)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>IMPORTATION de données depuis un fichier CSV</p>
-<p>The timeserie must be a fixed interval timeserie</p>
-<p>première colonne : le temps en seconde</p>
-<p>colonnes 1 à x : données</p>
-<p>name: file name</p>
-<p>dir: relative folder's path of the file</p>
-<p>preview: boolean - do yu want to preview the datas as plot charts ?</p>
-<p>return :</p>
-<p>step : interval in seconds</p>
-<p>float_data : the matrix containing the datas</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getCsvDatas(name, dir=&#34;../datas&#34;, preview=False):
-    &#34;&#34;&#34;
-    IMPORTATION de données depuis un fichier CSV
-
-    The timeserie must be a fixed interval timeserie
-
-    première colonne : le temps en seconde
-
-    colonnes 1 à x : données
-
-    name: file name
-
-    dir: relative folder&#39;s path of the file
-
-    preview: boolean - do yu want to preview the datas as plot charts ?
-
-    return :
-
-    step : interval in seconds
-
-    float_data : the matrix containing the datas
-    &#34;&#34;&#34;
-    fpath = &#34;{}/{}&#34;.format(dir,name)
-    f = open (fpath)
-    data = f.read()
-    f.close()
-    &#34;&#34;&#34;
-    1) remove blank lines which could pollute the end of the file
-    2) split into a list of lines
-    3) extract the header and remove it from the object lines
-    &#34;&#34;&#34;
-    data = data.rstrip(&#39;\n\r&#39;)
-    lines = data.split(&#39;\n&#39;)
-    header = lines[0].split(&#39;,&#39;)
-    lines = lines[1:]
-    # evaluates the timestep in s
-    step = float(lines[1].split(&#39;,&#39;)[0])-float(lines[0].split(&#39;,&#39;)[0])
-    step=int(step)
-    if verbose:
-        print(header)
-        print(len(lines))
-        input(&#34;press any key&#34;)
-
-    &#34;&#34;&#34;
-    float_data shape is (time,features)
-    on crée un tenseur rempli de zéros:
-    - la dimension 0 (ou premier axe du tenseur) va être le nombre de données
-    - la dimension 1 (ou second axe du tenseur) va être len(header)-1
-    En effet, on met de côté la colonne liée au temps, qui ne sert a rien vu qu&#39;on travaille à intervalle de temps fixe
-    Généralement, dans un tenseur, on dit que le premier axe (axis 0) est le &#34;samples axis&#34;
-    Ensuite on parcourt l&#39;objet lines, on splite au niveau des , et on ne conserve que la partie [1:], c&#39;est à dire tous les éléments sauf la premier valeur qui est le temps
-    la numérotation commence à 0, donc :
-    - line.split(&#39;,&#39;)[0] est le temps
-    - line.split(&#39;,&#39;)[1] est la température de l&#39;air
-    - line.split(&#39;,&#39;)[2] est la température du point de rosée
-    etc, etc
-    &#34;&#34;&#34;
-    float_data=np.zeros((len(lines),len(header)-1))
-    for i,line in enumerate(lines):
-        values = [float(x) for x in line.split(&#39;,&#39;)[1:]]
-        float_data[i,:]=values
-
-    print(&#34;data shape is {}&#34;.format(float_data.shape))
-    print(&#34;interval is {}&#34;.format(step))
-
-    &#34;&#34;&#34;
-    float_data est donc l&#39;objet contenant toutes tes données sauf le temps....
-    c&#39;est la méthode idéale dans ton cas car toutes tes données sont dans un seul fichier
-    effectivement on aurait pu faire différemment s&#39;il y avait eu un seul fichier par type de données, ie un fichier pour la température de l&#39;air, un pour la radiation....
-    &#34;&#34;&#34;
-    if preview:
-        xrange=np.arange(float_data.shape[0])
-        ax1=plt.subplot(111)
-        plt.title(&#34;test d&#39;importation&#34;)
-        plt.xlabel(&#39;Temps (en heure)&#39;)
-        ax1.set_ylabel(&#34;°C&#34;)
-        plt.plot(float_data[:,0], label=&#34;Text&#34;, color=&#34;blue&#34;)
-        plt.legend(loc=&#39;upper left&#39;)
-        ax2=ax1.twinx()
-        ax2.set_ylabel(&#34;W/m2&#34;)
-        plt.fill_between(xrange,float_data[:,5], label=&#34;ray. atm. (W/m2)&#34;, color=&#34;orange&#34;, alpha=0.4)
-        plt.fill_between(xrange,float_data[:,4], label=&#34;glob. rad. (W/m2)&#34;, color=&#34;yellow&#34;, alpha=0.4)
-        plt.legend(loc=&#39;upper right&#39;)
-        plt.show()
-
-    return step, float_data</code></pre>
-</details>
-</dd>
-<dt id="dromosense.getTxtModelicaDatas"><code class="name flex">
-<span>def <span class="ident">getTxtModelicaDatas</span></span>(<span>name, dir='../datas', preview=False)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>IMPORTATION de données txt comme attendu par Modelica</p>
-<p>Attention, modelica permet souvent de travailler avec des fichiers à pas de temps variable</p>
-<p>la colonne temps est donc à conserver</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getTxtModelicaDatas(name, dir=&#34;../datas&#34;, preview=False):
-    &#34;&#34;&#34;
-    IMPORTATION de données txt comme attendu par Modelica
-
-    Attention, modelica permet souvent de travailler avec des fichiers à pas de temps variable
-
-    la colonne temps est donc à conserver
-    &#34;&#34;&#34;
-    fpath = &#34;{}/{}&#34;.format(dir,name)
-    f = open (fpath)
-    data = f.read()
-    f.close()
-    data = data.rstrip(&#39;\n\r&#39;)
-    lines = data.split(&#39;\n&#39;)
-    header = lines[1].split(&#39;#Columns:&#39;)[1].rstrip(&#39;\t&#39;).split(&#39;;&#39;)
-    lines = lines[2:]
-    if verbose:
-        print(header)
-    line1=[float(x) for x in lines[0].split(&#39;\t&#39;)]
-
-    float_data=np.zeros((len(lines),len(line1)))
-    for i,line in enumerate(lines):
-        values = [float(x) for x in line.split(&#39;\t&#39;)]
-        float_data[i,:]=values
-
-    print(&#34;data shape is {}&#34;.format(float_data.shape))
-
-    if preview:
-        ax1=plt.subplot(111)
-        plt.title(&#34;test d&#39;importation&#34;)
-        plt.xlabel(&#39;secondes&#39;)
-        ax1.set_ylabel(&#34;W/m2&#34;)
-        for i in range(1,3):
-            plt.plot(float_data[:,0],float_data[:,i], label=header[i].strip())
-        plt.legend(loc=&#39;upper left&#39;)
-        plt.show()
-
-    return float_data</code></pre>
-</details>
-</dd>
-</dl>
 </section>
 <section>
 </section>
@@ -221,12 +69,7 @@ __all__ = [ &#34;getCsvDatas&#34;, &#34;getTxtModelicaDatas&#34;,
 <ul>
 <li><code><a title="dromosense.constantes" href="constantes/index.html">dromosense.constantes</a></code></li>
 <li><code><a title="dromosense.importation" href="importation.html">dromosense.importation</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="dromosense.getCsvDatas" href="#dromosense.getCsvDatas">getCsvDatas</a></code></li>
-<li><code><a title="dromosense.getTxtModelicaDatas" href="#dromosense.getTxtModelicaDatas">getTxtModelicaDatas</a></code></li>
+<li><code><a title="dromosense.tools" href="tools.html">dromosense.tools</a></code></li>
 </ul>
 </li>
 </ul>
