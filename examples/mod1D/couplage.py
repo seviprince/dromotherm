@@ -67,6 +67,7 @@ def F(y,t):
         work_dro=1
     else:
         work_dro=0
+        
     dromo.iterate(i,Tinj_dro[i-1]+kelvin)
 
     Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
@@ -76,7 +77,9 @@ def F(y,t):
     Tinj_sto[i] = Tsor_sto[i] + coeff * eff * (Tsor_dro[i] - Tsor_sto[i])
 
     Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
+    
     Tinj_pac[i]=y-C*Pgeo[i]/k
+    
     Tsor_pac[i]=Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
 
     der = (work_dro*msto * cpsto * (Tinj_sto[i] - Tsor_sto[i])-Pgeo[i] / (m_sable * Cp_sable)) / (m_sable * Cp_sable)
