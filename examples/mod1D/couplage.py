@@ -13,7 +13,7 @@ verbose = False
 qdro = 0.035/3600 # m3/s
 
 start = 1483232400
-summerStart = 1496278800
+#summerStart = 1496278800
 summerStart=1493600400 # 1er mai 
 summerEnd = 1506819600 # 30 septembre
 #summerEnd=1504141200 # 30 août
