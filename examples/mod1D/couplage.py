@@ -64,35 +64,38 @@ def F(y,t):
         en été, on récupère de l'énergie et on alimente le stockage
     
         """
-        work_dro=1
-    else:
-        work_dro=0
-        
-    dromo.iterate(i,Tinj_dro[i-1]+kelvin)
-
-    Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
-
-    Tsor_sto[i] = ( k * y + B * Tsor_dro[i] ) / ( k + B)
-
-    Tinj_sto[i] = Tsor_sto[i] + coeff * eff * (Tsor_dro[i] - Tsor_sto[i])
-
-    Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
-    
-    Tinj_pac[i]=y-C*Pgeo[i]/k
-    
-    Tsor_pac[i]=Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
-
-    der = (work_dro*msto * cpsto * (Tinj_sto[i] - Tsor_sto[i])-Pgeo[i]) / (m_sable * Cp_sable) 
+        #work_dro=1
+       
     #else:
-       # """
-        #en hiver on consomme à hauteur de Pgeo
-       # """
-       # der = -Pgeo[i] / (m_sable * Cp_sable)
+        """
+        en hivers on arrête le dromotherm
+        """
+       # work_dro=0
+        
+        dromo.iterate(i,Tinj_dro[i-1]+kelvin)
+        
+        Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
 
-        #Tinj_pac[i]=y-C*Pgeo[i]/k
+        Tsor_sto[i] = ( k * y + B * Tsor_dro[i] ) / ( k + B)
+    
+        Tinj_sto[i] = Tsor_sto[i] + coeff * eff * (Tsor_dro[i] - Tsor_sto[i])
+    
+        Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
+       
+        der = (msto * cpsto * (Tinj_sto[i] - Tsor_sto[i])) / (m_sable * Cp_sable) 
+        #der = (work_dro*msto * cpsto * (Tinj_sto[i] - Tsor_sto[i])-Pge) / (m_sable * Cp_sable)
 
-        #Tsor_pac[i]=Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
-        #der = (mpac*cpac*(Tsor_pac[i]-Tinj_pac[i])) / (m_sable * Cp_sable)
+   
+    else:
+        """
+        en hiver on consomme à hauteur de Pgeo
+        """
+        der = -Pgeo[i] / (m_sable * Cp_sable)
+
+        Tinj_pac[i]=y-C*Pgeo[i]/k
+
+        Tsor_pac[i]=Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
+        der = (mpac*cpac*(Tsor_pac[i]-Tinj_pac[i])) / (m_sable * Cp_sable)
 
     if verbose:
         print("dTsable/dt is {}".format(der))
