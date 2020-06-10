@@ -27,6 +27,7 @@ IMPORTATION DES DONNES METEOS (VARIABLES EN FONCTION DU TEMPS)
 4 : vitesse du vent (en m/s)
 """
 meteo = np.loadtxt('../../datas/corr1_RT2012_H1c_toute_annee.txt')
+meteo=np.concatenate((meteo,meteo))
 print(meteo.shape)
 f2 = 1000.0*1.1*(0.0036*meteo[:,4]+0.00423)
 f1 = (1.0-albedo)*meteo[:,2] + meteo[:,3] + f2*(meteo[:,1]+kelvin)
@@ -158,8 +159,8 @@ Rf=3.4E-02 # Résistance due aux infiltrations+vitre et au renouvellement d'air
 # facteur solaire pour des matériaux plein de type murs/toits
 FSm=0.0048
 """
-hypothèse : la maison fait 5 mètres de large sur 5 mètres de long
-vu du ciel c'est donc un carré de 20m2 de surface
+hypothèse : la maison fait 4 mètres de large sur 5 mètres de long
+vu du ciel c'est donc un rectangle de 20m2 de surface
 """
 Scap = 20
 
