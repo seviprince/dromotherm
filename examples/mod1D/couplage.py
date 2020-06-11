@@ -35,6 +35,32 @@ print(meteo.shape)
 f2 = 1000.0*1.1*(0.0036*meteo[:,4]+0.00423)
 f1 = (1.0-albedo)*meteo[:,2] + meteo[:,3] + f2*(meteo[:,1]+kelvin)
 
+"""
+courbes météo
+"""
+figure = plt.figure(figsize = (10, 10))
+matplotlib.rc('font', size=8)
+
+ax1 = plt.subplot(311)
+l1="conditions météo extérieures utilisées pour la simulation"
+l2="2 années moyennes selon la RT2012 pour la zone de Clermont-Ferrand"
+plt.title("{}\n{}\n".format(l1,l2))
+plt.ylabel("°C")
+ax1.plot(meteo[:,1],label="Température extérieure",color="green")
+ax2=plt.subplot(312, sharex=ax1)
+plt.ylabel("m/s")
+ax2.plot(meteo[:,4],label="vitesse du vent en m/s",color="purple")
+ax3=plt.subplot(313, sharex=ax1)
+plt.ylabel("W/m2")
+ax3.plot(meteo[:,2],label="rayonnement global en W/m2",color="orange")
+ax3.plot(meteo[:,3],label="rayonnement atmosphérique en W/m2",color="red")
+ax1.legend()
+ax2.legend()
+ax3.legend()
+plt.xlabel("Temps - 1 unité = {} s".format(step))
+plt.show()
+input("press any key")
+
 # instanciation d'un dromotherme 1D - input.txt contient les paramètres calant ce modèle sur le modèle 2D
 dromo=OneDModel('input.txt',step,meteo.shape[0],4,0.75,qdro)
 dromo.f1 = f1
@@ -214,11 +240,43 @@ besoin_surfacique=besoin/Scap
 SOLVEUR
 Tsable : Température du stockage/sable
 """
-#simEnd=i_summerEnd+2000
-simEnd=i_summerStart+365*24
+# changer usecase pour tester différentes choses
+usecase=3
+if usecase == 1:
+    simEnd=i_summerEnd+2000
+else:
+    simEnd=i_summerStart+365*24
+    
+from datetime import datetime
+from dateutil import tz
+CET=tz.gettz('Europe/Paris')
+_s=datetime.fromtimestamp(summerStart,CET).strftime('%Y-%m-%d %H:%M:%S')
+_e=datetime.fromtimestamp(summerStart+(simEnd-i_summerStart)*step,CET).strftime('%Y-%m-%d %H:%M:%S')
+
+# initialisation des agendas à 0 : aucun équipement en fonctionnement par défaut
 agenda_dro=np.zeros(meteo.shape[0])
 agenda_pac=np.zeros(meteo.shape[0])
-agenda_dro[i_summerStart:i_summerEnd]=np.ones(i_summerEnd-i_summerStart)
+
+if usecase == 1:
+    # dromotherme durant l'été et chauffage à partir du stock en continu durant 2000 heures en suivant
+    label="dromotherme durant l'été et chauffage à partir du stock jusqu'au {}".format(_e)
+    agenda_dro[i_summerStart:i_summerEnd]=np.ones(i_summerEnd-i_summerStart)
+
+if usecase == 2:
+    # simulation annuelle
+    # dromotherme toute l'année
+    label="dromotherme sur ON toute l'année"
+    agenda_dro[i_summerStart:simEnd]=np.ones(simEnd-i_summerStart)
+
+if usecase == 3:
+    # simulation à l'année
+    # dromotherme l'été et par intermittence l'hiver quant le rayonnement global est au dessus de 250 W/m2
+    agenda_dro[i_summerStart:i_summerEnd]=np.ones(i_summerEnd-i_summerStart)
+    for i in range(i_summerEnd,simEnd):
+        if meteo[i,2] >= 250:
+            label="dromotherme l'été et l'hiver quant le rayonnement global est au dessus de 250 W/m2"
+            agenda_dro[i]=1
+
 agenda_pac[i_summerEnd:simEnd]=np.ones(simEnd-i_summerEnd)
 input("press any key")
 plt.subplot(211)
@@ -253,11 +311,6 @@ Taux=Edro*100/Esolaire
 """
 affichages énergétiques
 """
-from datetime import datetime
-from dateutil import tz
-CET=tz.gettz('Europe/Paris')
-_s=datetime.fromtimestamp(summerStart,CET).strftime('%Y-%m-%d %H:%M:%S')
-_e=datetime.fromtimestamp(summerStart+(simEnd-i_summerStart),CET).strftime('%Y-%m-%d %H:%M:%S')
 print("Bilan énergétique sur la période : {} à {}".format(_s,_e))
 print('Energie récupérée par le dromotherm : {} kWh/m2'.format(Edro))
 print('Energie solaire recue : {} kWh/m2'.format(Esolaire))
@@ -275,7 +328,7 @@ matplotlib.rc('font', size=8)
 ax1 = plt.subplot(411)
 l1="couplage dromotherme/échangeur de séparation de réseau/stockage/PAC et simulation été/hiver"
 l2="température de consigne dans le bâtiment : {} °C".format(Tconsigne)
-plt.title("{}\n{}\n".format(l1,l2))
+plt.title("{}\n{}\n{}\n".format(l1,l2,label))
 plt.ylabel('dromotherme °C')
 #ax1.plot(T[:,1],label="avec Tinj constante", color="orange")
 ax1.plot(Tsor_dro,label="Tsor_dro",color="red")
@@ -285,8 +338,8 @@ ax1.legend()
 ax2 = plt.subplot(412, sharex=ax1)
 plt.ylabel('stockage °C')
 ax2.plot(Tinj_sto,label="Tinj_sto",color="orange")
-ax2.plot(meteo[i_summerStart:simEnd,0],Tsable,label="Tsable",color="red")
 ax2.plot(Tsor_sto,label="Tsor_sto",color="blue")
+ax2.plot(meteo[i_summerStart:simEnd,0],Tsable,label="Tsable",color="red")
 ax2.legend()
 
 ax3 = plt.subplot(413, sharex=ax1)
