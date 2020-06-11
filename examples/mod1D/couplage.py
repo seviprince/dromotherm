@@ -28,8 +28,9 @@ IMPORTATION DES DONNES METEOS (VARIABLES EN FONCTION DU TEMPS)
 4 : vitesse du vent (en m/s)
 """
 meteo = np.loadtxt('../../datas/corr1_RT2012_H1c_toute_annee.txt')
+l = meteo.shape[0]
 meteo=np.concatenate((meteo,meteo))
-meteo[8760:meteo.shape[0],0]=meteo[8760:meteo.shape[0],0]+8760
+meteo[l:meteo.shape[0],0]=meteo[l:meteo.shape[0],0]+l
 print(meteo.shape)
 f2 = 1000.0*1.1*(0.0036*meteo[:,4]+0.00423)
 f1 = (1.0-albedo)*meteo[:,2] + meteo[:,3] + f2*(meteo[:,1]+kelvin)
@@ -38,7 +39,9 @@ f1 = (1.0-albedo)*meteo[:,2] + meteo[:,3] + f2*(meteo[:,1]+kelvin)
 dromo=OneDModel('input.txt',step,meteo.shape[0],4,0.75,qdro)
 dromo.f1 = f1
 dromo.f2 = f2
-dromo.T[0,:,:] = np.ones((dromo.T.shape[1],dromo.T.shape[2]))*10+kelvin
+#dromo.T[0,:,:] = np.ones((dromo.T.shape[1],dromo.T.shape[2]))*10+kelvin
+# très provisoire, il faudrait discuter de celà
+dromo.T = np.ones((dromo.T.shape[0],dromo.T.shape[1],dromo.T.shape[2]))*10+kelvin
 print(dromo.T[0,:,:])
 
 # juste pour voir la différence entre ce modèle couplé et le modèle à température d'injection fixe
@@ -58,20 +61,23 @@ def F(y,t):
     i = int(t/step)
     if verbose:
         print("we have t={} and y={}".format(i,y))
-
-    if i<=i_summerEnd and i>=i_summerStart:
-        """
-        en été, on récupère de l'énergie et on alimente le stockage
     
-        """
-        #work_dro=1
-       
-    #else:
-        """
-        en hivers on arrête le dromotherm
-        """
-       # work_dro=0
-        
+    dro=agenda_dro[i]
+    pac=agenda_pac[i]
+    
+    """
+    SI dro==1
+        - dromotherme en fonctionnement, on récupère de l'énergie et on alimente le stockage via l'échangeur de séparation de réseaux
+        - si pac==1, on en tient compte dans le calcul de der en incluant une consommation à hauteur de Pgeo[i]
+    SINON
+        - dromotherme arrêté, pas de fonctionnement ni du dromotherme, ni de l'échangeur de séparation de réseau....
+        - donc pas d'alimentation du stockage côté dromotherme
+        - si pac==1, on en tient compte dans le calcul de der en incluant une consommation à hauteur de Pgeo[i]
+    la question de la condition initiale lors de l'allumage du dromotherme n'est pas vraiment traitée
+    cf plus haut : on initialise l'intégralité du champ de température à 10.....
+    """
+
+    if dro == 1:
         dromo.iterate(i,Tinj_dro[i-1]+kelvin)
         
         Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
@@ -82,20 +88,18 @@ def F(y,t):
     
         Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
        
-        der = (msto * cpsto * (Tinj_sto[i] - Tsor_sto[i])) / (m_sable * Cp_sable) 
-        #der = (work_dro*msto * cpsto * (Tinj_sto[i] - Tsor_sto[i])-Pge) / (m_sable * Cp_sable)
-
-   
+        der = (msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) - Pgeo[i] * pac ) / (m_sable * Cp_sable) 
     else:
-        """
-        en hiver on consomme à hauteur de Pgeo
-        """
-        der = -Pgeo[i] / (m_sable * Cp_sable)
+        der = -Pgeo[i] * pac  / (m_sable * Cp_sable)
 
+    """
+    Si la PAC fonctionne, on met à jour les températures d'entrée et de sortie de PAC
+    """
+    if pac == 1 :
+        
         Tinj_pac[i]=y-C*Pgeo[i]/k
 
         Tsor_pac[i]=Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
-        der = (mpac*cpac*(Tsor_pac[i]-Tinj_pac[i])) / (m_sable * Cp_sable)
 
     if verbose:
         print("dTsable/dt is {}".format(der))
@@ -192,7 +196,6 @@ on calcule les index permettant de boucler sur l'été, ainsi que le besoin net 
 i_summerStart=(summerStart-start)//step
 i_summerEnd=i_summerStart+(summerEnd-summerStart)//step
 print("nous allons simuler la récolte énergétique entre les heures {} et {}".format(i_summerStart,i_summerEnd))
-input("press any key")
 
 apport_solaire = Scap * FSm * meteo[:,2]
 
@@ -213,6 +216,18 @@ Tsable : Température du stockage/sable
 """
 #simEnd=i_summerEnd+2000
 simEnd=i_summerStart+365*24
+agenda_dro=np.zeros(meteo.shape[0])
+agenda_pac=np.zeros(meteo.shape[0])
+agenda_dro[i_summerStart:i_summerEnd]=np.ones(i_summerEnd-i_summerStart)
+agenda_pac[i_summerEnd:simEnd]=np.ones(simEnd-i_summerEnd)
+input("press any key")
+plt.subplot(211)
+plt.plot(agenda_dro,label="fonctionnement dromotherme")
+plt.legend()
+plt.subplot(212)
+plt.plot(agenda_pac,label="fonctionnement pac")
+plt.legend()
+plt.show()
 Tsable = odeint(F,10,meteo[i_summerStart:simEnd,0]*3600)
 
 """
