@@ -88,6 +88,10 @@ def F(y,t):
     if verbose:
         print("we have t={} and y={}".format(i,y))
     
+    if Tsor_sto[i] > Tinj_sto[i]: # le dromotherm à l'arrêt si le fluide circulant dans le stockage se rechauffe au lieu de se refroidir"
+            
+        agenda_dro[i]=0
+    
     dro=agenda_dro[i]
     pac=agenda_pac[i]
     
@@ -141,6 +145,8 @@ Tsor_sto=np.zeros(meteo.shape[0])
 Tsor_pac=np.zeros(meteo.shape[0])
 # température de sortie du fluide géothermique dans le stockage (entrée  de la PAC)
 Tinj_pac=np.zeros(meteo.shape[0])
+
+
 """
 On initialise les températures d'injection et de sortie dans le dromotherme à 10
 de fait, quant il n'y aura pas de récupération d'énergie, le bilan énergétique sera nul
@@ -241,7 +247,7 @@ SOLVEUR
 Tsable : Température du stockage/sable
 """
 # changer usecase pour tester différentes choses
-usecase=3
+usecase=2
 if usecase == 1:
     simEnd=i_summerEnd+2000
 else:
@@ -276,8 +282,12 @@ if usecase == 3:
         if meteo[i,2] >= 250:
             label="dromotherme l'été et l'hiver quant le rayonnement global est au dessus de 250 W/m2"
             agenda_dro[i]=1
+            
+
+
 
 agenda_pac[i_summerEnd:simEnd]=np.ones(simEnd-i_summerEnd)
+Tsable = odeint(F,10,meteo[i_summerStart:simEnd,0]*3600)
 input("press any key")
 plt.subplot(211)
 plt.plot(agenda_dro,label="fonctionnement dromotherme")
@@ -286,7 +296,7 @@ plt.subplot(212)
 plt.plot(agenda_pac,label="fonctionnement pac")
 plt.legend()
 plt.show()
-Tsable = odeint(F,10,meteo[i_summerStart:simEnd,0]*3600)
+#Tsable = odeint(F,10,meteo[i_summerStart:simEnd,0]*3600)
 
 """
 BILAN ENERGETIQUE
