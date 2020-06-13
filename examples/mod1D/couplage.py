@@ -244,7 +244,7 @@ SOLVEUR
 Tsable : Température du stockage/sable
 """
 # changer usecase pour tester différentes choses
-usecase=4
+usecase=3
 if usecase == 1:
     simEnd=i_summerEnd+2000
 else:
