@@ -88,9 +88,6 @@ def F(y,t):
     if verbose:
         print("we have t={} and y={}".format(i,y))
     
-    if Tsor_sto[i] > Tinj_sto[i]: # le dromotherm à l'arrêt si le fluide circulant dans le stockage se rechauffe au lieu de se refroidir"
-            
-        agenda_dro[i]=0
     
     dro=agenda_dro[i]
     pac=agenda_pac[i]
@@ -247,7 +244,7 @@ SOLVEUR
 Tsable : Température du stockage/sable
 """
 # changer usecase pour tester différentes choses
-usecase=2
+usecase=4
 if usecase == 1:
     simEnd=i_summerEnd+2000
 else:
@@ -285,9 +282,8 @@ if usecase == 3:
             
 
 
-
 agenda_pac[i_summerEnd:simEnd]=np.ones(simEnd-i_summerEnd)
-Tsable = odeint(F,10,meteo[i_summerStart:simEnd,0]*3600)
+
 input("press any key")
 plt.subplot(211)
 plt.plot(agenda_dro,label="fonctionnement dromotherme")
@@ -296,7 +292,7 @@ plt.subplot(212)
 plt.plot(agenda_pac,label="fonctionnement pac")
 plt.legend()
 plt.show()
-#Tsable = odeint(F,10,meteo[i_summerStart:simEnd,0]*3600)
+Tsable = odeint(F,10,meteo[i_summerStart:simEnd,0]*3600)
 
 """
 BILAN ENERGETIQUE
