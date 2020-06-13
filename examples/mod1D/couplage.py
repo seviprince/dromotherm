@@ -77,13 +77,29 @@ input("press any key")
 
 
 def F(y,t):
+    """
+    y : Tsable = Tstockage
+    
+    t : time index
+    
+    result : dy/dt = dTsable/dt = dTstockage/dt
+    """
     i = int(t/step)
     if verbose:
         print("we have t={} and y={}".format(i,y))
     
     dro=agenda_dro[i]
     pac=agenda_pac[i]
-
+    
+    """
+    SI dro==1
+        - dromotherme en fonctionnement, on récupère de l'énergie et on alimente le stockage via l'échangeur de séparation de réseaux
+        - si pac==1, on en tient compte dans le calcul de der en incluant une consommation à hauteur de Pgeo[i]
+    SINON
+        - dromotherme arrêté, pas de fonctionnement ni du dromotherme, ni de l'échangeur de séparation de réseau....
+        - donc pas d'alimentation du stockage côté dromotherme
+        - si pac==1, on en tient compte dans le calcul de der en incluant une consommation à hauteur de Pgeo[i]
+    """
     if dro == 1:
         dromo.iterate(i,Tinj_dro[i-1]+kelvin)
         
@@ -104,6 +120,9 @@ def F(y,t):
         Tinj_sto[i] = y
         Tsor_sto[i] = y
 
+    """
+    Si la PAC fonctionne, on met à jour les températures d'entrée et de sortie de PAC
+    """
     if pac == 1 :
         
         Tinj_pac[i] = y-C*Pgeo[i]/k
