@@ -225,7 +225,7 @@ class OneDModel:
     """
     dromotherm 1D model
     """
-    def __init__(self,fname,dt,nt,L=4,dx=0.75,qf=0.035/3600):
+    def __init__(self,fname,dt,nt,L=4,l=5,dx=0.75,qf=0.035*5/3600):
         """
         fname : nom du fichier contenant les paramètres définissant la chaussée.
         chaque ligne est une couche et contient 3 valeurs séparées par des espaces :
@@ -236,6 +236,8 @@ class OneDModel:
         nt : nombre de points dans la discrétisation temporelle
 
         L : largeur de chaussée en m
+        
+        l: la longueur de la chaussée en m ; on prend l=5m pour avoir une surface de 20m2 capable de chauffer le bâtiment
 
         dx : pas d'espace en m
 
@@ -278,7 +280,8 @@ class OneDModel:
         self.L = L
         self.dx = dx
         self.qf = qf
-
+        self.l=l
+        
         self.ha = _input[:,0]
         self.le = _input[:,1]
         self.rc = _input[:,2]
@@ -312,7 +315,7 @@ class OneDModel:
                self.C[1] = 0.0
                self.B[1] = 0.0
             else:
-               R[1] = R[1] + dt * (self.qf * Cpf * rho_eau / self.dx) * (self.T[n-1,1,j-1]-self.T[n-1,1,j])
+               R[1] = R[1] + dt * (self.qf * Cpf * rho_eau /(self.l*self.dx)) * (self.T[n-1,1,j-1]-self.T[n-1,1,j])
                self.C[1] = - dt * self.le[0]
                self.B[1] = - dt * self.le[1]
                self.A[1] = dt * (self.le[0] + self.le[1]) + self.ha[1] * self.rc[1]
