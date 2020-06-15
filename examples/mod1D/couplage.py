@@ -10,7 +10,7 @@ import cmath as math
 verbose = False
 
 # débit dans le dromotherme
-qdro = 0.035/3600 # m3/s
+qdro = 0.035*5/3600 # m3/s
 
 start = 1483232400
 #summerStart = 1496278800
@@ -62,7 +62,7 @@ plt.show()
 input("press any key")
 
 # instanciation d'un dromotherme 1D - input.txt contient les paramètres calant ce modèle sur le modèle 2D
-dromo=OneDModel('input.txt',step,meteo.shape[0],4,0.75,qdro)
+dromo=OneDModel('input.txt',step,meteo.shape[0],4,5,0.75,qdro)
 dromo.f1 = f1
 dromo.f2 = f2
 #dromo.T[0,:,:] = np.ones((dromo.T.shape[1],dromo.T.shape[2]))*10+kelvin
@@ -131,7 +131,9 @@ def F(y,t):
     else:
         Tinj_pac[i] = y
         Tsor_pac[i] = y
-
+        
+        #Tinj_pac[i] = Tinj_pac[i-1]
+        #Tsor_pac[i] = Tsor_pac[i-1]
     if verbose:
         print("dTsable/dt is {}".format(der))
 
@@ -220,8 +222,9 @@ Scap = 20
 PAC
 """
 COP=3
-mpac=msto
-cpac=4180.0
+rho_pac=1040 # en kg/m^3
+mpac=rho_pac*0.035*4/3600
+cpac=3942.0  #' en J/kg.K
 C=1-k/(2*mpac*cpac)
 
 """
@@ -288,7 +291,7 @@ if usecase == 3:
 
 
 agenda_pac[i_summerEnd:simEnd]=np.ones(simEnd-i_summerEnd)
-
+#agenda_pac[i_summerEnd:simEnd]=np.zeros(simEnd-i_summerEnd)
 input("press any key")
 plt.subplot(211)
 plt.plot(agenda_dro,label="fonctionnement dromotherme")
@@ -302,7 +305,7 @@ Tsable = odeint(F,10,meteo[i_summerStart:simEnd,0]*3600)
 """
 BILAN ENERGETIQUE
 """
-Surface_dro=4
+Surface_dro=4*5
 # d et f : index de début et de fin sur lesquels on va réaliser le bilan
 # dr et fr : index de début et de fin de la récupération/collecte énergétique
 d = i_summerStart
@@ -355,8 +358,9 @@ ax2.legend()
 
 ax3 = plt.subplot(413, sharex=ax1)
 plt.ylabel('PAC °C')
-ax3.plot(Tinj_pac,label="Tinj_pac",color="k")
+ax3.plot(Tinj_pac,label="Tinj_pac",color="red")
 ax3.plot(Tsor_pac,label="Tsor_pac",color="#7cb0ff")
+ax3.plot(Tinj_pac-Tsor_pac,label="ecart de températures de la PAC",color="k")
 ax3.legend()
 
 ax4 = plt.subplot(414, sharex=ax1)
