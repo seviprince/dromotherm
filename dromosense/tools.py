@@ -225,7 +225,7 @@ class OneDModel:
     """
     dromotherm 1D model
     """
-    def __init__(self,fname,dt,nt,L=4,l=5,dx=0.75,qf=0.035*5/3600):
+    def __init__(self,fname,dt,nt,L=4,l=7.5,dx=0.75,qfu=0.035/3600):
         """
         fname : nom du fichier contenant les paramètres définissant la chaussée.
         chaque ligne est une couche et contient 3 valeurs séparées par des espaces :
@@ -279,7 +279,7 @@ class OneDModel:
         self.dt = dt
         self.L = L
         self.dx = dx
-        self.qf = qf
+        self.qf = qfu*l
         self.l=l
         
         self.ha = _input[:,0]
