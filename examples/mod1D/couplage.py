@@ -5,19 +5,22 @@ from dromosense.tools import *
 from dromosense.constantes import rho_eau,Cpf,kelvin
 from scipy.integrate import odeint
 #from scipy.integrate import solve_ivp
-import cmath as math
+import math
 
 verbose = False
+# longeur de l'échangeur
+lincha=7.5 # en m
+step=3600
 
 # débit dans le dromotherme
-qdro = 0.035*5/3600 # m3/s
-
+qdro_u = 0.035/step # m3/s
+qdro=qdro_u_u*lincha
 start = 1483232400
 #summerStart = 1496278800
 summerStart=1493600400 # 1er mai 
 summerEnd = 1506819600 # 30 septembre
 #summerEnd=1504141200 # 30 août
-step=3600
+
 
 """
 IMPORTATION DES DONNES METEOS (VARIABLES EN FONCTION DU TEMPS)
@@ -62,7 +65,7 @@ plt.show()
 input("press any key")
 
 # instanciation d'un dromotherme 1D - input.txt contient les paramètres calant ce modèle sur le modèle 2D
-dromo=OneDModel('input.txt',step,meteo.shape[0],4,5,0.75,qdro)
+dromo=OneDModel('input.txt',step,meteo.shape[0],4,7.5,0.75,qdro_u)
 dromo.f1 = f1
 dromo.f2 = f2
 #dromo.T[0,:,:] = np.ones((dromo.T.shape[1],dromo.T.shape[2]))*10+kelvin
@@ -129,11 +132,11 @@ def F(y,t):
 
         Tsor_pac[i] = Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
     else:
-        Tinj_pac[i] = y
-        Tsor_pac[i] = y
+        #Tinj_pac[i] = y
+        #Tsor_pac[i] = y
         
-        #Tinj_pac[i] = Tinj_pac[i-1]
-        #Tsor_pac[i] = Tsor_pac[i-1]
+        Tinj_pac[i] = Tinj_pac[i-1]
+        Tsor_pac[i] = Tsor_pac[i-1]
     if verbose:
         print("dTsable/dt is {}".format(der))
 
@@ -232,20 +235,51 @@ on calcule les index permettant de boucler sur l'été, ainsi que le besoin net 
 """
 i_summerStart=(summerStart-start)//step
 i_summerEnd=i_summerStart+(summerEnd-summerStart)//step
+simEnd=i_summerStart+365*24
 print("nous allons simuler la récolte énergétique entre les heures {} et {}".format(i_summerStart,i_summerEnd))
 
 apport_solaire = Scap * FSm * meteo[:,2]
 
 besoinBrut = besoin_bat(Tconsigne,meteo[:,1],Rm,Ri,Rf)
 
-besoin = besoinBrut - apport_solaire
+besoin_chauffage = besoinBrut - apport_solaire
 
-besoin[i_summerStart:i_summerEnd] = np.zeros(i_summerEnd-i_summerStart)
+besoin_chauffage[i_summerStart:i_summerEnd] = np.zeros(i_summerEnd-i_summerStart)
 
-besoin[i_summerStart+8760:i_summerEnd+8760]=np.zeros(i_summerEnd-i_summerStart)
-Pgeo=(COP-1)*besoin/COP
+besoin_chauffage[i_summerStart+8760:i_summerEnd+8760]=np.zeros(i_summerEnd-i_summerStart)
 
-besoin_surfacique=besoin/Scap
+
+
+"""
+Besoin en ECS
+On considère que le bâtiment est habité par une seule personne dont le besoin en ECS est souvent compris 30 et 40L.
+Nous prendrons 35L comme besoin journalier.
+La température de l'eau chaude stockée dans le ballon est de 60°C.
+L'eau entre dans le ballon à une température de 10°C en huvers et 16°C en été
+En supposant que le besoin en ECS reste constant, on a:
+besoin_ECS=1.16*V*(Tballon-Tentree_eau) avec 
+V: volume du ballon en m^3
+"""
+Tballon=60
+Tentree_ete=16  # Tmax
+Tentree_hivers= 10  # Tmin
+Volume_ballon=30 # 30L
+Npers=6
+periode=l
+w=2*math.pi/periode
+T_eau=np.zeros((meteo.shape[0])) # fonction sinusoidale donnant la température d'entree de l'eau dans le ballon
+besoin_ECS=np.zeros(meteo.shape[0])
+for i in range(i_summerStart,simEnd):
+    T_eau[i]=((Tentree_ete-Tentree_hivers)/2)*math.sin(w*(i-summerStart))+(Tentree_ete+Tentree_hivers)/2
+    besoin_ECS[i]=1.16*Volume_ballon*Npers*0.75*(Tballon-T_eau[i])/24 #une réduction de 25% 
+    
+
+besoin_total=besoin_chauffage+besoin_ECS
+
+besoin_surfacique=besoin_total/Scap
+
+Pgeo=(COP-1)*besoin_total/COP
+
 
 """
 SOLVEUR
@@ -257,6 +291,7 @@ if usecase == 1:
     simEnd=i_summerEnd+2000
 else:
     simEnd=i_summerStart+365*24
+
     
 from datetime import datetime
 from dateutil import tz
@@ -276,8 +311,9 @@ if usecase == 1:
 if usecase == 2:
     # simulation annuelle
     # dromotherme toute l'année
-    label="dromotherme sur ON toute l'année"
+    label="dromotherme et PAC sur ON toute l'année"
     agenda_dro[i_summerStart:simEnd]=np.ones(simEnd-i_summerStart)
+    agenda_pac[i_summerStart:simEnd]=np.ones(simEnd-i_summerStart)
 
 if usecase == 3:
     # simulation à l'année
@@ -290,7 +326,7 @@ if usecase == 3:
             
 
 
-agenda_pac[i_summerEnd:simEnd]=np.ones(simEnd-i_summerEnd)
+#agenda_pac[i_summerEnd:simEnd]=np.ones(simEnd-i_summerEnd)
 #agenda_pac[i_summerEnd:simEnd]=np.zeros(simEnd-i_summerEnd)
 input("press any key")
 plt.subplot(211)
@@ -305,7 +341,7 @@ Tsable = odeint(F,10,meteo[i_summerStart:simEnd,0]*3600)
 """
 BILAN ENERGETIQUE
 """
-Surface_dro=4*5
+Surface_dro=4*7.5
 # d et f : index de début et de fin sur lesquels on va réaliser le bilan
 # dr et fr : index de début et de fin de la récupération/collecte énergétique
 d = i_summerStart
@@ -366,8 +402,23 @@ ax3.legend()
 ax4 = plt.subplot(414, sharex=ax1)
 plt.ylabel('Bâtiment W')
 plt.xlabel("Temps - 1 unité = {} s".format(step))
-ax4.plot(besoin,label="besoin net W",color="orange")
+ax4.plot(besoin_total,label="besoin total du bâtiment net W",color="orange")
+ax4.plot(besoin_ECS,label="besoin en ECS ",color="g")
+ax4.plot(besoin_chauffage,label="besoin chauffage W",color="red")
+
+
 ax4.legend()
+
+figure = plt.figure(figsize = (10, 10))
+matplotlib.rc('font', size=8)
+
+ax1 = plt.subplot(311)
+l1="conditions météo extérieures utilisées pour la simulation"
+l2="2 années moyennes selon la RT2012 pour la zone de Clermont-Ferrand"
+plt.title("{}\n{}\n".format(l1,l2))
+plt.ylabel("°C")
+ax1.plot(T_eau,label="Temperature de l'eau ",color="b")
+ax1.plot(besoin_ECS,label="besoin en ECS ",color="g")
 
 plt.show()
 
