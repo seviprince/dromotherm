@@ -8,11 +8,41 @@ from scipy.integrate import odeint
 import math
 
 verbose = False
-# longeur de l'échangeur
-lincha=7.5 # en m
+
+"""
+IMPORTATION DES DONNES METEOS
+0 : temps exprime en heures
+1 : temperature d'air (en deg Celsius)
+2 : rayonnement global (en W/m2)
+3 : rayonnement atmospherique (en W/m2)
+4 : vitesse du vent (en m/s)
+
+NOTA : principe d'un échantillonnage temporel à l'année = il faut donner à ce script un fichier meteo annuel
+ 
+la variable npy représente le nombre de points dans une année complète
+dans le cas présent, l'intervalle de temps est l'heure. 
+Si on choisit un autre pas, il faut changer la variable step, exprimée en secondes, manuellement !!!!
+"""
+meteo = np.loadtxt('../../datas/corr1_RT2012_H1c_toute_annee.txt')
+npy = meteo.shape[0]
+meteo=np.concatenate((meteo,meteo))
+meteo[npy:meteo.shape[0],0]=meteo[npy:meteo.shape[0],0]+npy
+print(meteo.shape)
+f2 = 1000.0*1.1*(0.0036*meteo[:,4]+0.00423)
+f1 = (1.0-albedo)*meteo[:,2] + meteo[:,3] + f2*(meteo[:,1]+kelvin)
+
+# longueur et largeur de l'échangeur, exprimées en m
+lincha=7.5
+larcha=4
+# pas de temps en secondes pour la discrétisation temporelle
 step=3600
 
-# débit dans le dromotherme
+"""
+débit dans le dromotherme
+qdro_u est le débit unitaire dans le dromotherme en m3/s :
+- pour un mètre linéaire de chaussée selon le profil en long 
+- pour une largeur de chaussée de 4 mètres selon le profil en travers 
+"""
 qdro_u = 0.035/step # m3/s
 qdro=qdro_u*lincha
 start = 1483232400
@@ -22,61 +52,14 @@ summerEnd = 1506819600 # 30 septembre
 #summerEnd=1504141200 # 30 août
 
 
-"""
-IMPORTATION DES DONNES METEOS (VARIABLES EN FONCTION DU TEMPS)
-0 : temps exprime en heure
-1 : temperature d'air (en deg Celsius)
-2 : rayonnement global (en W/m2)
-3 : rayonnement atmospherique (en W/m2)
-4 : vitesse du vent (en m/s)
-"""
-meteo = np.loadtxt('../../datas/corr1_RT2012_H1c_toute_annee.txt')
-l = meteo.shape[0]
-meteo=np.concatenate((meteo,meteo))
-meteo[l:meteo.shape[0],0]=meteo[l:meteo.shape[0],0]+l
-print(meteo.shape)
-f2 = 1000.0*1.1*(0.0036*meteo[:,4]+0.00423)
-f1 = (1.0-albedo)*meteo[:,2] + meteo[:,3] + f2*(meteo[:,1]+kelvin)
-
-"""
-courbes météo
-"""
-figure = plt.figure(figsize = (10, 10))
-matplotlib.rc('font', size=8)
-
-ax1 = plt.subplot(311)
-l1="conditions météo extérieures utilisées pour la simulation"
-l2="2 années moyennes selon la RT2012 pour la zone de Clermont-Ferrand"
-plt.title("{}\n{}\n".format(l1,l2))
-plt.ylabel("°C")
-ax1.plot(meteo[:,1],label="Température extérieure",color="green")
-ax2=plt.subplot(312, sharex=ax1)
-plt.ylabel("m/s")
-ax2.plot(meteo[:,4],label="vitesse du vent en m/s",color="purple")
-ax3=plt.subplot(313, sharex=ax1)
-plt.ylabel("W/m2")
-ax3.plot(meteo[:,2],label="rayonnement global en W/m2",color="orange")
-ax3.plot(meteo[:,3],label="rayonnement atmosphérique en W/m2",color="red")
-ax1.legend()
-ax2.legend()
-ax3.legend()
-plt.xlabel("Temps - 1 unité = {} s".format(step))
-plt.show()
-input("press any key")
-
 # instanciation d'un dromotherme 1D - input.txt contient les paramètres calant ce modèle sur le modèle 2D
-dromo=OneDModel('input.txt',step,meteo.shape[0],4,lincha,0.75,qdro_u)
+dromo=OneDModel('input.txt',step,meteo.shape[0],larcha,lincha,0.75,qdro_u)
 dromo.f1 = f1
 dromo.f2 = f2
 #dromo.T[0,:,:] = np.ones((dromo.T.shape[1],dromo.T.shape[2]))*10+kelvin
 # très provisoire, il faudrait discuter de celà
 dromo.T = np.ones((dromo.T.shape[0],dromo.T.shape[1],dromo.T.shape[2]))*10+kelvin
 print(dromo.T[0,:,:])
-
-# juste pour voir la différence entre ce modèle couplé et le modèle à température d'injection fixe
-T = np.loadtxt('T1d.txt')
-print(T.shape)
-input("press any key")
 
 
 def F(y,t):
@@ -192,7 +175,7 @@ print("le k du système géothermique vaut {} W/K".format(k))
 eff = 0.8
 # débit dans la partie de l'échangeur côté "stockage"
 qsto = 1.2*qdro
-# rho_eau en provenance du fichier constantes est expérimée en kg/m3
+# rho_eau en provenance du fichier constantes est exprimée en kg/m3
 # Cpf en provenance du fichier constantes est exprimée en J/(kg.K)
 mdro = qdro * rho_eau
 msto = qsto * rho_eau
@@ -234,8 +217,9 @@ C=1-k/(2*mpac*cpac)
 on calcule les index permettant de boucler sur l'été, ainsi que le besoin net du bâtiment et la puissance géothermique à développer
 """
 i_summerStart=(summerStart-start)//step
+
 i_summerEnd=i_summerStart+(summerEnd-summerStart)//step
-simEnd=i_summerStart+365*24
+
 print("nous allons simuler la récolte énergétique entre les heures {} et {}".format(i_summerStart,i_summerEnd))
 
 apport_solaire = Scap * FSm * meteo[:,2]
@@ -244,35 +228,53 @@ besoinBrut = besoin_bat(Tconsigne,meteo[:,1],Rm,Ri,Rf)
 
 besoin_chauffage = besoinBrut - apport_solaire
 
+"""
+on efface les besoins de chauffage sur les étés
+"""
+
 besoin_chauffage[i_summerStart:i_summerEnd] = np.zeros(i_summerEnd-i_summerStart)
 
-besoin_chauffage[i_summerStart+8760:i_summerEnd+8760]=np.zeros(i_summerEnd-i_summerStart)
+besoin_chauffage[i_summerStart+npy:i_summerEnd+npy]=np.zeros(i_summerEnd-i_summerStart)
 
 
 
 """
 Besoin en ECS
-On considère que le bâtiment est habité par une seule personne dont le besoin en ECS est souvent compris 30 et 40L.
-Nous prendrons 35L comme besoin journalier.
+On considère que le besoin en ECS d'une personne seule oscille entre 30 et 40L.
+Nous prendrons donc 35L comme besoin journalier.
 La température de l'eau chaude stockée dans le ballon est de 60°C.
 L'eau entre dans le ballon à une température de 10°C en huvers et 16°C en été
-En supposant que le besoin en ECS reste constant, on a:
-besoin_ECS=1.16*V*(Tballon-Tentree_eau) avec 
-V: volume du ballon en m^3
 """
 Tballon=60
 Tentree_ete=16  # Tmax
-Tentree_hivers= 10  # Tmin
+Tentree_hiver= 10  # Tmin
 Volume_ballon=35 # 35L/jour en moyenne pour une personne
 Npers=6
-periode=l # période égale une année
-w=2*math.pi/periode
-T_eau=np.zeros((meteo.shape[0])) # fonction sinusoidale donnant la température d'entree de l'eau dans le ballon
+"""
+on modélise l'eau du réseau comme une fonction sinusoidale de période annuelle
+"""
+w=2*math.pi/npy
+T_eau=np.zeros(meteo.shape[0])
 besoin_ECS=np.zeros(meteo.shape[0])
-for i in range(i_summerStart,simEnd):
-    T_eau[i]=((Tentree_ete-Tentree_hivers)/2)*math.sin(w*(i-summerStart))+(Tentree_ete+Tentree_hivers)/2
-    besoin_ECS[i]=1.16*Volume_ballon*Npers*(Tballon-T_eau[i])/24 #on divise par 24h parce que le volume est un volume par jour 
+for i in range(i_summerStart,i_summerStart+npy):
+    T_eau[i]=(1 + math.sin(w*(i-summerStart))) * (Tentree_ete-Tentree_hiver) / 2
+    # le besoin s'entend pour une journée, ie 24*3600 secondes
+    # il faut donc diviser par 24*3600 pour convertir de J à W, Cpf étant exprimée en J/kg/K
+    besoin_ECS[i]=Volume_ballon*Npers*(Tballon-T_eau[i])*Cpf/(24*3600) 
     
+ax1 = plt.subplot(211)
+plt.ylabel("°C")
+plt.plot(meteo[:,1], label="T ext")
+plt.legend(loc="upper left")
+ax2 =ax1.twinx()
+plt.plot(T_eau, color="green", label="T réseau entrée ballon")
+plt.legend(loc="upper right")
+plt.legend()
+ax3 = plt.subplot(212, sharex=ax1)
+plt.ylabel("W")
+plt.plot(besoin_ECS, color="orange", label="besoin ECS W")
+plt.legend()
+plt.show()
 
 besoin_total=besoin_chauffage+besoin_ECS
 
@@ -337,12 +339,12 @@ plt.plot(agenda_pac,label="fonctionnement pac")
 plt.legend()
 plt.show()
 
-Tsable = odeint(F,10,meteo[i_summerStart:simEnd,0]*3600)
+Tsable = odeint(F,10,meteo[i_summerStart:simEnd,0]*step)
 
 """
 BILAN ENERGETIQUE
 """
-Surface_dro=4*7.5
+Surface_dro=larcha*lincha
 # d et f : index de début et de fin sur lesquels on va réaliser le bilan
 # dr et fr : index de début et de fin de la récupération/collecte énergétique
 d = i_summerStart
@@ -376,31 +378,37 @@ courbes et graphiques
 figure = plt.figure(figsize = (10, 10))
 matplotlib.rc('font', size=8)
 
-ax1 = plt.subplot(411)
+ax1 = plt.subplot(511)
 l1="couplage dromotherme/échangeur de séparation de réseau/stockage/PAC et simulation été/hiver"
 l2="température de consigne dans le bâtiment : {} °C".format(Tconsigne)
 plt.title("{}\n{}\n{}\n".format(l1,l2,label))
 plt.ylabel('dromotherme °C')
-#ax1.plot(T[:,1],label="avec Tinj constante", color="orange")
 ax1.plot(Tsor_dro,label="Tsor_dro",color="red")
 ax1.plot(Tinj_dro,label="Tinj_dro",color="purple")
 ax1.legend()
 
-ax2 = plt.subplot(412, sharex=ax1)
+ax11 = plt.subplot(512, sharex=ax1)
+ax11.plot(meteo[:,2],label="rayonnement global en W/m2",color="orange")
+ax12=ax11.twinx()
+ax12.plot(meteo[:,1],label="T ext")
+ax11.legend(loc="upper left")
+ax12.legend(loc="upper right")
+
+ax2 = plt.subplot(513, sharex=ax1)
 plt.ylabel('stockage °C')
 ax2.plot(Tinj_sto,label="Tinj_sto",color="orange")
 ax2.plot(Tsor_sto,label="Tsor_sto",color="blue")
 ax2.plot(meteo[i_summerStart:simEnd,0],Tsable,label="Tsable",color="red")
 ax2.legend()
 
-ax3 = plt.subplot(413, sharex=ax1)
+ax3 = plt.subplot(514, sharex=ax1)
 plt.ylabel('PAC °C')
 ax3.plot(Tinj_pac,label="Tinj_pac",color="red")
 ax3.plot(Tsor_pac,label="Tsor_pac",color="#7cb0ff")
 ax3.plot(Tinj_pac-Tsor_pac,label="ecart de températures de la PAC",color="k")
 ax3.legend()
 
-ax4 = plt.subplot(414, sharex=ax1)
+ax4 = plt.subplot(515, sharex=ax1)
 plt.ylabel('Bâtiment W')
 plt.xlabel("Temps - 1 unité = {} s".format(step))
 ax4.plot(besoin_total,label="besoin total du bâtiment net W",color="orange")
@@ -409,6 +417,3 @@ ax4.plot(besoin_chauffage,label="besoin chauffage W",color="red")
 ax4.legend()
 
 plt.show()
-
-
-
