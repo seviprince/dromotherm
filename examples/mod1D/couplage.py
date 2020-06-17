@@ -14,7 +14,7 @@ step=3600
 
 # débit dans le dromotherme
 qdro_u = 0.035/step # m3/s
-qdro=qdro_u_u*lincha
+qdro=qdro_u*lincha
 start = 1483232400
 #summerStart = 1496278800
 summerStart=1493600400 # 1er mai 
@@ -65,7 +65,7 @@ plt.show()
 input("press any key")
 
 # instanciation d'un dromotherme 1D - input.txt contient les paramètres calant ce modèle sur le modèle 2D
-dromo=OneDModel('input.txt',step,meteo.shape[0],4,7.5,0.75,qdro_u)
+dromo=OneDModel('input.txt',step,meteo.shape[0],4,lincha,0.75,qdro_u)
 dromo.f1 = f1
 dromo.f2 = f2
 #dromo.T[0,:,:] = np.ones((dromo.T.shape[1],dromo.T.shape[2]))*10+kelvin
@@ -93,7 +93,7 @@ def F(y,t):
     
     dro=agenda_dro[i]
     pac=agenda_pac[i]
-    
+     
     """
     SI dro==1
         - dromotherme en fonctionnement, on récupère de l'énergie et on alimente le stockage via l'échangeur de séparation de réseaux
@@ -125,7 +125,8 @@ def F(y,t):
 
     """
     Si la PAC fonctionne, on met à jour les températures d'entrée et de sortie de PAC
-    """
+    """   
+        
     if pac == 1 :
         
         Tinj_pac[i] = y-C*Pgeo[i]/k
@@ -141,7 +142,6 @@ def F(y,t):
         print("dTsable/dt is {}".format(der))
 
     return der
-
 
 
 # température d'entrée et de sortie du fluide dans le stockage
@@ -263,15 +263,15 @@ V: volume du ballon en m^3
 Tballon=60
 Tentree_ete=16  # Tmax
 Tentree_hivers= 10  # Tmin
-Volume_ballon=30 # 30L
+Volume_ballon=35 # 35L/jour en moyenne pour une personne
 Npers=6
-periode=l
+periode=l # période égale une année
 w=2*math.pi/periode
 T_eau=np.zeros((meteo.shape[0])) # fonction sinusoidale donnant la température d'entree de l'eau dans le ballon
 besoin_ECS=np.zeros(meteo.shape[0])
 for i in range(i_summerStart,simEnd):
     T_eau[i]=((Tentree_ete-Tentree_hivers)/2)*math.sin(w*(i-summerStart))+(Tentree_ete+Tentree_hivers)/2
-    besoin_ECS[i]=1.16*Volume_ballon*Npers*0.75*(Tballon-T_eau[i])/24 #une réduction de 25% 
+    besoin_ECS[i]=1.16*Volume_ballon*Npers*(Tballon-T_eau[i])/24 #on divise par 24h parce que le volume est un volume par jour 
     
 
 besoin_total=besoin_chauffage+besoin_ECS
@@ -336,6 +336,7 @@ plt.subplot(212)
 plt.plot(agenda_pac,label="fonctionnement pac")
 plt.legend()
 plt.show()
+
 Tsable = odeint(F,10,meteo[i_summerStart:simEnd,0]*3600)
 
 """
@@ -405,20 +406,7 @@ plt.xlabel("Temps - 1 unité = {} s".format(step))
 ax4.plot(besoin_total,label="besoin total du bâtiment net W",color="orange")
 ax4.plot(besoin_ECS,label="besoin en ECS ",color="g")
 ax4.plot(besoin_chauffage,label="besoin chauffage W",color="red")
-
-
 ax4.legend()
-
-figure = plt.figure(figsize = (10, 10))
-matplotlib.rc('font', size=8)
-
-ax1 = plt.subplot(311)
-l1="conditions météo extérieures utilisées pour la simulation"
-l2="2 années moyennes selon la RT2012 pour la zone de Clermont-Ferrand"
-plt.title("{}\n{}\n".format(l1,l2))
-plt.ylabel("°C")
-ax1.plot(T_eau,label="Temperature de l'eau ",color="b")
-ax1.plot(besoin_ECS,label="besoin en ECS ",color="g")
 
 plt.show()
 
