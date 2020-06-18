@@ -124,9 +124,19 @@ def F(y,t):
         Tsor_sto[i] = y
 
     """
-    Si la PAC fonctionne, on met à jour les températures d'entrée et de sortie de PAC
-    """   
+    Si la Température d'injection du fluide dans le stockage est supérieure à l celle du stockage,
+    on met la pompe en marche sinon elle rreste sur OFF
+    """
+    if Tsor_dro[i]>y:
+        agenda_dro[i]=1
+    else:
+        agenda_dro[i]=0
         
+    
+    """
+    Si la PAC fonctionne, on met à jour les températures d'entrée et de sortie de PAC
+    """ 
+    
     if pac == 1 :
         
         Tinj_pac[i] = y-C*Pgeo[i]/k
@@ -310,8 +320,8 @@ if usecase == 1:
 
 if usecase == 2:
     # simulation annuelle
-    # dromotherme toute l'année
-    label="dromotherme et PAC sur ON toute l'année"
+    # dromotherme toute l'année sous condition
+    label="dromotherme et PAC sur ON toute l'année si la temérature d'injection du fluide dans le stockage est supérieure à celle du stockage"
     agenda_dro[i_summerStart:simEnd]=np.ones(simEnd-i_summerStart)
     agenda_pac[i_summerStart:simEnd]=np.ones(simEnd-i_summerStart)
 
