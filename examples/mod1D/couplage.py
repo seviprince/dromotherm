@@ -106,15 +106,7 @@ def F(y,t):
         Tinj_sto[i] = y
         Tsor_sto[i] = y
 
-    """
-    Si la Température d'injection du fluide dans le stockage est supérieure à l celle du stockage,
-    on met la pompe en marche sinon elle rreste sur OFF
-    """
-    if Tsor_dro[i]>y:
-        agenda_dro[i]=1
-    else:
-        agenda_dro[i]=0
-        
+   
     
     """
     Si la PAC fonctionne, on met à jour les températures d'entrée et de sortie de PAC
@@ -126,11 +118,11 @@ def F(y,t):
 
         Tsor_pac[i] = Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
     else:
-        #Tinj_pac[i] = y
-        #Tsor_pac[i] = y
+        Tinj_pac[i] = y
+        Tsor_pac[i] = y
         
-        Tinj_pac[i] = Tinj_pac[i-1]
-        Tsor_pac[i] = Tsor_pac[i-1]
+        #Tinj_pac[i] = Tinj_pac[i-1]
+        #Tsor_pac[i] = Tsor_pac[i-1]
     if verbose:
         print("dTsable/dt is {}".format(der))
 
