@@ -369,6 +369,7 @@ courbes et graphiques
 """
 figure = plt.figure(figsize = (10, 10))
 matplotlib.rc('font', size=8)
+
 def graphe(start,stop):
     
     ax1 = plt.subplot(511)
