@@ -241,7 +241,7 @@ class OneDModel:
 
         dx : pas d'espace en m
 
-        qf : débit volumique du fluide (m^3/s)
+       
 
         objets construits lors de l'initialisation :
 
@@ -301,6 +301,8 @@ class OneDModel:
         n : time index (number of time steps)
 
         Tinj : injection temperature expressed in K
+        
+         qf : débit volumique du fluide (m^3/s)
         """
         lambd = 10000000 # raideur pour imposer Tinj
         nx = self.T.shape[2]
