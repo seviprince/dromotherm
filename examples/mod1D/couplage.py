@@ -88,21 +88,28 @@ def F(y,t):
     """
     if dro == 1:
         dromo.iterate(i,Tinj_dro[i-1]+kelvin,qdro)
+        
+        Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
+        
+        Tsor_sto[i] = ( k * y + B * Tsor_dro[i] ) / ( k + B)
+    
+        Tinj_sto[i] = Tsor_sto[i] + coeff * eff * (Tsor_dro[i] - Tsor_sto[i])
+    
+        Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
+       
+        
     else:
         dromo.iterate(i,Tinj_dro[i-1]+kelvin,0)
         
-    Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
+        Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
+        
+        Tinj_dro[i]=Tsor_dro[i]
 
-    Tsor_sto[i] = ( k * y + B * Tsor_dro[i] ) / ( k + B)
-    
-    Tinj_sto[i] = Tsor_sto[i] + coeff * eff * (Tsor_dro[i] - Tsor_sto[i])
-    
-    Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
-       
-    der = (dro*msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) - Pgeo[i] * pac ) / (m_sable * Cp_sable) 
-    
-   
-    
+        Tinj_sto[i] = Tinj_sto[i-1] 
+        
+        Tsor_sto[i] = Tsor_sto[i-1]
+        
+    der = (dro*msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) - Pgeo[i] * pac ) / (m_sable * Cp_sable)      
     """
     Si la PAC fonctionne, on met à jour les températures d'entrée et de sortie de PAC
     """ 
