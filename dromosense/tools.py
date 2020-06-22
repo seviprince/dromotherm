@@ -225,7 +225,7 @@ class OneDModel:
     """
     dromotherm 1D model
     """
-    def __init__(self,fname,dt,nt,L=4,l=7.5,dx=0.75,qfu=0.035/3600):
+    def __init__(self,fname,dt,nt,L=4,l=7.5,dx=0.75):
         """
         fname : nom du fichier contenant les paramètres définissant la chaussée.
         chaque ligne est une couche et contient 3 valeurs séparées par des espaces :
@@ -279,7 +279,7 @@ class OneDModel:
         self.dt = dt
         self.L = L
         self.dx = dx
-        self.qf = qfu*l
+       # self.qf = qfu*l
         self.l=l
         
         self.ha = _input[:,0]
@@ -296,7 +296,7 @@ class OneDModel:
         self.B[0:nc-1] = - dt * self.le[0:nc-1]
         self.C[1:nc] = - dt * self.le[0:nc-1]
 
-    def iterate(self,n,Tinj):
+    def iterate(self,n,Tinj,qf):
         """
         n : time index (number of time steps)
 
@@ -315,7 +315,7 @@ class OneDModel:
                self.C[1] = 0.0
                self.B[1] = 0.0
             else:
-               R[1] = R[1] + dt * (self.qf * Cpf * rho_eau /(self.l*self.dx)) * (self.T[n-1,1,j-1]-self.T[n-1,1,j])
+               R[1] = R[1] + dt * (qf * Cpf * rho_eau /(self.l*self.dx)) * (self.T[n-1,1,j-1]-self.T[n-1,1,j])
                self.C[1] = - dt * self.le[0]
                self.B[1] = - dt * self.le[1]
                self.A[1] = dt * (self.le[0] + self.le[1]) + self.ha[1] * self.rc[1]
