@@ -53,7 +53,7 @@ summerEnd = 1506819600 # 30 septembre
 
 
 # instanciation d'un dromotherme 1D - input.txt contient les paramètres calant ce modèle sur le modèle 2D
-dromo=OneDModel('input.txt',step,meteo.shape[0],larcha,lincha,dx)
+dromo=OneDModel('input.txt',step,meteo.shape[0],larcha,dx)
 dromo.f1 = f1
 dromo.f2 = f2
 #dromo.T[0,:,:] = np.ones((dromo.T.shape[1],dromo.T.shape[2]))*10+kelvin
@@ -87,7 +87,7 @@ def F(y,t):
         - si pac==1, on en tient compte dans le calcul de der en incluant une consommation à hauteur de Pgeo[i]
     """
     if dro == 1:
-        dromo.iterate(i,Tinj_dro[i-1]+kelvin,qdro)
+        dromo.iterate(i,Tinj_dro[i-1]+kelvin,qdro_u)
         
         Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
         
@@ -110,6 +110,7 @@ def F(y,t):
         Tsor_sto[i] = Tsor_sto[i-1]
         
     der = (dro*msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) - Pgeo[i] * pac ) / (m_sable * Cp_sable)      
+    
     """
     Si la PAC fonctionne, on met à jour les températures d'entrée et de sortie de PAC
     """ 
@@ -120,8 +121,7 @@ def F(y,t):
 
         Tsor_pac[i] = Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
     else:
-        #Tinj_pac[i] = y
-        #Tsor_pac[i] = y
+       
         
         Tinj_pac[i] = Tinj_pac[i-1]
         Tsor_pac[i] = Tsor_pac[i-1]
