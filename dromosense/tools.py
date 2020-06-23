@@ -300,7 +300,10 @@ class OneDModel:
 
         Tinj : injection temperature expressed in K
     
-         qfu : débit volumique unitaire du fluide (m^3/s)
+        qfu : débit volumique unitaire du fluide (m^3/s)
+        
+        Seul le débit unitaire joue lors d'une itération de dromotherme. 
+        Sur l'échangeur de séparation de réseau, c'est le debit total qui joue soit l*qfu, avec l linéaire de chaussée selon le profil en long
         """
         lambd = 10000000 # raideur pour imposer Tinj
         nx = self.T.shape[2]
