@@ -23,7 +23,8 @@ la variable npy représente le nombre de points dans une année complète
 dans le cas présent, l'intervalle de temps est l'heure. 
 Si on choisit un autre pas, il faut changer la variable step, exprimée en secondes, manuellement !!!!
 """
-meteo = np.loadtxt('../../datas/corr1_RT2012_H1c_toute_annee.txt')
+
+meteo = np.loadtxt('../../datas/meteo_Bourget_du_lac.txt') 
 npy = meteo.shape[0]
 meteo=np.concatenate((meteo,meteo))
 meteo[npy:meteo.shape[0],0]=meteo[npy:meteo.shape[0],0]+npy
@@ -279,7 +280,7 @@ SOLVEUR
 Tsable : Température du stockage/sable
 """
 # changer usecase pour tester différentes choses
-usecase=3
+usecase=2
 if usecase == 1:
     simEnd=i_summerEnd+4000
 else:
@@ -304,8 +305,7 @@ if usecase == 1:
 
 if usecase == 2:
     # simulation annuelle
-    # dromotherme toute l'année sous condition
-    label="dromotherme et PAC sur ON toute l'année si la temérature d'injection du fluide dans le stockage est supérieure à celle du stockage"
+    label="dromotherme et PAC sur ON toute l'année "
     agenda_dro[i_summerStart:simEnd]=np.ones(simEnd-i_summerStart)
     agenda_pac[i_summerStart:simEnd]=np.ones(simEnd-i_summerStart)
 
@@ -318,8 +318,6 @@ if usecase == 3:
             label="dromotherme l'été et l'hiver quant le rayonnement global est au dessus de 250 W/m2"
             agenda_dro[i]=1
             
-
-
 
 agenda_pac[i_summerEnd:simEnd]=np.ones(simEnd-i_summerEnd)
 input("press any key")
