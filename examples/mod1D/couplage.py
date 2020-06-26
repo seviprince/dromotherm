@@ -24,7 +24,8 @@ dans le cas présent, l'intervalle de temps est l'heure.
 Si on choisit un autre pas, il faut changer la variable step, exprimée en secondes, manuellement !!!!
 """
 
-meteo = np.loadtxt('../../datas/meteo_Bourget_du_lac.txt') 
+#meteo = np.loadtxt('../../datas/meteo_Bourget_du_lac.txt') 
+meteo = np.loadtxt('../../datas/corr1_RT2012_H1c_toute_annee.txt')
 npy = meteo.shape[0]
 meteo=np.concatenate((meteo,meteo))
 meteo[npy:meteo.shape[0],0]=meteo[npy:meteo.shape[0],0]+npy
@@ -110,9 +111,11 @@ def F(y,t):
         
         Tsor_sto[i] = Tsor_sto[i-1]
         
-    der = (dro*msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) - Pgeo[i] * pac ) / (m_sable * Cp_sable)      
+    der = (dro*msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) - Pgeo[i] * pac ) / (m_sable * Cp_sable)
     
-    """
+    diff[i]= der      
+    
+    """s
     Si la PAC fonctionne, on met à jour les températures d'entrée et de sortie de PAC
     """ 
     
@@ -139,7 +142,8 @@ Tsor_sto=np.zeros(meteo.shape[0])
 Tsor_pac=np.zeros(meteo.shape[0])
 # température de sortie du fluide géothermique dans le stockage (entrée  de la PAC)
 Tinj_pac=np.zeros(meteo.shape[0])
-Tsable=np.zeros(meteo.shape[0])
+
+diff=np.zeros(meteo.shape[0])
 
 """
 On initialise les températures d'injection et de sortie dans le dromotherme à 10
@@ -280,46 +284,53 @@ SOLVEUR
 Tsable : Température du stockage/sable
 """
 # changer usecase pour tester différentes choses
-usecase=2
-if usecase == 1:
-    simEnd=i_summerEnd+4000
-else:
-    simEnd=i_summerStart+365*24
+usecase=3
 
-    
 from datetime import datetime
 from dateutil import tz
 CET=tz.gettz('Europe/Paris')
-_s=datetime.fromtimestamp(summerStart,CET).strftime('%Y-%m-%d %H:%M:%S')
-_e=datetime.fromtimestamp(summerStart+(simEnd-i_summerStart)*step,CET).strftime('%Y-%m-%d %H:%M:%S')
+
+def ts_to_h(ts):
+    return datetime.fromtimestamp(ts,CET).strftime('%Y-%m-%d %H:%M:%S')
+
+
+_s=ts_to_h(summerStart)
+
 
 # initialisation des agendas à 0 : aucun équipement en fonctionnement par défaut
 agenda_dro=np.zeros(meteo.shape[0])
 agenda_pac=np.zeros(meteo.shape[0])
 
 if usecase == 1:
+    simEnd=i_summerEnd+4000
+    _e=ts_to_h(summerStart+(simEnd-i_summerStart)*step)
     # dromotherme durant l'été et chauffage à partir du stock en continu durant 2000 heures en suivant
     label="dromotherme durant l'été et chauffage à partir du stock jusqu'au {}".format(_e)
     agenda_dro[i_summerStart:i_summerEnd]=np.ones(i_summerEnd-i_summerStart)
     agenda_pac[i_summerEnd:simEnd]=np.ones(simEnd-i_summerEnd)
 
 if usecase == 2:
+    simEnd=i_summerStart+365*24
+    _e=ts_to_h(summerStart+(simEnd-i_summerStart)*step)
     # simulation annuelle
     label="dromotherme et PAC sur ON toute l'année "
     agenda_dro[i_summerStart:simEnd]=np.ones(simEnd-i_summerStart)
     agenda_pac[i_summerStart:simEnd]=np.ones(simEnd-i_summerStart)
 
 if usecase == 3:
+    simEnd=i_summerStart+365*24
+    _e=ts_to_h(summerStart+(simEnd-i_summerStart)*step)
     # simulation à l'année
     # dromotherme l'été et par intermittence l'hiver quant le rayonnement global est au dessus de 250 W/m2
     agenda_dro[i_summerStart:i_summerEnd]=np.ones(i_summerEnd-i_summerStart)
+    agenda_pac[i_summerEnd:simEnd]=np.ones(simEnd-i_summerEnd)
     for i in range(i_summerEnd,simEnd):
         if meteo[i,2] >= 250:
             label="dromotherme l'été et l'hiver quant le rayonnement global est au dessus de 250 W/m2"
             agenda_dro[i]=1
             
 
-agenda_pac[i_summerEnd:simEnd]=np.ones(simEnd-i_summerEnd)
+
 input("press any key")
 plt.subplot(211)
 plt.plot(agenda_dro,label="fonctionnement dromotherme")
@@ -377,7 +388,10 @@ def graphe(start,stop):
     plt.ylabel('dromotherme °C')
     ax1.plot(meteo[start:stop,0],Tsor_dro[start:stop],label="Tsor_dro",color="red")
     ax1.plot(meteo[start:stop,0],Tinj_dro[start:stop],label="Tinj_dro",color="purple")
-    ax1.legend()
+    ax1.legend(loc="upper left")
+    ax13=ax1.twinx()
+    ax13.plot(agenda_dro,label="dro ON/OFF")
+    ax13.legend(loc="upper right")
     
     ax11 = plt.subplot(512, sharex=ax1)
     ax11.plot(meteo[start:stop,0],meteo[start:stop,2],label="rayonnement global en W/m2",color="orange")
@@ -391,7 +405,12 @@ def graphe(start,stop):
     ax2.plot(meteo[start:stop,0],Tinj_sto[start:stop],label="Tinj_sto",color="orange")
     ax2.plot(meteo[start:stop,0],Tsor_sto[start:stop],label="Tsor_sto",color="blue")
     ax2.plot(meteo[i_summerStart:simEnd,0],Tsable,label="Tsable",color="red")
-    ax2.legend()
+    ax2.legend(loc="upper left")
+    ax21=ax2.twinx()
+    ax21.plot(diff,label="derivée")
+    ax21.legend(loc="upper right")
+    
+    
     
     ax3 = plt.subplot(514, sharex=ax1)
     plt.ylabel('PAC °C')
