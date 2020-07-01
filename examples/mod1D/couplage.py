@@ -82,6 +82,7 @@ def F(y,t):
                
     return der
 
+
 # température d'entrée et de sortie du fluide dans le stockage
 Tinj_sto=np.zeros(meteo.shape[0])
 # température de sortie du fluide après transit dans le stockage
@@ -213,6 +214,7 @@ on modélise l'eau du réseau comme une fonction sinusoidale de période annuell
 w=2*math.pi/npy
 T_eau=np.zeros(meteo.shape[0])
 besoin_ECS=np.zeros(meteo.shape[0])
+
 for i in range(i_summerStart,i_summerStart+npy):
     #T_eau[i]=(1 + math.sin(w*(i-summerStart))) * (Tentree_ete-Tentree_hiver) / 2
     T_eau[i]= ((Tentree_ete-Tentree_hiver) / 2)* math.sin(w*(i-summerStart)) + (Tentree_ete+Tentree_hiver) / 2
@@ -313,7 +315,7 @@ for i in range (int(i_summerStart),int(simEnd)):
         
         Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
         
-        Tsable[i]=Tsable[i-1]+step*F(Tsable[i-1],i-1) # La ligne clée du code: on utilise un Euler explicite pour déterminer Tsable ; un  Euler implicite serait un peu compliquée
+        Tsable[i]=Tsable[i-1]+step*F(Tsable[i-1],i-1) # La ligne clée du code: on utilise un Euler explicite pour déterminer Tsable ; un  Euler implicite serait un peu compliqué
     
         Tsor_sto[i] = ( k * Tsable[i]  + B * Tsor_dro[i] ) / ( k + B)
     
@@ -328,6 +330,8 @@ for i in range (int(i_summerStart),int(simEnd)):
         
         Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
         
+        Tsable[i]=Tsable[i-1]+step*F(Tsable[i-1],i-1)
+        
         Tinj_dro[i]=Tsor_dro[i]
 
         Tinj_sto[i] = Tinj_sto[i-1] 
@@ -335,7 +339,7 @@ for i in range (int(i_summerStart),int(simEnd)):
         Tsor_sto[i] = Tsor_sto[i-1]
              
     
-    """s
+    """
     Si la PAC fonctionne, on met à jour les températures d'entrée et de sortie de PAC
     """ 
     
