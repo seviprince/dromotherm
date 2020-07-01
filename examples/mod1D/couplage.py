@@ -72,66 +72,14 @@ def F(y,t):
     
     result : dy/dt = dTsable/dt = dTstockage/dt
     """
-    i = int(t/step)
+    i = int(t) 
+    
     if verbose:
         print("we have t={} and y={}".format(i,y))
     
-    dro=agenda_dro[i]
-    pac=agenda_pac[i]
-     
-    """
-    SI dro==1
-        - dromotherme en fonctionnement, on récupère de l'énergie et on alimente le stockage via l'échangeur de séparation de réseaux
-        - si pac==1, on en tient compte dans le calcul de der en incluant une consommation à hauteur de Pgeo[i]
-    SINON
-        - dromotherme arrêté, pas de fonctionnement ni du dromotherme, ni de l'échangeur de séparation de réseau....
-        - donc pas d'alimentation du stockage côté dromotherme
-        - si pac==1, on en tient compte dans le calcul de der en incluant une consommation à hauteur de Pgeo[i]
-    """
-    if dro == 1:
-        dromo.iterate(i,Tinj_dro[i-1]+kelvin,qdro_u)
-        
-        Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
-        
-        Tsor_sto[i] = ( k * y + B * Tsor_dro[i] ) / ( k + B)
-    
-        Tinj_sto[i] = Tsor_sto[i] + coeff * eff * (Tsor_dro[i] - Tsor_sto[i])
-    
-        Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
-       
-        
-    else:
-        dromo.iterate(i,Tinj_dro[i-1]+kelvin,0)
-        
-        Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
-        
-        Tinj_dro[i]=Tsor_dro[i]
-
-        Tinj_sto[i] = Tinj_sto[i-1] 
-        
-        Tsor_sto[i] = Tsor_sto[i-1]
-        
-    der = (dro*msto * cpsto * (Tinj_sto[i] - Tsor_sto[i]) - Pgeo[i] * pac ) / (m_sable * Cp_sable)
-    
-    diff[i]= der      
-    
-    """s
-    Si la PAC fonctionne, on met à jour les températures d'entrée et de sortie de PAC
-    """ 
-    
-    if pac == 1 :
-        
-        Tinj_pac[i] = y-C*Pgeo[i]/k
-
-        Tsor_pac[i] = Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
-    else:
-       
-        
-        Tinj_pac[i] = Tinj_pac[i-1]
-        Tsor_pac[i] = Tsor_pac[i-1]
-    if verbose:
-        print("dTsable/dt is {}".format(der))
-
+    # Je mets directement la forme développée de dy/dt sans calculs intermédiaires qui risqueraient de "forcer" un couplage      
+    der = (dro*msto * cpsto * (((( k * y + B * Tsor_dro[i] ) / ( k + B)) + coeff * eff * (Tsor_dro[i] - (( k * y + B * Tsor_dro[i] ) / ( k + B)))) -(( k * y + B * Tsor_dro[i] ) / ( k + B)) ) - Pgeo[i] * pac ) / (m_sable * Cp_sable)
+               
     return der
 
 # température d'entrée et de sortie du fluide dans le stockage
@@ -142,8 +90,9 @@ Tsor_sto=np.zeros(meteo.shape[0])
 Tsor_pac=np.zeros(meteo.shape[0])
 # température de sortie du fluide géothermique dans le stockage (entrée  de la PAC)
 Tinj_pac=np.zeros(meteo.shape[0])
+# température du stockage
+Tsable=np.zeros(meteo.shape[0])
 
-diff=np.zeros(meteo.shape[0])
 
 """
 On initialise les températures d'injection et de sortie dans le dromotherme à 10
@@ -340,7 +289,68 @@ plt.plot(agenda_pac,label="fonctionnement pac")
 plt.legend()
 plt.show()
 
-Tsable = odeint(F,10,meteo[i_summerStart:simEnd,0]*step)
+#Tsable = odeint(F,10,meteo[i_summerStart:simEnd,0]*step)
+
+for i in range (int(i_summerStart),int(simEnd)):
+    
+
+    dro=agenda_dro[i]
+    pac=agenda_pac[i]
+      
+      
+    """
+    SI dro==1
+        - dromotherme en fonctionnement, on récupère de l'énergie et on alimente le stockage via l'échangeur de séparation de réseaux
+        - si pac==1, on en tient compte dans le calcul de der en incluant une consommation à hauteur de Pgeo[i]
+    SINON
+        - dromotherme arrêté, pas de fonctionnement ni du dromotherme, ni de l'échangeur de séparation de réseau....
+        - donc pas d'alimentation du stockage côté dromotherme
+        - si pac==1, on en tient compte dans le calcul de der en incluant une consommation à hauteur de Pgeo[i]
+    """
+    
+    if dro == 1:
+        dromo.iterate(i,Tinj_dro[i-1]+kelvin,qdro_u)
+        
+        Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
+        
+        Tsable[i]=Tsable[i-1]+step*F(Tsable[i-1],i) # La ligne clée du code: on utilise un Euler explicite pour déterminer Tsable ; un  Euler implicite serait un peu compliquée
+    
+        Tsor_sto[i] = ( k * Tsable[i]  + B * Tsor_dro[i] ) / ( k + B)
+    
+        Tinj_sto[i] = (( k * Tsable[i] + B * Tsor_dro[i] ) / ( k + B)) + coeff * eff * (Tsor_dro[i] - (( k * Tsable[i] + B * Tsor_dro[i] ) / ( k + B)))
+    
+        Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
+       
+        
+    else:
+        
+        dromo.iterate(i,Tinj_dro[i-1]+kelvin,0)
+        
+        Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
+        
+        Tinj_dro[i]=Tsor_dro[i]
+
+        Tinj_sto[i] = Tinj_sto[i-1] 
+        
+        Tsor_sto[i] = Tsor_sto[i-1]
+             
+    
+    """s
+    Si la PAC fonctionne, on met à jour les températures d'entrée et de sortie de PAC
+    """ 
+    
+    if pac == 1 :
+        
+        Tinj_pac[i] = Tsable[i]-C*Pgeo[i]/k
+
+        Tsor_pac[i] = Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
+    else:
+       
+        
+        Tinj_pac[i] = Tinj_pac[i-1]
+        Tsor_pac[i] = Tsor_pac[i-1]
+    
+        
 
 """
 BILAN ENERGETIQUE
@@ -389,43 +399,43 @@ def graphe(start,stop):
     ax1.plot(meteo[start:stop,0],Tsor_dro[start:stop],label="Tsor_dro",color="red")
     ax1.plot(meteo[start:stop,0],Tinj_dro[start:stop],label="Tinj_dro",color="purple")
     ax1.legend(loc="upper left")
-    ax13=ax1.twinx()
-    ax13.plot(agenda_dro,label="dro ON/OFF")
-    ax13.legend(loc="upper right")
+    ax11=ax1.twinx()
+    ax11.plot(agenda_dro,label="dro ON/OFF")
+    ax11.legend(loc="upper right")
     
-    ax11 = plt.subplot(512, sharex=ax1)
-    ax11.plot(meteo[start:stop,0],meteo[start:stop,2],label="rayonnement global en W/m2",color="orange")
-    ax12=ax11.twinx()
-    ax12.plot(meteo[start:stop,0],meteo[start:stop,1],label="T ext")
-    ax11.legend(loc="upper left")
-    ax12.legend(loc="upper right")
-    
-    ax2 = plt.subplot(513, sharex=ax1)
-    plt.ylabel('stockage °C')
-    ax2.plot(meteo[start:stop,0],Tinj_sto[start:stop],label="Tinj_sto",color="orange")
-    ax2.plot(meteo[start:stop,0],Tsor_sto[start:stop],label="Tsor_sto",color="blue")
-    ax2.plot(meteo[i_summerStart:simEnd,0],Tsable,label="Tsable",color="red")
+    ax2 = plt.subplot(512, sharex=ax1)
+    ax2.plot(meteo[start:stop,0],meteo[start:stop,2],label="rayonnement global en W/m2",color="orange")
+    ax22=ax2.twinx()
+    ax22.plot(meteo[start:stop,0],meteo[start:stop,1],label="T ext")
     ax2.legend(loc="upper left")
-    ax21=ax2.twinx()
-    ax21.plot(diff,label="derivée")
-    ax21.legend(loc="upper right")
+    ax22.legend(loc="upper right")
+    
+    ax3 = plt.subplot(513, sharex=ax1)
+    plt.ylabel('stockage °C')
+    ax3.plot(meteo[start:stop,0],Tinj_sto[start:stop],label="Tinj_sto",color="orange")
+    ax3.plot(meteo[start:stop,0],Tsor_sto[start:stop],label="Tsor_sto",color="blue")
+    ax3.plot(meteo[start:stop,0],Tsable[start:stop],label="Tsable",color="red")
+    ax3.legend(loc="upper left")
+    #ax21=ax2.twinx()
+   # ax21.plot(diff,label="derivée",color="black")
+    #ax21.legend(loc="upper right")
     
     
     
-    ax3 = plt.subplot(514, sharex=ax1)
+    ax4 = plt.subplot(514, sharex=ax1)
     plt.ylabel('PAC °C')
-    ax3.plot(meteo[start:stop,0],Tinj_pac[start:stop],label="Tinj_pac",color="red")
-    ax3.plot(meteo[start:stop,0],Tsor_pac[start:stop],label="Tsor_pac",color="#7cb0ff")
-    ax3.plot(meteo[start:stop,0],Tinj_pac[start:stop]-Tsor_pac[start:stop],label="ecart de températures de la PAC",color="k")
-    ax3.legend()
+    ax4.plot(meteo[start:stop,0],Tinj_pac[start:stop],label="Tinj_pac",color="red")
+    ax4.plot(meteo[start:stop,0],Tsor_pac[start:stop],label="Tsor_pac",color="#7cb0ff")
+    ax4.plot(meteo[start:stop,0],Tinj_pac[start:stop]-Tsor_pac[start:stop],label="ecart de températures de la PAC",color="k")
+    ax4.legend()
     
-    ax4 = plt.subplot(515, sharex=ax1)
+    ax5 = plt.subplot(515, sharex=ax1)
     plt.ylabel('Bâtiment W')
     plt.xlabel("Temps - 1 unité = {} s".format(step))
-    ax4.plot(meteo[start:stop,0],besoin_total[start:stop],label="besoin total du bâtiment net W",color="orange")
-    ax4.plot(meteo[start:stop,0],besoin_ECS[start:stop],label="besoin en ECS ",color="g")
-    ax4.plot(meteo[start:stop,0],besoin_chauffage[start:stop],label="besoin chauffage W",color="red")
-    ax4.legend()
+    ax5.plot(meteo[start:stop,0],besoin_total[start:stop],label="besoin total du bâtiment net W",color="orange")
+    ax5.plot(meteo[start:stop,0],besoin_ECS[start:stop],label="besoin en ECS ",color="g")
+    ax5.plot(meteo[start:stop,0],besoin_chauffage[start:stop],label="besoin chauffage W",color="red")
+    ax5.legend()
     
     plt.show()
 
@@ -439,6 +449,8 @@ else:
     stop=simEnd
     
 graphe(start,stop)
+
+
 
 
 
