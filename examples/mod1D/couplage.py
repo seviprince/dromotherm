@@ -313,7 +313,7 @@ for i in range (int(i_summerStart),int(simEnd)):
         
         Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
         
-        Tsable[i]=Tsable[i-1]+step*F(Tsable[i-1],i) # La ligne clée du code: on utilise un Euler explicite pour déterminer Tsable ; un  Euler implicite serait un peu compliquée
+        Tsable[i]=Tsable[i-1]+step*F(Tsable[i-1],i-1) # La ligne clée du code: on utilise un Euler explicite pour déterminer Tsable ; un  Euler implicite serait un peu compliquée
     
         Tsor_sto[i] = ( k * Tsable[i]  + B * Tsor_dro[i] ) / ( k + B)
     
