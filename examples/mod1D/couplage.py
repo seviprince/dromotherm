@@ -16,7 +16,6 @@ IMPORTATION DES DONNES METEOS
 2 : rayonnement global (en W/m2)
 3 : rayonnement atmospherique (en W/m2)
 4 : vitesse du vent (en m/s)
-
 NOTA : principe d'un échantillonnage temporel à l'année = il faut donner à ce script un fichier meteo annuel
  
 la variable npy représente le nombre de points dans une année complète
@@ -63,8 +62,7 @@ dromo.f2 = f2
 dromo.T = np.ones((dromo.T.shape[0],dromo.T.shape[1],dromo.T.shape[2]))*10+kelvin
 print(dromo.T[0,:,:])
 
-
-def F(y,t):
+def StockLoop(y,t):
     """
     y : Tsable = Tstockage
     
@@ -74,6 +72,9 @@ def F(y,t):
     """
     i = int(t) 
     
+    dro=agenda_dro[i]
+    pac=agenda_pac[i]
+    
     if verbose:
         print("we have t={} and y={}".format(i,y))
     
@@ -82,6 +83,67 @@ def F(y,t):
                
     return der
 
+
+def SystemLoop(i):
+    
+    dro=agenda_dro[i]
+    pac=agenda_pac[i]
+      
+      
+    """
+    SI dro==1
+        - dromotherme en fonctionnement, on récupère de l'énergie et on alimente le stockage via l'échangeur de séparation de réseaux
+        - si pac==1, on en tient compte dans le calcul de der en incluant une consommation à hauteur de Pgeo[i]
+    SINON
+        - dromotherme arrêté, pas de fonctionnement ni du dromotherme, ni de l'échangeur de séparation de réseau....
+        - donc pas d'alimentation du stockage côté dromotherme
+        - si pac==1, on en tient compte dans le calcul de der en incluant une consommation à hauteur de Pgeo[i]
+    """
+    
+    if dro == 1:
+        dromo.iterate(i,Tinj_dro[i-1]+kelvin,qdro_u)
+        
+        Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
+        
+        Tsable[i]=Tsable[i-1]+step*StockLoop(Tsable[i-1],i-1) # La ligne clée du code: on utilise un Euler explicite pour déterminer Tsable ; un  Euler implicite serait un peu compliqué
+    
+        Tsor_sto[i] = ( k * Tsable[i]  + B * Tsor_dro[i] ) / ( k + B)
+    
+        Tinj_sto[i] = (( k * Tsable[i] + B * Tsor_dro[i] ) / ( k + B)) + coeff * eff * (Tsor_dro[i] - (( k * Tsable[i] + B * Tsor_dro[i] ) / ( k + B)))
+    
+        Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
+       
+        
+    else:
+        
+        dromo.iterate(i,Tinj_dro[i-1]+kelvin,0)
+        
+        Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
+        
+        Tsable[i]=Tsable[i-1]+step*StockLoop(Tsable[i-1],i-1)
+        
+        Tinj_dro[i]=Tsor_dro[i]
+
+        Tinj_sto[i] = Tinj_sto[i-1] 
+        
+        Tsor_sto[i] = Tsor_sto[i-1]
+             
+    
+    """
+    Si la PAC fonctionne, on met à jour les températures d'entrée et de sortie de PAC
+    """ 
+    
+    if pac == 1 :
+        
+        Tinj_pac[i] = Tsable[i]-C*Pgeo[i]/k
+
+        Tsor_pac[i] = Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
+    else:
+       
+        
+        Tinj_pac[i] = Tinj_pac[i-1]
+        Tsor_pac[i] = Tsor_pac[i-1]
+    
 
 # température d'entrée et de sortie du fluide dans le stockage
 Tinj_sto=np.zeros(meteo.shape[0])
@@ -216,7 +278,7 @@ T_eau=np.zeros(meteo.shape[0])
 besoin_ECS=np.zeros(meteo.shape[0])
 
 for i in range(i_summerStart,i_summerStart+npy):
-    #T_eau[i]=(1 + math.sin(w*(i-summerStart))) * (Tentree_ete-Tentree_hiver) / 2
+   
     T_eau[i]= ((Tentree_ete-Tentree_hiver) / 2)* math.sin(w*(i-summerStart)) + (Tentree_ete+Tentree_hiver) / 2
     # le besoin s'entend pour une journée, ie 24*3600 secondes
     # il faut donc diviser par 24*3600 pour convertir de J à W, Cpf étant exprimée en J/kg/K
@@ -295,65 +357,7 @@ plt.show()
 
 for i in range (int(i_summerStart),int(simEnd)):
     
-
-    dro=agenda_dro[i]
-    pac=agenda_pac[i]
-      
-      
-    """
-    SI dro==1
-        - dromotherme en fonctionnement, on récupère de l'énergie et on alimente le stockage via l'échangeur de séparation de réseaux
-        - si pac==1, on en tient compte dans le calcul de der en incluant une consommation à hauteur de Pgeo[i]
-    SINON
-        - dromotherme arrêté, pas de fonctionnement ni du dromotherme, ni de l'échangeur de séparation de réseau....
-        - donc pas d'alimentation du stockage côté dromotherme
-        - si pac==1, on en tient compte dans le calcul de der en incluant une consommation à hauteur de Pgeo[i]
-    """
-    
-    if dro == 1:
-        dromo.iterate(i,Tinj_dro[i-1]+kelvin,qdro_u)
-        
-        Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
-        
-        Tsable[i]=Tsable[i-1]+step*F(Tsable[i-1],i-1) # La ligne clée du code: on utilise un Euler explicite pour déterminer Tsable ; un  Euler implicite serait un peu compliqué
-    
-        Tsor_sto[i] = ( k * Tsable[i]  + B * Tsor_dro[i] ) / ( k + B)
-    
-        Tinj_sto[i] = (( k * Tsable[i] + B * Tsor_dro[i] ) / ( k + B)) + coeff * eff * (Tsor_dro[i] - (( k * Tsable[i] + B * Tsor_dro[i] ) / ( k + B)))
-    
-        Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
-       
-        
-    else:
-        
-        dromo.iterate(i,Tinj_dro[i-1]+kelvin,0)
-        
-        Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
-        
-        Tsable[i]=Tsable[i-1]+step*F(Tsable[i-1],i-1)
-        
-        Tinj_dro[i]=Tsor_dro[i]
-
-        Tinj_sto[i] = Tinj_sto[i-1] 
-        
-        Tsor_sto[i] = Tsor_sto[i-1]
-             
-    
-    """
-    Si la PAC fonctionne, on met à jour les températures d'entrée et de sortie de PAC
-    """ 
-    
-    if pac == 1 :
-        
-        Tinj_pac[i] = Tsable[i]-C*Pgeo[i]/k
-
-        Tsor_pac[i] = Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
-    else:
-       
-        
-        Tinj_pac[i] = Tinj_pac[i-1]
-        Tsor_pac[i] = Tsor_pac[i-1]
-    
+    SystemLoop(i)
         
 
 """
