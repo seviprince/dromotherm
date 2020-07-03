@@ -225,7 +225,7 @@ class OneDModel:
     """
     dromotherm 1D model
     """
-    def __init__(self,fname,dt,nt,L=4,l=7.5,dx=0.75):
+    def __init__(self,fname,dt,nt,L=4,dx=0.75):
         """
         fname : nom du fichier contenant les paramètres définissant la chaussée.
         chaque ligne est une couche et contient 3 valeurs séparées par des espaces :
@@ -237,8 +237,7 @@ class OneDModel:
 
         L : largeur de chaussée en m
         
-        l: la longueur de la chaussée en m ; on prend l=5m pour avoir une surface de 20m2 capable de chauffer le bâtiment
-
+        
         dx : pas d'espace en m
 
        
@@ -279,8 +278,7 @@ class OneDModel:
         self.dt = dt
         self.L = L
         self.dx = dx
-       # self.qf = qfu*l
-        self.l=l
+       
         
         self.ha = _input[:,0]
         self.le = _input[:,1]
@@ -296,17 +294,21 @@ class OneDModel:
         self.B[0:nc-1] = - dt * self.le[0:nc-1]
         self.C[1:nc] = - dt * self.le[0:nc-1]
 
-    def iterate(self,n,Tinj,qf):
+    def iterate(self,n,Tinj,qfu):
         """
         n : time index (number of time steps)
 
         Tinj : injection temperature expressed in K
+    
+        qfu : débit volumique unitaire du fluide (m^3/s)
         
-         qf : débit volumique du fluide (m^3/s)
+        Seul le débit unitaire joue lors d'une itération de dromotherme. 
+        Sur l'échangeur de séparation de réseau, c'est le debit total qui joue soit l*qfu, avec l linéaire de chaussée selon le profil en long
         """
         lambd = 10000000 # raideur pour imposer Tinj
         nx = self.T.shape[2]
         dt = self.dt
+        
         for j in range(0,nx):
             self.A[0] = dt * (self.f2[n] + self.le[0] + 4.0*epsilon*sigma*self.T[n-1,0,j]**3) + self.ha[0] * self.rc[0]
             R = self.ha*self.rc*self.T[n-1,:,j]
@@ -317,7 +319,7 @@ class OneDModel:
                self.C[1] = 0.0
                self.B[1] = 0.0
             else:
-               R[1] = R[1] + dt * (qf * Cpf * rho_eau /(self.l*self.dx)) * (self.T[n-1,1,j-1]-self.T[n-1,1,j])
+               R[1] = R[1] + dt * (qfu * Cpf * rho_eau /(self.dx)) * (self.T[n-1,1,j-1]-self.T[n-1,1,j])
                self.C[1] = - dt * self.le[0]
                self.B[1] = - dt * self.le[1]
                self.A[1] = dt * (self.le[0] + self.le[1]) + self.ha[1] * self.rc[1]
