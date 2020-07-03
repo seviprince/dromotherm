@@ -3,8 +3,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 from dromosense.tools import *
 from dromosense.constantes import rho_eau,Cpf,kelvin
-from scipy.integrate import odeint
-#from scipy.integrate import solve_ivp
 import math
 from datetime import datetime
 from dateutil import tz
@@ -108,16 +106,20 @@ def graphe(s,e):
     
     ax1 = plt.subplot(511)
     l1 = "couplage dromotherme/échangeur de séparation de réseau/stockage/PAC"
+    if ECSupply:
+        l2 = "température de consigne dans le bâtiment : {} °C - température ECS : {} °C".format(Tconsigne,Tballon)
+    else:
+        l2 = "température de consigne dans le bâtiment : {} °C".format(Tconsigne)
     if label:
-        l1 = "{} / {}".format(l1,label)
-    l2 = "température de consigne dans le bâtiment : {} °C".format(Tconsigne)
-    plt.title("{}\n{} -> {}\n{}\n".format(l1,_s,_e,l2))
+        plt.title("{}\n{} -> {} - {} \n{}\n".format(l1,_s,_e,label,l2))
+    else:
+        plt.title("{}\n{} -> {}\n{}\n".format(l1,_s,_e,l2))
     
     ## graphe 1 - la route
     plt.ylabel('dromotherme')
     
     ax1.plot(xrange, agenda_dro[s:e], color=clearblue, label="dro ON/OFF")
-    ax1.legend(loc="upper left")
+    ax1.legend(loc="lower left")
     
     ax11 = ax1.twinx()
     ax11.plot(xrange, Tsor_dro[s:e], label="Tsor_dro", color="red")
@@ -128,7 +130,7 @@ def graphe(s,e):
     ax2 = plt.subplot(512, sharex=ax1)
     
     ax2.plot(xrange,meteo[s:e,2],label="rayonnement global en W/m2",color="orange")
-    ax2.legend(loc="upper left")
+    ax2.legend(loc="lower left")
     
     ax21 = ax2.twinx()
     ax21.plot(xrange, meteo[s:e,1], label="T ext")
@@ -386,7 +388,7 @@ exemples :
 7) usecase=3 avec ECSSupply=False => dromotherme été + hiver si rayonnement au dessus d'un seuil et utilisation pour chauffage sur hiver entier
 8) usecase=3 avec ECSSupply=True => dromotherme été + hiver si rayonnement au dessus d'un seuil et utilisation pour chauffage+ECS sur hiver entier
 """
-ECSupply=False
+ECSupply=True
 usecase=3
 """
 *************************************
