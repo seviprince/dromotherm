@@ -206,6 +206,8 @@ NOTA : principe d'un échantillonnage temporel à l'année = il faut donner à c
 la variable npy représente le nombre de points dans une année complète
 dans le cas présent, l'intervalle de temps est l'heure. 
 Si on choisit un autre pas, il faut changer la variable step, exprimée en secondes, manuellement !!!!
+Dansc ce cas, si on désigne par dt1 le nouveau pas de temps, il va falloir multiplier le pas d'espace dx par dt1/3600 
+pour respecter la condition de stabilité du schema numérique utilisé au niveau du domotherm.
 """
 
 #meteo = np.loadtxt('../../datas/meteo_Bourget_du_lac.txt') 
@@ -272,8 +274,8 @@ Tsor_dro=10*np.ones(meteo.shape[0])
 """
 massif de stockage
 """
-m_sable=70200.0 # masse de sable en kg
-Cp_sable=1470.0 # capacité calorifique massique du sable en J/Kg.K
+m_sable=70200.0 # masse de sable humide (sable sec + eau ) en kg
+Cp_sable=1470.0 # capacité calorifique massique du sable humide en J/Kg.K
 
 """
 paramètres définissant le système géothermique équipant le stockage
