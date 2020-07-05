@@ -1,4 +1,4 @@
-![](https://github.com/actions/dromotherm/workflows/couplage1/badge.svg)
+![](https://github.com/seviprince/dromotherm/workflows/couplage1/badge.svg)
 
 # Codes et Notebooks liés au projet Dromotherm
 
