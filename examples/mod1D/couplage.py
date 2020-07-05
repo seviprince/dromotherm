@@ -7,6 +7,7 @@ import math
 from datetime import datetime
 from dateutil import tz
 CET=tz.gettz('Europe/Paris')
+import sys
 
 def ts_to_h(ts):
     """
@@ -390,8 +391,12 @@ exemples :
 7) usecase=3 avec ECSSupply=False => dromotherme été + hiver si rayonnement au dessus d'un seuil et utilisation pour chauffage sur hiver entier
 8) usecase=3 avec ECSSupply=True => dromotherme été + hiver si rayonnement au dessus d'un seuil et utilisation pour chauffage+ECS sur hiver entier
 """
-ECSupply=True
-usecase=3
+if len(sys.argv) > 2:
+    ECSupply= (sys.argv[1] == "True")
+    usecase= int(sys.argv[2])
+else:    
+    ECSupply=True
+    usecase=3
 """
 *************************************
 *************************************
