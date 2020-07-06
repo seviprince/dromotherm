@@ -47,9 +47,11 @@ def StockLoop(i):
 
 def SystemLoop(i):
     """
-    On commence par mettre à jour les température d'injection et de sortie de la PAC
+    1) On applique StockLoop avec les résutats de l'état précédant, ce qui nous permet de calculer Tsable[i]
     
-    On réalise ensuite une itération de dromotherme selon 2 cas distincts :
+    2) On met à jour les température d'injection et de sortie de la PAC
+    
+    3) On réalise ensuite une itération de dromotherme selon 2 cas distincts :
     
     - le dromotherme est en marche et le fluide circule avec un débit unitaire qdro_u
     
@@ -57,20 +59,20 @@ def SystemLoop(i):
       
     - le dromotherme est à l'arrêt : le débit est nul et l'échangeur de séparation de réseau ne tourne pas
     
-      1) pas de prélèvement par l'échangeur de séparation de réseau
-      
-         la température d'injection dans le dromotherme est égale à la température de sortie
+      a) pas de prélèvement par l'échangeur de séparation de réseau : Tinj_dro[i] = Tsor_dro[i]
          
-      2) fonctionnement à perte nulle
-      
-         les températures d'injection et de sortie au niveau du stockage sont égales à celles correspondant à l'itération précédante
-         
-    Dans tous les cas, on applique StockLoop
+      b) fonctionnement à perte nulle pour le stockage: Tsor_sto[i]=Tsor_sto[i-1] et Tinj_sto[i]=Tinj_sto[i-1]
+    
     """
+    # étape 1    
+    Tsable[i]=StockLoop(i-1)
     
     dro=agenda_dro[i]
     pac=agenda_pac[i]
-    y = Tsable[i-1]
+    
+    y = Tsable[i]
+    
+    # étape 2
     if pac == 1 :
         Tinj_pac[i] = y-C*Pgeo[i]/k
         Tsor_pac[i] = Tinj_pac[i]-Pgeo[i]/(mpac*cpac)
@@ -78,6 +80,7 @@ def SystemLoop(i):
         Tinj_pac[i] = Tinj_pac[i-1]
         Tsor_pac[i] = Tsor_pac[i-1]
     
+    # étape 3
     if dro == 1:
         dromo.iterate(i,Tinj_dro[i-1]+kelvin,qdro_u)
         Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
@@ -92,7 +95,6 @@ def SystemLoop(i):
         Tinj_sto[i] = Tinj_sto[i-1] 
         Tsor_sto[i] = Tsor_sto[i-1]
     
-    Tsable[i]=StockLoop(i-1)
 
 def graphe(s,e):
     """
