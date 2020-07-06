@@ -36,4 +36,10 @@ jobs:
     - name: couplage.py run
       run: |
         cd examples/mod1D
-        python couplage.py
+        python couplage.py True 0 "SummerProdECS"
+        python couplage.py False 0 "SummerProd"
+    - name: Upload results
+      uses: actions/upload-artifact@v1
+      with:
+        name: figures
+        path: *.png
