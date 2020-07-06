@@ -9,6 +9,29 @@ from dateutil import tz
 CET=tz.gettz('Europe/Paris')
 import sys
 
+"""
+Fonctionnement en mode API
+
+Le script peut être piloté en ligne de commande
+
+Pour lancer le cas d'usage 0 avec ECS, il faut taper la commande suivante :
+
+```
+python couplage.py True 0
+```
+
+premier paramètre : True ou False pour activer ou non la production d'ECS
+
+second paramètre : numéro du cas d'usage
+
+Pour en plus enregistrer le graphe sortant dans le répertoire courant, 
+il faut rajouter un troisième paramètre indiquant le nom à utiliser pour le graphique, sans préciser l'extension:
+
+```
+python couplage.py True 0 "SummerProdECS"
+```
+"""
+
 def ts_to_h(ts):
     """
     format a timestamp to something readable by a human
@@ -174,6 +197,10 @@ def graphe(s,e):
     ax51.legend(loc="upper right")
     
     plt.show()
+    
+    if len(sys.argv) > 3:
+        if sys.argv[3]:
+            figure.savefig("{}.png".format(sys.argv[3]))
 
 def ECSPower(min, max):
     """
