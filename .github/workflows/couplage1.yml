@@ -38,6 +38,12 @@ jobs:
         cd examples/mod1D
         python couplage.py True 0 "SummerProdECS"
         python couplage.py False 0 "SummerProd"
+        python couplage.py True 1 "SummerProdChauffageECS"
+        python couplage.py False 1 "SummerProdChauffage"
+        python couplage.py True 2 "AllYearProdChauffageECS"
+        python couplage.py False 2 "AllYearProdChauffage"
+        python couplage.py True 3 "ProdIfRayAbove250ChauffageECS"
+        python couplage.py False 3 "ProdIfRayAbove250Chauffage"
         mkdir figures
         mv *.png figures/
     - name: Upload results
