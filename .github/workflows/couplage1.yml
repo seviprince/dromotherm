@@ -38,8 +38,10 @@ jobs:
         cd examples/mod1D
         python couplage.py True 0 "SummerProdECS"
         python couplage.py False 0 "SummerProd"
+        mkdir figures
+        mv *.png figures/
     - name: Upload results
       uses: actions/upload-artifact@v1
       with:
         name: figures
-        path: 'examples/mod1D/*.png'
+        path: 'examples/mod1D/figures'
