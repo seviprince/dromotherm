@@ -42,4 +42,4 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: figures
-        path: SummerProdECS.png SummerProd.png
+        path: ?.png
