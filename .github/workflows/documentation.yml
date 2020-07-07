@@ -1,5 +1,9 @@
 name: documentation
-on: [push]
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'dromosense/'
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
