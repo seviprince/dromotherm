@@ -82,7 +82,7 @@ def SystemLoop(i):
     
     - le dromotherme est en marche et le fluide circule avec un débit unitaire qdro_u
       
-      Test = température de sortie du dromotherme inférieure à la température de stockage ?
+      Test = température de sortie du dromotherme supérieure à la température de stockage ?
       
       Si test négatif, pas d'échange d'énergie entre la route et le stock, on passe la valeur de agenda_dro[i] à 0
       
@@ -170,7 +170,7 @@ def graphe(s,e):
     ax11.plot(xrange, Tinj_dro[s:e], label="Tinj_dro", color="purple")
     ax11.legend(loc="upper right")
     
-    ## graphe 2 - la météo
+    ## graphe 2 - l'énergie
     ax2 = plt.subplot(512, sharex=ax1)
     
     ax2.plot(xrange, larcha*lincha*meteo[s:e,2], label="RTD", color="yellow")
