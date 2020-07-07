@@ -23,6 +23,7 @@ jobs:
           pip install numpy matplotlib
           if [ -d docs ]; then rm -Rf docs; fi
           pdoc --html -o docs dromosense
+          cd docs
           ls -al
 
       - name: Deploy 🚀
