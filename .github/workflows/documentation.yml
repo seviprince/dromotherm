@@ -3,7 +3,7 @@ on:
   push:
     branches: [ master ]
     paths:
-      - 'dromosense/'
+      - 'dromosense/*'
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
