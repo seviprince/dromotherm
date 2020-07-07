@@ -29,7 +29,7 @@ print(meteo.shape)
 f2 = 1000.0*1.1*(0.0036*meteo[:,4]+0.00423)
 f1 = (1.0-albedo)*meteo[:,2] + meteo[:,3] + f2*(meteo[:,1]+kelvin)
 
-dromo=OneDModel('input.txt',step,meteo.shape[0],4,0.75,qdro)
+dromo=OneDModel('input.txt',step,meteo.shape[0],4,0.75)
 dromo.f1 = f1
 dromo.f2 = f2
 
