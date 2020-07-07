@@ -103,21 +103,43 @@ def SystemLoop(i):
         Tinj_pac[i] = Tinj_pac[i-1]
         Tsor_pac[i] = Tsor_pac[i-1]
     
+   
     # étape 3
+
     if dro == 1:
+
         dromo.iterate(i,Tinj_dro[i-1]+kelvin,qdro_u)
+
         Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
-        Tsor_sto[i] = ( k * y + B * Tsor_dro[i] ) / ( k + B)
-        Tinj_sto[i] = Tsor_sto[i] + coeff * eff * (Tsor_dro[i] - Tsor_sto[i])
-        Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
         
-    else:
-        dromo.iterate(i,Tinj_dro[i-1]+kelvin,0)
-        Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
-        Tinj_dro[i]=Tsor_dro[i]
-        Tinj_sto[i] = Tinj_sto[i-1] 
-        Tsor_sto[i] = Tsor_sto[i-1]
+        # Si la température du stockage devient
+
+        if Tsor_dro[i] < y :
+
+            print("step {} y vaut {} et prev vaut {}".format(i,y,Tsor_dro[i]))
     
+            agenda_dro[i] = 0
+            
+            dromo.iterate(i,Tinj_dro[i-1]+kelvin,0)
+            
+            Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
+    
+            Tinj_dro[i]=Tsor_dro[i]
+    
+            Tinj_sto[i] = Tinj_sto[i-1] 
+    
+            Tsor_sto[i] = Tsor_sto[i-1]
+
+        else :
+
+            Tsor_sto[i] = ( k * y + B * Tsor_dro[i] ) / ( k + B)
+    
+            Tinj_sto[i] = Tsor_sto[i] + coeff * eff * (Tsor_dro[i] - Tsor_sto[i])
+    
+            Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
+    
+    
+   
 
 def graphe(s,e):
     """
