@@ -3,7 +3,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 from dromosense.tools import *
 from dromosense.constantes import rho_eau,Cpf,kelvin
-import cmath as math
 
 start = 1483232400
 summerStart = 1496278800
@@ -49,7 +48,7 @@ cpdro = Cpf
 Pdro = mdro * cpdro * np.maximum(dromo.T[:,1,-1] - Tinj , np.zeros(meteo.shape[0]))
 
 Edro=np.sum(step*Pdro)/(3600*1000)
-Esolaire=np.sum(step*4*meteo[:,2])/(3600*1000)
+Esolaire=np.sum(step*4*meteo[:,2][i_summerStart:i_summerEnd])/(3600*1000)
 print(Edro)
 print(Esolaire)
 # taux de récupération en %
