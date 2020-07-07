@@ -44,7 +44,7 @@ def StockLoop(i):
     
     calcule la dérivée de la température du massif de stockage en K/s ou °C/s
     
-    retourne la valeur de Tsable[i+1]
+    retourne la valeur de Tsable[i+1] à partir de celle de Tsable[i]
     
     4 cas distincts :
     
