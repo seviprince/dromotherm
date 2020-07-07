@@ -3,9 +3,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 from dromosense.tools import *
 from dromosense.constantes import rho_eau,Cpf,kelvin
-from scipy.integrate import odeint
-#from scipy.integrate import solve_ivp
-import cmath as math
 
 # débit dans le dromotherme
 qdro = 0.035/3600 # m3/s
