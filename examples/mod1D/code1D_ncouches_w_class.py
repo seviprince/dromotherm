@@ -43,17 +43,6 @@ input("press any key")
 
 for n in range(i_summerStart,i_summerEnd):
     dromo.iterate(n,Tinj,qdro)
-    
-"""
-T1d contiendra les températures des couches à la sortie du dromotherme
-pour charger T1d.txt
-_test = np.loadtxt('T1d.txt')
-axe 0 : temps
-axe 1 : z
-_test[:,0] : couche de surface
-_test[:,1] : couche drainante
-"""
-np.savetxt('T1d.txt', dromo.T[:,:,-1]-kelvin, fmt='%.2e')
 
 mdro = qdro * rho_eau
 cpdro = Cpf
