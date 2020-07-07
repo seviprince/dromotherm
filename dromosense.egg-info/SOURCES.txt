@@ -1,0 +1,8 @@
+README.md
+setup.py
+dromosense/__init__.py
+dromosense/importation.py
+dromosense.egg-info/PKG-INFO
+dromosense.egg-info/SOURCES.txt
+dromosense.egg-info/dependency_links.txt
+dromosense.egg-info/top_level.txt
