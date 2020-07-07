@@ -49,17 +49,17 @@ Pdro = mdro * cpdro * np.maximum(dromo.T[:,1,-1] - Tinj , np.zeros(meteo.shape[0
 
 Edro=np.sum(step*Pdro)/(3600*1000)
 Esolaire=np.sum(step*4*meteo[:,2][i_summerStart:i_summerEnd])/(3600*1000)
-print(Edro)
-print(Esolaire)
+print("Energie récupérée par le dromotherme {}".format(Edro))
+print("Energie reçue par le dromotherme {}".format(Esolaire))
 # taux de récupération en %
 Taux=Edro*100/Esolaire
-print(Taux)
-    
+print("rendement {}".format(int(Taux)))
+
 plt.subplot(211)
-plt.plot(dromo.T[:,1,-1]-kelvin,label="1D model T sortie couche drainante")
+plt.plot(dromo.T[:,1,-1]-kelvin,label="1D model T sortie couche drainante °C")
 plt.legend()
 plt.subplot(212)
-plt.plot(4*meteo[:,2], label="rayonnement sur dromotherme en W", color="orange")
-plt.plot(Pdro, label="énergie captée par le dromotherme en W")
+plt.plot(4*meteo[:,2], label="rayonnement sur dromotherme : {} W".format(int(Esolaire)), color="orange")
+plt.plot(Pdro, label="énergie captée par le dromotherme : {} W soit un rendement de {} %".format(int(Edro),int(Taux)), color="green")
 plt.legend()
 plt.show()
