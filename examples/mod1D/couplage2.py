@@ -81,8 +81,12 @@ def SystemLoop(i):
     3) On réalise ensuite une itération de dromotherme selon 2 cas distincts :
     
     - le dromotherme est en marche et le fluide circule avec un débit unitaire qdro_u
-    
-      on récupère de l'énergie et on alimente le stockage via l'échangeur de séparation de réseaux
+      
+      Test = température de sortie du dromotherme inférieure à la température de stockage ?
+      
+      Si test négatif, pas d'échange d'énergie entre la route et le stock, on passe la valeur de agenda_dro[i] à 0
+      
+      Si test positif, alimentation du stockage via l'échangeur de séparation de réseaux
       
     - le dromotherme est à l'arrêt : le débit est nul et l'échangeur de séparation de réseau ne tourne pas
     
