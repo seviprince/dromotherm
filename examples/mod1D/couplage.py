@@ -42,6 +42,10 @@ def StockLoop(i):
     """
     réalise une itération sur la température du stockage
     
+    calcule la dérivée de la température du massif de stockage en K/s ou °C/s
+    
+    retourne la valeur de Tsable[i+1]
+    
     4 cas distincts :
     
     1) appel d'énergie en provenance du bâtiment + dromotherme en marche
