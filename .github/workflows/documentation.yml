@@ -17,6 +17,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install pdoc3
           pip install numpy matplotlib
+          if [ -d docs ]; then rm -Rf docs; fi
           pdoc --html -o docs dromosense
           ls -al
 
