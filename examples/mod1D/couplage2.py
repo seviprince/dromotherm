@@ -84,7 +84,7 @@ def SystemLoop(i):
       
       Test = température de sortie du dromotherme supérieure à la température de stockage ?
       
-      Si test négatif, pas d'échange d'énergie entre la route et le stock, on passe la valeur de agenda_dro[i] à 0
+      Si test négatif, pas d'échange d'énergie entre la route et le stock, cf dromotherme à l'arrêt + on passe la valeur de agenda_dro[i] à 0
       
       Si test positif, alimentation du stockage via l'échangeur de séparation de réseaux
       
