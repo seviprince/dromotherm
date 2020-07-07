@@ -6,10 +6,12 @@ name: couplage1
 on:
   push:
     branches: [ master ]
+    paths:
+      - 'examples/mod1D/couplage.py'
   pull_request:
     branches: [ master ]
-  paths:
-    - 'examples/mod1D/couplage.py'
+    paths:
+      - 'examples/mod1D/couplage.py'
 
 jobs:
   build:
