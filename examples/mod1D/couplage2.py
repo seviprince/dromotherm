@@ -42,6 +42,8 @@ def StockLoop(i):
     """
     réalise une itération sur la température du stockage
     
+    calcule la dérivée de la température du massif de stockage en K/s ou °C/s
+    
     4 cas distincts :
     
     1) appel d'énergie en provenance du bâtiment + dromotherme en marche
@@ -107,9 +109,16 @@ def SystemLoop(i):
     if dro == 1:
         dromo.iterate(i,Tinj_dro[i-1]+kelvin,qdro_u)
         Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
-        Tsor_sto[i] = ( k * y + B * Tsor_dro[i] ) / ( k + B)
-        Tinj_sto[i] = Tsor_sto[i] + coeff * eff * (Tsor_dro[i] - Tsor_sto[i])
-        Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
+        if Tsor_dro[i] < y :
+            #print("step {} y vaut {} et prev vaut {}".format(i,y,Tsor_dro[i]))
+            agenda_dro[i] = 0
+            Tinj_dro[i]=Tsor_dro[i]
+            Tinj_sto[i] = Tinj_sto[i-1] 
+            Tsor_sto[i] = Tsor_sto[i-1]
+        else :
+            Tsor_sto[i] = ( k * y + B * Tsor_dro[i] ) / ( k + B)
+            Tinj_sto[i] = Tsor_sto[i] + coeff * eff * (Tsor_dro[i] - Tsor_sto[i])
+            Tinj_dro[i] = Tsor_dro[i] - eff * (Tsor_dro[i] - Tsor_sto[i])
         
     else:
         dromo.iterate(i,Tinj_dro[i-1]+kelvin,0)
@@ -155,7 +164,8 @@ def graphe(s,e):
     ## graphe 2 - la météo
     ax2 = plt.subplot(512, sharex=ax1)
     
-    ax2.plot(xrange,meteo[s:e,2],label="rayonnement global en W/m2",color="orange")
+    ax2.plot(xrange, larcha*lincha*meteo[s:e,2], label="rayonnement sur dromotherme en W", color="orange")
+    ax2.plot(xrange, larcha*lincha*(agenda_dro*meteo[:,2])[s:e], label="rayonnement sur dromotherme en W lorsqu'il est en opération", color="red"); 
     ax2.legend(loc="lower left")
     
     ax21 = ax2.twinx()
@@ -166,7 +176,7 @@ def graphe(s,e):
     ax3 = plt.subplot(513, sharex=ax1)
     plt.ylabel('stockage')
     
-    ax3.plot(xrange, diff[s:e], color=clearblue, label="derivée")
+    ax3.plot(xrange, diff[s:e], color=clearblue, label="derivée de Tsable en °C/s ou K/s")
     ax3.legend(loc="upper left")
     
     ax31 = ax3.twinx()
@@ -193,7 +203,6 @@ def graphe(s,e):
     ax5.legend(loc="upper left")
     
     ax51 = ax5.twinx()
-    ax51.plot(xrange, larcha*lincha*(agenda_dro*meteo[:,2])[s:e], color="red", label="énergie solaire"); 
     ax51.plot(xrange, Pdro[s:e], label="énergie captée par le dromotherme en W", color=clearblue); 
     ax51.plot(xrange, besoin_total[s:e], label="besoin {} en W".format(heating), color="orange")
     ax51.legend(loc="upper right")
@@ -440,8 +449,6 @@ else:
             
 besoin_total = besoin_chauffage + ECSupply * ECS
 
-besoin_surfacique = besoin_total / Scap
-
 Pgeo = (COP-1) * besoin_total / COP
 
 label = ""
@@ -494,18 +501,7 @@ if usecase == 3:
     for i in range(simStart,simEnd):
         if meteo[i,2] >= level:
             agenda_dro[i]=1
-
-if usecase == 4:
-    simStart = i_summerStart
-    simEnd = i_summerEnd
-    agenda_pac[simStart:simEnd]=np.ones(simEnd-simStart)
-    heating = "ECS"
-    level=250
-    label = "si ray.>250 W/m2 : dromo on".format(level) 
-    for i in range(simStart,simEnd):
-        if meteo[i,2] >= level:
-            agenda_dro[i]=1
-            
+    
 for i in range(simStart,simEnd):
     if Pgeo[i]==0:
         agenda_pac[i]=0            
@@ -530,25 +526,35 @@ Pdro = mdro * cpdro * agenda_dro * ( Tsor_dro - Tinj_dro )
 # toutes valeurs en kWh/m^2
 Edro=np.sum(Pdro)*step/(Surface_dro*3600*1000)
 Esolaire=np.sum(step*agenda_dro*meteo[:,2])/(3600*1000)
-conso_bat=np.sum(agenda_pac*besoin_surfacique)*step/(3600*1000)
+
+"""
+
+"""
+conso_bat=np.sum(agenda_pac*besoin_total/Scap)*step/(3600*1000)
 Eelec=conso_bat/COP
 Eprimaire=2.58*Eelec
+
 # taux de récupération en %
 Taux=Edro*100/Esolaire
 
-ax1=plt.subplot(311)
+ax1=plt.subplot(411)
 plt.plot(agenda_dro,color="gray", label="dromo ON OFF ")
 plt.legend(loc="upper left")
 ax2=ax1.twinx()
 plt.plot(Tsor_dro,color="red", label="T sortie du le dromotherme °C")
 plt.plot(Tinj_dro,color="green", label="T injection dans le dromotherme °C")
 plt.legend(loc="upper right")
-plt.subplot(312, sharex=ax1)
-plt.plot(agenda_dro*meteo[:,2]*Surface_dro,label="énergie solaire reçue par l'échangeur en W", color="yellow")
+plt.subplot(412, sharex=ax1)
+plt.plot(meteo[:,2]*Surface_dro,label="tte l'énergie solaire reçue par l'échangeur en W", color="#f8cccc")
+plt.plot(agenda_dro*meteo[:,2]*Surface_dro,label="énergie solaire reçue par l'échangeur en W lorsque le dromotherm tourne", color="yellow")
 plt.plot(Pdro,label="énergie captée par le dromotherme en W", color="orange")
 plt.legend()
-plt.subplot(313, sharex=ax1)
-plt.plot(agenda_pac*besoin_surfacique)
+plt.subplot(413, sharex=ax1)
+plt.plot(agenda_pac*besoin_total, label="besoin en W")
+plt.legend()
+plt.subplot(414, sharex=ax1)
+plt.plot(diff, label="dérivée de la température du stock en K/s ou °C/s")
+plt.legend()
 plt.show()
 """
 affichages énergétiques
