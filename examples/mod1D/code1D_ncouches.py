@@ -88,7 +88,7 @@ plt.show()
 
 L = 4.0 # Largeur de chaussee en m
 dx = 0.75 # pas d'espace en m
-qf = 0.035/3600.0         # debit volumique du fluide (m^3/s)
+qf = 0.0/3600.0         # debit volumique du fluide (m^3/s)
 Cf = Cpf*rho_eau #4200000.0 # capacite calorifique volumique de l'eau (J/(m3.K))
 phi = 0.0     #( porosite de la couche drainante)
 l=3 # largeur de la chaussée

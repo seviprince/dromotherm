@@ -3,6 +3,12 @@ import matplotlib
 import matplotlib.pyplot as plt
 from dromosense.tools import *
 from dromosense.constantes import rho_eau,Cpf,kelvin
+from scipy.integrate import odeint
+#from scipy.integrate import solve_ivp
+import cmath as math
+
+# débit dans le dromotherme
+qdro = 0.035/3600 # m3/s
 
 start = 1483232400
 summerStart = 1496278800
@@ -10,12 +16,9 @@ summerStart = 1496278800
 summerEnd=1504141200 # 30 août
 step=3600
 
-# débit dans le dromotherme
-qdro = 0.035/step # m3/s
-
 """
 IMPORTATION DES DONNES METEOS (VARIABLES EN FONCTION DU TEMPS)
-0 : temps exprime en heure 
+0 : temps exprime en heure
 1 : temperature d'air (en deg Celsius)
 2 : rayonnement global (en W/m2)
 3 : rayonnement atmospherique (en W/m2)
@@ -26,7 +29,7 @@ print(meteo.shape)
 f2 = 1000.0*1.1*(0.0036*meteo[:,4]+0.00423)
 f1 = (1.0-albedo)*meteo[:,2] + meteo[:,3] + f2*(meteo[:,1]+kelvin)
 
-dromo=OneDModel('input.txt',step,meteo.shape[0],4,0.75)
+dromo=OneDModel('input.txt',step,meteo.shape[0],4,0.75,qdro)
 dromo.f1 = f1
 dromo.f2 = f2
 
