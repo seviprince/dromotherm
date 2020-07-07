@@ -127,7 +127,7 @@ B[0:nc-1] = - dt * le[0:nc-1]
 C[1:nc] = - dt * le[0:nc-1]
 
 for n in range(1,nt):
-    dromo.iterate(n,Tinj)
+    dromo.iterate(n,Tinj,qf)
     for j in range(0,nx):
         A[0] = dt * (f2[n] + le[0] + 4.0*epsilon*sigma*T[n-1,0,j]**3) + ha[0] * rc[0]
         R = ha*rc*T[n-1,:,j]

@@ -3,18 +3,16 @@ import matplotlib
 import matplotlib.pyplot as plt
 from dromosense.tools import *
 from dromosense.constantes import rho_eau,Cpf,kelvin
-from scipy.integrate import odeint
-#from scipy.integrate import solve_ivp
 import cmath as math
-
-# débit dans le dromotherme
-qdro = 0.035/3600 # m3/s
 
 start = 1483232400
 summerStart = 1496278800
 #summerEnd = 1506819600 # 30 septembre
 summerEnd=1504141200 # 30 août
 step=3600
+
+# débit dans le dromotherme
+qdro = 0.035/step # m3/s
 
 """
 IMPORTATION DES DONNES METEOS (VARIABLES EN FONCTION DU TEMPS)
@@ -29,7 +27,7 @@ print(meteo.shape)
 f2 = 1000.0*1.1*(0.0036*meteo[:,4]+0.00423)
 f1 = (1.0-albedo)*meteo[:,2] + meteo[:,3] + f2*(meteo[:,1]+kelvin)
 
-dromo=OneDModel('input.txt',step,meteo.shape[0],4,0.75,qdro)
+dromo=OneDModel('input.txt',step,meteo.shape[0],4,0.75)
 dromo.f1 = f1
 dromo.f2 = f2
 
@@ -44,7 +42,7 @@ print(dromo.T[i_summerStart,:,:])
 input("press any key")
 
 for n in range(i_summerStart,i_summerEnd):
-    dromo.iterate(n,Tinj)
+    dromo.iterate(n,Tinj,qdro)
     
 """
 T1d contiendra les températures des couches à la sortie du dromotherme
@@ -56,8 +54,24 @@ _test[:,0] : couche de surface
 _test[:,1] : couche drainante
 """
 np.savetxt('T1d.txt', dromo.T[:,:,-1]-kelvin, fmt='%.2e')
+
+mdro = qdro * rho_eau
+cpdro = Cpf
+Pdro = mdro * cpdro * np.maximum(dromo.T[:,1,-1] - Tinj , np.zeros(meteo.shape[0]))
+
+Edro=np.sum(step*Pdro)/(3600*1000)
+Esolaire=np.sum(step*4*meteo[:,2])/(3600*1000)
+print(Edro)
+print(Esolaire)
+# taux de récupération en %
+Taux=Edro*100/Esolaire
+print(Taux)
     
-plt.subplot(111)
+plt.subplot(211)
 plt.plot(dromo.T[:,1,-1]-kelvin,label="1D model T sortie couche drainante")
+plt.legend()
+plt.subplot(212)
+plt.plot(4*meteo[:,2], label="rayonnement sur dromotherme en W", color="orange")
+plt.plot(Pdro, label="énergie captée par le dromotherme en W")
 plt.legend()
 plt.show()
