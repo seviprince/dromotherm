@@ -21,7 +21,7 @@ cd dromotherm
 ```
 Pour installer la bibliothèque en mode développement : `pip install -e ./` ou `python3 setup.py develop`
 
-Pour accéder à la documentation : https://seviprince.github.io/dromotherm/dromosense/
+La documentation est gérée au fil de l'eau par un workflow spécifique : https://seviprince.github.io/dromotherm/
 
 La documentation se construit automatiquement à partir du code à l'aide de l'outil [pdoc](https://pdoc3.github.io/pdoc/)
 ```
