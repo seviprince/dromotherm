@@ -218,8 +218,6 @@ Rconv=1/(math.pi*Nu*N_tube*L_tube*lambda_pac)
 # k exprimé en W/K
 k=1/(Rcond+Rconv)
 
-print("le k du système géothermique vaut {} W/K".format(k))
-
 # efficacité de l'échangeur
 eff = 0.8
 # débit dans la partie de l'échangeur côté "stockage"
@@ -232,10 +230,6 @@ cpdro = Cpf
 cpsto = Cpf
 
 coeff = (mdro * cpdro) / (msto * cpsto)
-
-B = (msto * cpsto -k/2) * coeff * eff
-
-print("coeff vaut {} B vaut {} W/K".format(coeff, B))
 
 """
 besoin en chauffage
@@ -260,9 +254,9 @@ COP=3
 rho_pac=1040 # en kg/m^3
 mpac=rho_pac*0.035*4/3600
 cpac=3942.0  #' en J/kg.K
-C=1-k/(2*mpac*cpac)
 
-RSB.set(eff,k,coeff,B,C,msto,cpsto,m_sable,Cp_sable,mpac,cpac)
+
+RSB.set(eff,k,coeff,msto,cpsto,m_sable,Cp_sable,mpac,cpac)
 
 """
 on calcule les index permettant de boucler sur l'été, ainsi que le besoin net du bâtiment et la puissance géothermique à développer

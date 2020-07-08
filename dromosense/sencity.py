@@ -24,11 +24,11 @@ class SenCityOne:
     
     On initialise Tinj_dro et Tsor_dro à 10
     
-    agenda_dro et agenda_pac : agenda de fonctionnement du dromotherme et de la PAC
+    agenda_dro et agenda_pac : agendas de fonctionnement du dromotherme et de la PAC
     
     Pgeo : puissance géothermique à développer pour satisfaire le besoin du bâtiment en W
     
-    par exemple, avec une PAC de COP 3, la puissance géiothermique à développer vaut 2/3 des besoins totaux du bâtiment
+    par exemple, avec une PAC de COP 3, la puissance géothermique à développer vaut 2/3 du besoin total du bâtiment
     """
     
     def __init__(self,size,step):
@@ -55,7 +55,7 @@ class SenCityOne:
         
         self.Pgeo=np.zeros(size)
         
-    def set(self,eff,k,coeff,B,C,msto,cpsto,msable,cpsable,mpac,cpac):
+    def set(self,eff,k,coeff,msto,cpsto,msable,cpsable,mpac,cpac):
         """
         paramètres permettant de caractériser le système couplé
         
@@ -63,7 +63,7 @@ class SenCityOne:
         
         k : coefficient du système géothermique équipant le stockage en W/K
         
-        coeff et eff : cf notebook 01_couplage.ipynb - coeff est sans unité alors que B est en W/K
+        coeff : sans unité - rapport des conductivités thermiques des fluides circulant dans l'échangeur de séparation de réseaux (dromo/stockage)
         
         msto : débit massique du fluide dans le système géothermique du stockage en kg/s
         
@@ -81,14 +81,25 @@ class SenCityOne:
         self.eff=eff
         self.k=k
         self.coeff=coeff
-        self.B=B
-        self.C=C
         self.msto=msto
         self.cpsto=cpsto
         self.msable=msable
         self.cpsable=cpsable
         self.mpac=mpac
         self.cpac=cpac
+        
+        """
+        calcul de B et C - cf notebook
+        """
+        
+        self.B = (msto * cpsto - k/2) * coeff * eff
+        
+        self.C = 1 - k / (2 * mpac *cpac)
+        
+        print("le k du système géothermique vaut {} W/K".format(k))
+        print("coeff vaut {}".format(coeff))
+        print("B vaut {} W/K".format(self.B))
+        print("C vaut {}".format(self.C))
 
     def StockLoop(self,i):
         """
