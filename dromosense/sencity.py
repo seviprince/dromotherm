@@ -137,25 +137,34 @@ class SenCityOne:
 
     def SystemLoop(self,i,qdro_u,dromo):
         """
+        dromo : échangeur dromotherme simulé selon la classe OneDModel
+        
+        qdro_u : débit unitaire en m3/s traversant le dromotherme, unitaire s'entendant par mètre linéaire selon le profil en long
+        
         1) On applique StockLoop avec les résutats de l'état précédant, ce qui nous permet de calculer Tsable[i]
         
         2) On met à jour les température d'injection et de sortie de la PAC
         
         3) On réalise ensuite une itération de dromotherme selon 2 cas distincts :
         
+        ```
         cas 1: le dromotherme est en marche et le fluide circule avec un débit unitaire qdro_u
-         
+          
           Test = température de sortie du dromotherme supérieure à la température de stockage ?
           
-          Si test négatif, pas d'échange d'énergie entre la route et le stock, cf dromotherme à l'arrêt + on passe la valeur de agenda_dro[i] à 0
+          Si Test négatif, pas d'échange d'énergie entre la route et le stock, 
+          cf dromotherme à l'arrêt + on passe la valeur de agenda_dro[i] à 0
           
-          Si test positif, alimentation du stockage via l'échangeur de séparation de réseaux
-          
+          Si Test positif, alimentation du stockage via l'échangeur de séparation de réseaux
+        ```
+
+        ```        
         cas 2: le dromotherme est à l'arrêt : le débit est nul et l'échangeur de séparation de réseau ne tourne pas
         
           a) pas de prélèvement par l'échangeur de séparation de réseau : Tinj_dro[i] = Tsor_dro[i]
            
           b) fonctionnement à perte nulle pour le stockage: Tsor_sto[i]=Tsor_sto[i-1] et Tinj_sto[i]=Tinj_sto[i-1]
+        ```
           
         """
         # étape 1    
