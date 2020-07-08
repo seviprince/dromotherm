@@ -1,31 +1,35 @@
 import numpy as np
 from dromosense.constantes import kelvin
 
-"""
-Cette classe réalise un premier couplage du système complet et nourrit un ensemble de vecteurs numpy:
-
-Tinj_sto : température du fluide de charge à l'injection dans le stockage
-
-Tsor_sto : température du fluide de charge après transit dans le stockage
-
-Tsor_pac : température du fluide de décharge au sortir de la PAC à la réinjection dans le stockage
-
-Tinj_pac : température du fluide de décharge à l'injection dans la PAC
-
-Tsable : Température du stockage/sable
-
-diff : valeur de la dérivée de la température du stockage en °C/s ou K/s
-
-Tinj_dro : température d'injection dans le dromotherme
-
-Tsor_dro : température de sortie du dromotherme
-
-On initialise Tinj_dro et Tsor_dro à 10
-
-agenda_dro et agenda_pac : agenda de fonctionnement du dromotherme et de la PAC
-"""
 
 class SenCityOne:
+    """
+    Cette classe réalise un premier couplage du système complet et nourrit un ensemble de vecteurs numpy:
+    
+    Tinj_sto : température du fluide de charge à l'injection dans le stockage
+    
+    Tsor_sto : température du fluide de charge après transit dans le stockage
+    
+    Tsor_pac : température du fluide de décharge au sortir de la PAC à la réinjection dans le stockage
+    
+    Tinj_pac : température du fluide de décharge à l'injection dans la PAC
+    
+    Tsable : température du stockage/sable
+    
+    diff : valeur de la dérivée de la température du stockage en °C/s ou K/s
+    
+    Tinj_dro : température d'injection dans le dromotherme
+    
+    Tsor_dro : température de sortie du dromotherme
+    
+    On initialise Tinj_dro et Tsor_dro à 10
+    
+    agenda_dro et agenda_pac : agenda de fonctionnement du dromotherme et de la PAC
+    
+    Pgeo : puissance géothermique à développer pour satisfaire le besoin du bâtiment en W
+    
+    par exemple, avec une PAC de COP 3, la puissance géiothermique à développer vaut 2/3 des besoins totaux du bâtiment
+    """
     
     def __init__(self,size,step):
         """
@@ -52,7 +56,28 @@ class SenCityOne:
         self.Pgeo=np.zeros(size)
         
     def set(self,eff,k,coeff,B,C,msto,cpsto,msable,cpsable,mpac,cpac):
-    
+        """
+        paramètres permettant de caractériser le système couplé
+        
+        eff : efficacité de l'échangeur de séparation de réseaux
+        
+        k : coefficient du système géothermique équipant le stockage en W/K
+        
+        coeff et eff : cf notebook 01_couplage.ipynb - coeff est sans unité alors que B est en W/K
+        
+        msto : débit massique du fluide dans le système géothermique du stockage en kg/s
+        
+        cpsto : capacité thermique du fluide circulant dans le système géothermique du stockage en J/(K.kg)
+        
+        msable : masse de sable humide (sable sec + eau ) en kg
+        
+        cpsable : capacité calorifique massique du sable humide en J/(K/kg)
+        
+        mpac : débit massique du fluide dans la PAC en kg/s
+        
+        cpac : capacité calorifique massique du fluide dans la PAC en J/(K.kg)
+        
+        """
         self.eff=eff
         self.k=k
         self.coeff=coeff
@@ -107,7 +132,7 @@ class SenCityOne:
         
         3) On réalise ensuite une itération de dromotherme selon 2 cas distincts :
         
-        - le dromotherme est en marche et le fluide circule avec un débit unitaire qdro_u
+        cas 1: le dromotherme est en marche et le fluide circule avec un débit unitaire qdro_u
          
           Test = température de sortie du dromotherme supérieure à la température de stockage ?
           
@@ -115,7 +140,7 @@ class SenCityOne:
           
           Si test positif, alimentation du stockage via l'échangeur de séparation de réseaux
           
-        - le dromotherme est à l'arrêt : le débit est nul et l'échangeur de séparation de réseau ne tourne pas
+        cas 2: le dromotherme est à l'arrêt : le débit est nul et l'échangeur de séparation de réseau ne tourne pas
         
           a) pas de prélèvement par l'échangeur de séparation de réseau : Tinj_dro[i] = Tsor_dro[i]
            
