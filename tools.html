@@ -48,6 +48,12 @@ def tsToTuple(ts):
     _time=datetime.fromtimestamp(ts,CET)
     _tuple=_time.timetuple()
     return(_tuple)
+    
+def tsToHuman(ts):
+    &#34;&#34;&#34;
+    format a timestamp to something readable by a human
+    &#34;&#34;&#34;
+    return datetime.fromtimestamp(ts,CET).strftime(&#39;%Y-%m-%d %H:%M:%S&#39;)
 
 def basicAgenda(nbpts,step,start,summerStart,summerEnd,schedule=np.array([[8,17],[8,17],[8,17],[8,17],[8,17],[-1,-1],[-1,-1]])):
     &#34;&#34;&#34;
@@ -689,6 +695,22 @@ agenda=basicAgenda(nbpts,step,start,summerStart,summerEnd,schedule=schedule)
     return X</code></pre>
 </details>
 </dd>
+<dt id="dromosense.tools.tsToHuman"><code class="name flex">
+<span>def <span class="ident">tsToHuman</span></span>(<span>ts)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>format a timestamp to something readable by a human</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def tsToHuman(ts):
+    &#34;&#34;&#34;
+    format a timestamp to something readable by a human
+    &#34;&#34;&#34;
+    return datetime.fromtimestamp(ts,CET).strftime(&#39;%Y-%m-%d %H:%M:%S&#39;)</code></pre>
+</details>
+</dd>
 <dt id="dromosense.tools.tsToTuple"><code class="name flex">
 <span>def <span class="ident">tsToTuple</span></span>(<span>ts)</span>
 </code></dt>
@@ -957,6 +979,7 @@ Sur l'échangeur de séparation de réseau, c'est le debit total qui joue soit l
 <li><code><a title="dromosense.tools.besoin_bat" href="#dromosense.tools.besoin_bat">besoin_bat</a></code></li>
 <li><code><a title="dromosense.tools.rd" href="#dromosense.tools.rd">rd</a></code></li>
 <li><code><a title="dromosense.tools.sol_tridiag" href="#dromosense.tools.sol_tridiag">sol_tridiag</a></code></li>
+<li><code><a title="dromosense.tools.tsToHuman" href="#dromosense.tools.tsToHuman">tsToHuman</a></code></li>
 <li><code><a title="dromosense.tools.tsToTuple" href="#dromosense.tools.tsToTuple">tsToTuple</a></code></li>
 </ul>
 </li>
