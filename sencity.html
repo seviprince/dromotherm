@@ -29,31 +29,35 @@
 <pre><code class="python">import numpy as np
 from dromosense.constantes import kelvin
 
-&#34;&#34;&#34;
-Cette classe réalise un premier couplage du système complet et nourrit un ensemble de vecteurs numpy:
-
-Tinj_sto : température du fluide de charge à l&#39;injection dans le stockage
-
-Tsor_sto : température du fluide de charge après transit dans le stockage
-
-Tsor_pac : température du fluide de décharge au sortir de la PAC à la réinjection dans le stockage
-
-Tinj_pac : température du fluide de décharge à l&#39;injection dans la PAC
-
-Tsable : Température du stockage/sable
-
-diff : valeur de la dérivée de la température du stockage en °C/s ou K/s
-
-Tinj_dro : température d&#39;injection dans le dromotherme
-
-Tsor_dro : température de sortie du dromotherme
-
-On initialise Tinj_dro et Tsor_dro à 10
-
-agenda_dro et agenda_pac : agenda de fonctionnement du dromotherme et de la PAC
-&#34;&#34;&#34;
 
 class SenCityOne:
+    &#34;&#34;&#34;
+    Cette classe réalise un premier couplage du système complet et nourrit un ensemble de vecteurs numpy:
+    
+    Tinj_sto : température du fluide de charge à l&#39;injection dans le stockage
+    
+    Tsor_sto : température du fluide de charge après transit dans le stockage
+    
+    Tsor_pac : température du fluide de décharge au sortir de la PAC à la réinjection dans le stockage
+    
+    Tinj_pac : température du fluide de décharge à l&#39;injection dans la PAC
+    
+    Tsable : température du stockage/sable
+    
+    diff : valeur de la dérivée de la température du stockage en °C/s ou K/s
+    
+    Tinj_dro : température d&#39;injection dans le dromotherme
+    
+    Tsor_dro : température de sortie du dromotherme
+    
+    On initialise Tinj_dro et Tsor_dro à 10
+    
+    agenda_dro et agenda_pac : agenda de fonctionnement du dromotherme et de la PAC
+    
+    Pgeo : puissance géothermique à développer pour satisfaire le besoin du bâtiment en W
+    
+    par exemple, avec une PAC de COP 3, la puissance géiothermique à développer vaut 2/3 des besoins totaux du bâtiment
+    &#34;&#34;&#34;
     
     def __init__(self,size,step):
         &#34;&#34;&#34;
@@ -80,7 +84,28 @@ class SenCityOne:
         self.Pgeo=np.zeros(size)
         
     def set(self,eff,k,coeff,B,C,msto,cpsto,msable,cpsable,mpac,cpac):
-    
+        &#34;&#34;&#34;
+        paramètres permettant de caractériser le système couplé
+        
+        eff : efficacité de l&#39;échangeur de séparation de réseaux
+        
+        k : coefficient du système géothermique équipant le stockage en W/K
+        
+        coeff et eff : cf notebook 01_couplage.ipynb - coeff est sans unité alors que B est en W/K
+        
+        msto : débit massique du fluide dans le système géothermique du stockage en kg/s
+        
+        cpsto : capacité thermique du fluide circulant dans le système géothermique du stockage en J/(K.kg)
+        
+        msable : masse de sable humide (sable sec + eau ) en kg
+        
+        cpsable : capacité calorifique massique du sable humide en J/(K/kg)
+        
+        mpac : débit massique du fluide dans la PAC en kg/s
+        
+        cpac : capacité calorifique massique du fluide dans la PAC en J/(K.kg)
+        
+        &#34;&#34;&#34;
         self.eff=eff
         self.k=k
         self.coeff=coeff
@@ -135,7 +160,7 @@ class SenCityOne:
         
         3) On réalise ensuite une itération de dromotherme selon 2 cas distincts :
         
-        - le dromotherme est en marche et le fluide circule avec un débit unitaire qdro_u
+        cas 1: le dromotherme est en marche et le fluide circule avec un débit unitaire qdro_u
          
           Test = température de sortie du dromotherme supérieure à la température de stockage ?
           
@@ -143,7 +168,7 @@ class SenCityOne:
           
           Si test positif, alimentation du stockage via l&#39;échangeur de séparation de réseaux
           
-        - le dromotherme est à l&#39;arrêt : le débit est nul et l&#39;échangeur de séparation de réseau ne tourne pas
+        cas 2: le dromotherme est à l&#39;arrêt : le débit est nul et l&#39;échangeur de séparation de réseau ne tourne pas
         
           a) pas de prélèvement par l&#39;échangeur de séparation de réseau : Tinj_dro[i] = Tsor_dro[i]
            
@@ -203,13 +228,53 @@ class SenCityOne:
 <span>(</span><span>size, step)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>size : nombre de points pour la discrétisation temporelle</p>
+<div class="desc"><p>Cette classe réalise un premier couplage du système complet et nourrit un ensemble de vecteurs numpy:</p>
+<p>Tinj_sto : température du fluide de charge à l'injection dans le stockage</p>
+<p>Tsor_sto : température du fluide de charge après transit dans le stockage</p>
+<p>Tsor_pac : température du fluide de décharge au sortir de la PAC à la réinjection dans le stockage</p>
+<p>Tinj_pac : température du fluide de décharge à l'injection dans la PAC</p>
+<p>Tsable : température du stockage/sable</p>
+<p>diff : valeur de la dérivée de la température du stockage en °C/s ou K/s</p>
+<p>Tinj_dro : température d'injection dans le dromotherme</p>
+<p>Tsor_dro : température de sortie du dromotherme</p>
+<p>On initialise Tinj_dro et Tsor_dro à 10</p>
+<p>agenda_dro et agenda_pac : agenda de fonctionnement du dromotherme et de la PAC</p>
+<p>Pgeo : puissance géothermique à développer pour satisfaire le besoin du bâtiment en W</p>
+<p>par exemple, avec une PAC de COP 3, la puissance géiothermique à développer vaut 2/3 des besoins totaux du bâtiment</p>
+<p>size : nombre de points pour la discrétisation temporelle</p>
 <p>step : pas de temps en secondes</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class SenCityOne:
+    &#34;&#34;&#34;
+    Cette classe réalise un premier couplage du système complet et nourrit un ensemble de vecteurs numpy:
+    
+    Tinj_sto : température du fluide de charge à l&#39;injection dans le stockage
+    
+    Tsor_sto : température du fluide de charge après transit dans le stockage
+    
+    Tsor_pac : température du fluide de décharge au sortir de la PAC à la réinjection dans le stockage
+    
+    Tinj_pac : température du fluide de décharge à l&#39;injection dans la PAC
+    
+    Tsable : température du stockage/sable
+    
+    diff : valeur de la dérivée de la température du stockage en °C/s ou K/s
+    
+    Tinj_dro : température d&#39;injection dans le dromotherme
+    
+    Tsor_dro : température de sortie du dromotherme
+    
+    On initialise Tinj_dro et Tsor_dro à 10
+    
+    agenda_dro et agenda_pac : agenda de fonctionnement du dromotherme et de la PAC
+    
+    Pgeo : puissance géothermique à développer pour satisfaire le besoin du bâtiment en W
+    
+    par exemple, avec une PAC de COP 3, la puissance géiothermique à développer vaut 2/3 des besoins totaux du bâtiment
+    &#34;&#34;&#34;
     
     def __init__(self,size,step):
         &#34;&#34;&#34;
@@ -236,7 +301,28 @@ class SenCityOne:
         self.Pgeo=np.zeros(size)
         
     def set(self,eff,k,coeff,B,C,msto,cpsto,msable,cpsable,mpac,cpac):
-    
+        &#34;&#34;&#34;
+        paramètres permettant de caractériser le système couplé
+        
+        eff : efficacité de l&#39;échangeur de séparation de réseaux
+        
+        k : coefficient du système géothermique équipant le stockage en W/K
+        
+        coeff et eff : cf notebook 01_couplage.ipynb - coeff est sans unité alors que B est en W/K
+        
+        msto : débit massique du fluide dans le système géothermique du stockage en kg/s
+        
+        cpsto : capacité thermique du fluide circulant dans le système géothermique du stockage en J/(K.kg)
+        
+        msable : masse de sable humide (sable sec + eau ) en kg
+        
+        cpsable : capacité calorifique massique du sable humide en J/(K/kg)
+        
+        mpac : débit massique du fluide dans la PAC en kg/s
+        
+        cpac : capacité calorifique massique du fluide dans la PAC en J/(K.kg)
+        
+        &#34;&#34;&#34;
         self.eff=eff
         self.k=k
         self.coeff=coeff
@@ -291,7 +377,7 @@ class SenCityOne:
         
         3) On réalise ensuite une itération de dromotherme selon 2 cas distincts :
         
-        - le dromotherme est en marche et le fluide circule avec un débit unitaire qdro_u
+        cas 1: le dromotherme est en marche et le fluide circule avec un débit unitaire qdro_u
          
           Test = température de sortie du dromotherme supérieure à la température de stockage ?
           
@@ -299,7 +385,7 @@ class SenCityOne:
           
           Si test positif, alimentation du stockage via l&#39;échangeur de séparation de réseaux
           
-        - le dromotherme est à l&#39;arrêt : le débit est nul et l&#39;échangeur de séparation de réseau ne tourne pas
+        cas 2: le dromotherme est à l&#39;arrêt : le débit est nul et l&#39;échangeur de séparation de réseau ne tourne pas
         
           a) pas de prélèvement par l&#39;échangeur de séparation de réseau : Tinj_dro[i] = Tsor_dro[i]
            
@@ -404,15 +490,11 @@ class SenCityOne:
 <div class="desc"><p>1) On applique StockLoop avec les résutats de l'état précédant, ce qui nous permet de calculer Tsable[i]</p>
 <p>2) On met à jour les température d'injection et de sortie de la PAC</p>
 <p>3) On réalise ensuite une itération de dromotherme selon 2 cas distincts :</p>
-<ul>
-<li>le dromotherme est en marche et le fluide circule avec un débit unitaire qdro_u</li>
-</ul>
+<p>cas 1: le dromotherme est en marche et le fluide circule avec un débit unitaire qdro_u</p>
 <p>Test = température de sortie du dromotherme supérieure à la température de stockage ?</p>
 <p>Si test négatif, pas d'échange d'énergie entre la route et le stock, cf dromotherme à l'arrêt + on passe la valeur de agenda_dro[i] à 0</p>
 <p>Si test positif, alimentation du stockage via l'échangeur de séparation de réseaux</p>
-<ul>
-<li>le dromotherme est à l'arrêt : le débit est nul et l'échangeur de séparation de réseau ne tourne pas</li>
-</ul>
+<p>cas 2: le dromotherme est à l'arrêt : le débit est nul et l'échangeur de séparation de réseau ne tourne pas</p>
 <p>a) pas de prélèvement par l'échangeur de séparation de réseau : Tinj_dro[i] = Tsor_dro[i]</p>
 <p>b) fonctionnement à perte nulle pour le stockage: Tsor_sto[i]=Tsor_sto[i-1] et Tinj_sto[i]=Tinj_sto[i-1]</p></div>
 <details class="source">
@@ -427,7 +509,7 @@ class SenCityOne:
     
     3) On réalise ensuite une itération de dromotherme selon 2 cas distincts :
     
-    - le dromotherme est en marche et le fluide circule avec un débit unitaire qdro_u
+    cas 1: le dromotherme est en marche et le fluide circule avec un débit unitaire qdro_u
      
       Test = température de sortie du dromotherme supérieure à la température de stockage ?
       
@@ -435,7 +517,7 @@ class SenCityOne:
       
       Si test positif, alimentation du stockage via l&#39;échangeur de séparation de réseaux
       
-    - le dromotherme est à l&#39;arrêt : le débit est nul et l&#39;échangeur de séparation de réseau ne tourne pas
+    cas 2: le dromotherme est à l&#39;arrêt : le débit est nul et l&#39;échangeur de séparation de réseau ne tourne pas
     
       a) pas de prélèvement par l&#39;échangeur de séparation de réseau : Tinj_dro[i] = Tsor_dro[i]
        
@@ -485,13 +567,43 @@ class SenCityOne:
 <span>def <span class="ident">set</span></span>(<span>self, eff, k, coeff, B, C, msto, cpsto, msable, cpsable, mpac, cpac)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>paramètres permettant de caractériser le système couplé</p>
+<p>eff : efficacité de l'échangeur de séparation de réseaux</p>
+<p>k : coefficient du système géothermique équipant le stockage en W/K</p>
+<p>coeff et eff : cf notebook 01_couplage.ipynb - coeff est sans unité alors que B est en W/K</p>
+<p>msto : débit massique du fluide dans le système géothermique du stockage en kg/s</p>
+<p>cpsto : capacité thermique du fluide circulant dans le système géothermique du stockage en J/(K.kg)</p>
+<p>msable : masse de sable humide (sable sec + eau ) en kg</p>
+<p>cpsable : capacité calorifique massique du sable humide en J/(K/kg)</p>
+<p>mpac : débit massique du fluide dans la PAC en kg/s</p>
+<p>cpac : capacité calorifique massique du fluide dans la PAC en J/(K.kg)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set(self,eff,k,coeff,B,C,msto,cpsto,msable,cpsable,mpac,cpac):
-
+    &#34;&#34;&#34;
+    paramètres permettant de caractériser le système couplé
+    
+    eff : efficacité de l&#39;échangeur de séparation de réseaux
+    
+    k : coefficient du système géothermique équipant le stockage en W/K
+    
+    coeff et eff : cf notebook 01_couplage.ipynb - coeff est sans unité alors que B est en W/K
+    
+    msto : débit massique du fluide dans le système géothermique du stockage en kg/s
+    
+    cpsto : capacité thermique du fluide circulant dans le système géothermique du stockage en J/(K.kg)
+    
+    msable : masse de sable humide (sable sec + eau ) en kg
+    
+    cpsable : capacité calorifique massique du sable humide en J/(K/kg)
+    
+    mpac : débit massique du fluide dans la PAC en kg/s
+    
+    cpac : capacité calorifique massique du fluide dans la PAC en J/(K.kg)
+    
+    &#34;&#34;&#34;
     self.eff=eff
     self.k=k
     self.coeff=coeff
