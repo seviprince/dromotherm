@@ -1,4 +1,7 @@
 /dromosense.egg-info/*
 /dromosense/__pycache__/*
 /dromosense/constantes/__pycache__/*
+/examples/__pycache__/*
+/examples/Batiment/__pycache__/*
+/examples/mod1D/__pycache__/*
 /tests_python/*

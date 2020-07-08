@@ -32,12 +32,6 @@ python couplage.py True 0 "SummerProdECS"
 ```
 """
 
-def ts_to_h(ts):
-    """
-    format a timestamp to something readable by a human
-    """
-    return datetime.fromtimestamp(ts,CET).strftime('%Y-%m-%d %H:%M:%S')
-
 def StockLoop(i):
     """
     réalise une itération sur la température du stockage
@@ -503,8 +497,8 @@ timestamps de la fenêtre de simulation + expressions compréhensibles pour huma
 """
 tss= start + simStart * step
 tse= start + simEnd * step
-_s=ts_to_h(tss)
-_e=ts_to_h(tse)
+_s=tsToHuman(tss)
+_e=tsToHuman(tse)
 
 
 for i in range (int(simStart),int(simEnd)):

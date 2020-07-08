@@ -1,0 +1,162 @@
+import numpy as np
+from dromosense.constantes import kelvin
+
+"""
+Cette classe réalise un premier couplage du système complet et nourrit un ensemble de vecteurs numpy:
+
+Tinj_sto : température du fluide de charge à l'injection dans le stockage
+
+Tsor_sto : température du fluide de charge après transit dans le stockage
+
+Tsor_pac : température du fluide de décharge au sortir de la PAC à la réinjection dans le stockage
+
+Tinj_pac : température du fluide de décharge à l'injection dans la PAC
+
+Tsable : Température du stockage/sable
+
+diff : valeur de la dérivée de la température du stockage en °C/s ou K/s
+
+Tinj_dro : température d'injection dans le dromotherme
+
+Tsor_dro : température de sortie du dromotherme
+
+On initialise Tinj_dro et Tsor_dro à 10
+
+agenda_dro et agenda_pac : agenda de fonctionnement du dromotherme et de la PAC
+"""
+
+class SenCityOne:
+    
+    def __init__(self,size,step):
+        """
+        size : nombre de points pour la discrétisation temporelle
+        
+        step : pas de temps en secondes
+        """
+        self.step=step
+        self.Tinj_sto=np.zeros(size)
+        self.Tsor_sto=np.zeros(size)
+        
+        self.Tsor_pac=np.zeros(size)
+        self.Tinj_pac=np.zeros(size)
+        
+        self.Tsable=np.zeros(size)
+        self.diff=np.zeros(size)
+        
+        self.Tinj_dro=10*np.ones(size)
+        self.Tsor_dro=10*np.ones(size)
+        
+        self.agenda_dro=np.zeros(size)
+        self.agenda_pac=np.zeros(size)
+        
+        self.Pgeo=np.zeros(size)
+        
+    def set(self,eff,k,coeff,B,C,msto,cpsto,msable,cpsable,mpac,cpac):
+    
+        self.eff=eff
+        self.k=k
+        self.coeff=coeff
+        self.B=B
+        self.C=C
+        self.msto=msto
+        self.cpsto=cpsto
+        self.msable=msable
+        self.cpsable=cpsable
+        self.mpac=mpac
+        self.cpac=cpac
+
+    def StockLoop(self,i):
+        """
+        réalise une itération sur la température du stockage
+        
+        calcule la dérivée de la température du massif de stockage en K/s ou °C/s
+        
+        retourne la valeur de Tsable[i+1]
+        
+        4 cas distincts :
+        
+        1) appel d'énergie en provenance du bâtiment + dromotherme en marche
+        
+        2) appel d'énergie en provenance du bâtiment + dromotherme arrêté
+        
+        3) pas d'appel d'énergie en provenance du bâtiment + dromotherme en marche
+        
+        4) pas d'appel d'énergie en provenance du bâtiment + dromotherme arrêté
+        """
+        pac=self.agenda_pac[i]
+        dro=self.agenda_dro[i]
+        if pac==1 and dro==1:
+            der = (self.msto * self.cpsto * (self.Tinj_sto[i] - self.Tsor_sto[i]) - self.Pgeo[i]) / (self.msable * self.cpsable)
+        if pac==1 and dro==0:
+            der = - self.Pgeo[i] / (self.msable * self.cpsable)
+        if pac==0 and dro==1:
+            der = self.msto * self.cpsto * (self.Tinj_sto[i] - self.Tsor_sto[i]) / (self.msable * self.cpsable)
+        if pac==0 and dro==0:
+            der = 0
+        
+        self.diff[i+1]=der
+        
+        ## schéma de discrétisation
+        return self.Tsable[i]+self.step*der
+
+    def SystemLoop(self,i,qdro_u,dromo):
+        """
+        1) On applique StockLoop avec les résutats de l'état précédant, ce qui nous permet de calculer Tsable[i]
+        
+        2) On met à jour les température d'injection et de sortie de la PAC
+        
+        3) On réalise ensuite une itération de dromotherme selon 2 cas distincts :
+        
+        - le dromotherme est en marche et le fluide circule avec un débit unitaire qdro_u
+         
+          Test = température de sortie du dromotherme supérieure à la température de stockage ?
+          
+          Si test négatif, pas d'échange d'énergie entre la route et le stock, cf dromotherme à l'arrêt + on passe la valeur de agenda_dro[i] à 0
+          
+          Si test positif, alimentation du stockage via l'échangeur de séparation de réseaux
+          
+        - le dromotherme est à l'arrêt : le débit est nul et l'échangeur de séparation de réseau ne tourne pas
+        
+          a) pas de prélèvement par l'échangeur de séparation de réseau : Tinj_dro[i] = Tsor_dro[i]
+           
+          b) fonctionnement à perte nulle pour le stockage: Tsor_sto[i]=Tsor_sto[i-1] et Tinj_sto[i]=Tinj_sto[i-1]
+          
+        """
+        # étape 1    
+        self.Tsable[i]=self.StockLoop(i-1)
+        
+        dro=self.agenda_dro[i]
+        pac=self.agenda_pac[i]
+        
+        y = self.Tsable[i]
+    
+        # étape 2
+        if pac == 1 :
+            self.Tinj_pac[i] = y-self.C*self.Pgeo[i]/self.k
+            self.Tsor_pac[i] = self.Tinj_pac[i]-self.Pgeo[i]/(self.mpac*self.cpac)
+        else:
+            self.Tinj_pac[i] = self.Tinj_pac[i-1]
+            self.Tsor_pac[i] = self.Tsor_pac[i-1]
+    
+        # étape 3
+        if dro == 1:
+            dromo.iterate(i,self.Tinj_dro[i-1]+kelvin,qdro_u)
+            self.Tsor_dro[i]=dromo.T[i,1,-1]-kelvin
+            if self.Tsor_dro[i] < y :
+                #print("step {} y vaut {} et prev vaut {}".format(i,y,Tsor_dro[i]))
+                self.agenda_dro[i] = 0
+                self.Tinj_dro[i] = self.Tsor_dro[i]
+                self.Tinj_sto[i] = self.Tinj_sto[i-1] 
+                self.Tsor_sto[i] = self.Tsor_sto[i-1]
+            else :
+                self.Tsor_sto[i] = ( self.k * y + self.B * self.Tsor_dro[i] ) / ( self.k + self.B)
+                self.Tinj_sto[i] = self.Tsor_sto[i] + self.coeff * self.eff * (self.Tsor_dro[i] - self.Tsor_sto[i])
+                self.Tinj_dro[i] = self.Tsor_dro[i] - self.eff * (self.Tsor_dro[i] - self.Tsor_sto[i])
+            
+        else:
+            dromo.iterate(i,self.Tinj_dro[i-1]+kelvin,0)
+            self.Tsor_dro[i] = dromo.T[i,1,-1]-kelvin
+            self.Tinj_dro[i] = self.Tsor_dro[i]
+            self.Tinj_sto[i] = self.Tinj_sto[i-1] 
+            self.Tsor_sto[i] = self.Tsor_sto[i-1]
+

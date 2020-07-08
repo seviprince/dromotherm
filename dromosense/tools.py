@@ -20,6 +20,12 @@ def tsToTuple(ts):
     _time=datetime.fromtimestamp(ts,CET)
     _tuple=_time.timetuple()
     return(_tuple)
+    
+def tsToHuman(ts):
+    """
+    format a timestamp to something readable by a human
+    """
+    return datetime.fromtimestamp(ts,CET).strftime('%Y-%m-%d %H:%M:%S')
 
 def basicAgenda(nbpts,step,start,summerStart,summerEnd,schedule=np.array([[8,17],[8,17],[8,17],[8,17],[8,17],[-1,-1],[-1,-1]])):
     """
