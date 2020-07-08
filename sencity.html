@@ -52,11 +52,11 @@ class SenCityOne:
     
     On initialise Tinj_dro et Tsor_dro à 10
     
-    agenda_dro et agenda_pac : agenda de fonctionnement du dromotherme et de la PAC
+    agenda_dro et agenda_pac : agendas de fonctionnement du dromotherme et de la PAC
     
     Pgeo : puissance géothermique à développer pour satisfaire le besoin du bâtiment en W
     
-    par exemple, avec une PAC de COP 3, la puissance géiothermique à développer vaut 2/3 des besoins totaux du bâtiment
+    par exemple, avec une PAC de COP 3, la puissance géothermique à développer vaut 2/3 du besoin total du bâtiment
     &#34;&#34;&#34;
     
     def __init__(self,size,step):
@@ -83,7 +83,7 @@ class SenCityOne:
         
         self.Pgeo=np.zeros(size)
         
-    def set(self,eff,k,coeff,B,C,msto,cpsto,msable,cpsable,mpac,cpac):
+    def set(self,eff,k,coeff,msto,cpsto,msable,cpsable,mpac,cpac):
         &#34;&#34;&#34;
         paramètres permettant de caractériser le système couplé
         
@@ -91,7 +91,7 @@ class SenCityOne:
         
         k : coefficient du système géothermique équipant le stockage en W/K
         
-        coeff et eff : cf notebook 01_couplage.ipynb - coeff est sans unité alors que B est en W/K
+        coeff : sans unité - rapport des conductivités thermiques des fluides circulant dans l&#39;échangeur de séparation de réseaux (dromo/stockage)
         
         msto : débit massique du fluide dans le système géothermique du stockage en kg/s
         
@@ -109,14 +109,25 @@ class SenCityOne:
         self.eff=eff
         self.k=k
         self.coeff=coeff
-        self.B=B
-        self.C=C
         self.msto=msto
         self.cpsto=cpsto
         self.msable=msable
         self.cpsable=cpsable
         self.mpac=mpac
         self.cpac=cpac
+        
+        &#34;&#34;&#34;
+        calcul de B et C - cf notebook
+        &#34;&#34;&#34;
+        
+        self.B = (msto * cpsto - k/2) * coeff * eff
+        
+        self.C = 1 - k / (2 * mpac *cpac)
+        
+        print(&#34;le k du système géothermique vaut {} W/K&#34;.format(k))
+        print(&#34;coeff vaut {}&#34;.format(coeff))
+        print(&#34;B vaut {} W/K&#34;.format(self.B))
+        print(&#34;C vaut {}&#34;.format(self.C))
 
     def StockLoop(self,i):
         &#34;&#34;&#34;
@@ -238,9 +249,9 @@ class SenCityOne:
 <p>Tinj_dro : température d'injection dans le dromotherme</p>
 <p>Tsor_dro : température de sortie du dromotherme</p>
 <p>On initialise Tinj_dro et Tsor_dro à 10</p>
-<p>agenda_dro et agenda_pac : agenda de fonctionnement du dromotherme et de la PAC</p>
+<p>agenda_dro et agenda_pac : agendas de fonctionnement du dromotherme et de la PAC</p>
 <p>Pgeo : puissance géothermique à développer pour satisfaire le besoin du bâtiment en W</p>
-<p>par exemple, avec une PAC de COP 3, la puissance géiothermique à développer vaut 2/3 des besoins totaux du bâtiment</p>
+<p>par exemple, avec une PAC de COP 3, la puissance géothermique à développer vaut 2/3 du besoin total du bâtiment</p>
 <p>size : nombre de points pour la discrétisation temporelle</p>
 <p>step : pas de temps en secondes</p></div>
 <details class="source">
@@ -269,11 +280,11 @@ class SenCityOne:
     
     On initialise Tinj_dro et Tsor_dro à 10
     
-    agenda_dro et agenda_pac : agenda de fonctionnement du dromotherme et de la PAC
+    agenda_dro et agenda_pac : agendas de fonctionnement du dromotherme et de la PAC
     
     Pgeo : puissance géothermique à développer pour satisfaire le besoin du bâtiment en W
     
-    par exemple, avec une PAC de COP 3, la puissance géiothermique à développer vaut 2/3 des besoins totaux du bâtiment
+    par exemple, avec une PAC de COP 3, la puissance géothermique à développer vaut 2/3 du besoin total du bâtiment
     &#34;&#34;&#34;
     
     def __init__(self,size,step):
@@ -300,7 +311,7 @@ class SenCityOne:
         
         self.Pgeo=np.zeros(size)
         
-    def set(self,eff,k,coeff,B,C,msto,cpsto,msable,cpsable,mpac,cpac):
+    def set(self,eff,k,coeff,msto,cpsto,msable,cpsable,mpac,cpac):
         &#34;&#34;&#34;
         paramètres permettant de caractériser le système couplé
         
@@ -308,7 +319,7 @@ class SenCityOne:
         
         k : coefficient du système géothermique équipant le stockage en W/K
         
-        coeff et eff : cf notebook 01_couplage.ipynb - coeff est sans unité alors que B est en W/K
+        coeff : sans unité - rapport des conductivités thermiques des fluides circulant dans l&#39;échangeur de séparation de réseaux (dromo/stockage)
         
         msto : débit massique du fluide dans le système géothermique du stockage en kg/s
         
@@ -326,14 +337,25 @@ class SenCityOne:
         self.eff=eff
         self.k=k
         self.coeff=coeff
-        self.B=B
-        self.C=C
         self.msto=msto
         self.cpsto=cpsto
         self.msable=msable
         self.cpsable=cpsable
         self.mpac=mpac
         self.cpac=cpac
+        
+        &#34;&#34;&#34;
+        calcul de B et C - cf notebook
+        &#34;&#34;&#34;
+        
+        self.B = (msto * cpsto - k/2) * coeff * eff
+        
+        self.C = 1 - k / (2 * mpac *cpac)
+        
+        print(&#34;le k du système géothermique vaut {} W/K&#34;.format(k))
+        print(&#34;coeff vaut {}&#34;.format(coeff))
+        print(&#34;B vaut {} W/K&#34;.format(self.B))
+        print(&#34;C vaut {}&#34;.format(self.C))
 
     def StockLoop(self,i):
         &#34;&#34;&#34;
@@ -564,13 +586,13 @@ class SenCityOne:
 </details>
 </dd>
 <dt id="dromosense.sencity.SenCityOne.set"><code class="name flex">
-<span>def <span class="ident">set</span></span>(<span>self, eff, k, coeff, B, C, msto, cpsto, msable, cpsable, mpac, cpac)</span>
+<span>def <span class="ident">set</span></span>(<span>self, eff, k, coeff, msto, cpsto, msable, cpsable, mpac, cpac)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>paramètres permettant de caractériser le système couplé</p>
 <p>eff : efficacité de l'échangeur de séparation de réseaux</p>
 <p>k : coefficient du système géothermique équipant le stockage en W/K</p>
-<p>coeff et eff : cf notebook 01_couplage.ipynb - coeff est sans unité alors que B est en W/K</p>
+<p>coeff : sans unité - rapport des conductivités thermiques des fluides circulant dans l'échangeur de séparation de réseaux (dromo/stockage)</p>
 <p>msto : débit massique du fluide dans le système géothermique du stockage en kg/s</p>
 <p>cpsto : capacité thermique du fluide circulant dans le système géothermique du stockage en J/(K.kg)</p>
 <p>msable : masse de sable humide (sable sec + eau ) en kg</p>
@@ -581,7 +603,7 @@ class SenCityOne:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def set(self,eff,k,coeff,B,C,msto,cpsto,msable,cpsable,mpac,cpac):
+<pre><code class="python">def set(self,eff,k,coeff,msto,cpsto,msable,cpsable,mpac,cpac):
     &#34;&#34;&#34;
     paramètres permettant de caractériser le système couplé
     
@@ -589,7 +611,7 @@ class SenCityOne:
     
     k : coefficient du système géothermique équipant le stockage en W/K
     
-    coeff et eff : cf notebook 01_couplage.ipynb - coeff est sans unité alors que B est en W/K
+    coeff : sans unité - rapport des conductivités thermiques des fluides circulant dans l&#39;échangeur de séparation de réseaux (dromo/stockage)
     
     msto : débit massique du fluide dans le système géothermique du stockage en kg/s
     
@@ -607,14 +629,25 @@ class SenCityOne:
     self.eff=eff
     self.k=k
     self.coeff=coeff
-    self.B=B
-    self.C=C
     self.msto=msto
     self.cpsto=cpsto
     self.msable=msable
     self.cpsable=cpsable
     self.mpac=mpac
-    self.cpac=cpac</code></pre>
+    self.cpac=cpac
+    
+    &#34;&#34;&#34;
+    calcul de B et C - cf notebook
+    &#34;&#34;&#34;
+    
+    self.B = (msto * cpsto - k/2) * coeff * eff
+    
+    self.C = 1 - k / (2 * mpac *cpac)
+    
+    print(&#34;le k du système géothermique vaut {} W/K&#34;.format(k))
+    print(&#34;coeff vaut {}&#34;.format(coeff))
+    print(&#34;B vaut {} W/K&#34;.format(self.B))
+    print(&#34;C vaut {}&#34;.format(self.C))</code></pre>
 </details>
 </dd>
 </dl>
