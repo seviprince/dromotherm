@@ -261,6 +261,8 @@ class OneDModel:
     
     pour l&#39;utiliser :
     ```
+    from dromosense.tools import *
+    from dromosense.constantes import kelvin
     # débit unitaire dans le dromotherme
     qdro = 0.035/3600 # m3/s
     # METEO
@@ -279,6 +281,7 @@ class OneDModel:
     dromo.T[i_summerStart,:,:] = np.ones((dromo.T.shape[1],dromo.T.shape[2]))*10+kelvin
     for n in range(i_summerStart,i_summerEnd):
         dromo.iterate(n,Tinj,qdro)
+    # la température de sortie du drainant en °C est dromo.T[:,1,-1]-kelvin
     ```
     &#34;&#34;&#34;
     def __init__(self,fname,dt,nt,L=4,dx=0.75):
@@ -765,7 +768,9 @@ agenda=basicAgenda(nbpts,step,start,summerStart,summerEnd,schedule=schedule)
 <dd>
 <div class="desc"><p>dromotherm 1D model</p>
 <p>pour l'utiliser :</p>
-<pre><code># débit unitaire dans le dromotherme
+<pre><code>from dromosense.tools import *
+from dromosense.constantes import kelvin
+# débit unitaire dans le dromotherme
 qdro = 0.035/3600 # m3/s
 # METEO
 # 0 : temps exprime en heure
@@ -783,6 +788,7 @@ Tinj=10+kelvin
 dromo.T[i_summerStart,:,:] = np.ones((dromo.T.shape[1],dromo.T.shape[2]))*10+kelvin
 for n in range(i_summerStart,i_summerEnd):
     dromo.iterate(n,Tinj,qdro)
+# la température de sortie du drainant en °C est dromo.T[:,1,-1]-kelvin
 </code></pre>
 <p>fname : nom du fichier contenant les paramètres définissant la chaussée.
 chaque ligne est une couche et contient 3 valeurs séparées par des espaces :
@@ -822,6 +828,8 @@ hauteur, coeff d'échanges, capacité calo</p>
     
     pour l&#39;utiliser :
     ```
+    from dromosense.tools import *
+    from dromosense.constantes import kelvin
     # débit unitaire dans le dromotherme
     qdro = 0.035/3600 # m3/s
     # METEO
@@ -840,6 +848,7 @@ hauteur, coeff d'échanges, capacité calo</p>
     dromo.T[i_summerStart,:,:] = np.ones((dromo.T.shape[1],dromo.T.shape[2]))*10+kelvin
     for n in range(i_summerStart,i_summerEnd):
         dromo.iterate(n,Tinj,qdro)
+    # la température de sortie du drainant en °C est dromo.T[:,1,-1]-kelvin
     ```
     &#34;&#34;&#34;
     def __init__(self,fname,dt,nt,L=4,dx=0.75):
