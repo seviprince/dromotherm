@@ -266,7 +266,9 @@ class OneDModel:
         L : largeur de chaussée en m
                 
         dx : pas d'espace en m
-
+        
+        ********************************************************************************
+        
         objets construits lors de l'initialisation :
 
         ha : vecteur des hauteurs des couches en m
