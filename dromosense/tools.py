@@ -233,6 +233,8 @@ class OneDModel:
     
     pour l'utiliser :
     ```
+    from dromosense.tools import *
+    from dromosense.constantes import kelvin
     # débit unitaire dans le dromotherme
     qdro = 0.035/3600 # m3/s
     # METEO
@@ -251,6 +253,7 @@ class OneDModel:
     dromo.T[i_summerStart,:,:] = np.ones((dromo.T.shape[1],dromo.T.shape[2]))*10+kelvin
     for n in range(i_summerStart,i_summerEnd):
         dromo.iterate(n,Tinj,qdro)
+    # la température de sortie du drainant en °C est dromo.T[:,1,-1]-kelvin
     ```
     """
     def __init__(self,fname,dt,nt,L=4,dx=0.75):
