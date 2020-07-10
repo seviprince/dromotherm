@@ -29,6 +29,31 @@ class SenCityOne:
     Pgeo : puissance géothermique à développer pour satisfaire le besoin du bâtiment en W
     
     par exemple, avec une PAC de COP 3, la puissance géothermique à développer vaut 2/3 du besoin total du bâtiment
+    
+    Pour l'utiliser :
+    
+    ```
+    # instanciation
+    # RSB = route stock bâtiment
+    RSB=SenCityOne(meteo.shape[0],3600)
+    # définition du système
+    RSB.set(eff,k,coeff,msto,cpsto,msable,cpsable,mpac,cpac)
+    # injection du besoin
+    RSB.Pgeo = (COP-1) * besoin_total / COP
+    # définition de la fenêtre de simulation et paramétrage des agendas
+    simStart = i_summerStart
+    simEnd=i_summerStart+365*24
+    RSB.agenda_dro[simStart:simEnd]=np.ones(simEnd-simStart)
+    RSB.agenda_pac[simStart:simEnd]=np.ones(simEnd-simStart)
+    for i in range(simStart,simEnd):
+        if RSB.Pgeo[i]==0:
+            RSB.agenda_pac[i]=0    
+    # bouclage
+    # dromo : échangeur dromotherme selon la classe OneDModel, traversé par un débit unitaire qdro_u en m3/s
+    # unitaire s'entendant par mètre linéaire selon le profil en long
+    for i in range (int(simStart),int(simEnd)):
+        RSB.SystemLoop(i,qdro_u,dromo)
+    ```
     """
     
     def __init__(self,size,step):

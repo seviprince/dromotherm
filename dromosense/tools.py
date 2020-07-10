@@ -230,6 +230,31 @@ def Tsorties_echangeur(Te1,Te2,mf1,mf2,Cp1,Cp2,eff):
 class OneDModel:
     """
     dromotherm 1D model
+    
+    pour l'utiliser :
+    ```
+    from dromosense.tools import *
+    from dromosense.constantes import kelvin
+    # débit unitaire dans le dromotherme
+    qdro = 0.035/3600 # m3/s
+    # METEO
+    # 0 : temps exprime en heure
+    # 1 : temperature d'air (en deg Celsius)
+    # 2 : rayonnement global (en W/m2)
+    # 3 : rayonnement atmospherique (en W/m2)
+    # 4 : vitesse du vent (en m/s)
+    meteo = np.loadtxt('../../datas/corr1_RT2012_H1c_toute_annee.txt')
+    f2 = 1000.0*1.1*(0.0036*meteo[:,4]+0.00423)
+    f1 = (1.0-albedo)*meteo[:,2] + meteo[:,3] + f2*(meteo[:,1]+kelvin)
+    dromo=OneDModel('input.txt',3600,meteo.shape[0],4,0.75)
+    dromo.f1 = f1
+    dromo.f2 = f2
+    Tinj=10+kelvin
+    dromo.T[i_summerStart,:,:] = np.ones((dromo.T.shape[1],dromo.T.shape[2]))*10+kelvin
+    for n in range(i_summerStart,i_summerEnd):
+        dromo.iterate(n,Tinj,qdro)
+    # la température de sortie du drainant en °C est dromo.T[:,1,-1]-kelvin
+    ```
     """
     def __init__(self,fname,dt,nt,L=4,dx=0.75):
         """
@@ -242,12 +267,11 @@ class OneDModel:
         nt : nombre de points dans la discrétisation temporelle
 
         L : largeur de chaussée en m
-        
-        
+                
         dx : pas d'espace en m
-
-       
-
+        
+        ********************************************************************************
+        
         objets construits lors de l'initialisation :
 
         ha : vecteur des hauteurs des couches en m
