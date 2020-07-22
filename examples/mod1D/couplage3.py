@@ -394,7 +394,7 @@ if usecase == 1:
 if usecase == 2:
     # simulation annuelle
     simStart = i_summerStart
-    simEnd=i_summerStart+365*24*2
+    simEnd=i_summerStart+365*24
     RSB.agenda_dro[simStart:simEnd]=np.ones(simEnd-simStart)
     RSB.agenda_pac[simStart:simEnd]=np.ones(simEnd-simStart)
 
