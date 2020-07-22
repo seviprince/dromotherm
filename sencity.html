@@ -335,11 +335,9 @@ class SenCityOne:
     
     def Tsous_sol(self,z,i):
         &#34;&#34;&#34;
-        La température du sous-sol est une fonction sinusoidale :
+        La température du sous-sol est une fonction sinusoidale, obtenue à partir de l&#39;équation de la propagation de la chaleur dans le sous-sol.
         
-        - de période = une année
-        
-        - de pulsation w ,obtenue à partir de l&#39;équation de la propagation de la chaleur dans le sous-sol.
+        La pulsation w a été ajusté dans setPertes pour que la période soit une année
         
         z : profondeur en mètres
         
@@ -722,11 +720,9 @@ for i in range (int(simStart),int(simEnd)):
     
     def Tsous_sol(self,z,i):
         &#34;&#34;&#34;
-        La température du sous-sol est une fonction sinusoidale :
+        La température du sous-sol est une fonction sinusoidale, obtenue à partir de l&#39;équation de la propagation de la chaleur dans le sous-sol.
         
-        - de période = une année
-        
-        - de pulsation w ,obtenue à partir de l&#39;équation de la propagation de la chaleur dans le sous-sol.
+        La pulsation w a été ajusté dans setPertes pour que la période soit une année
         
         z : profondeur en mètres
         
@@ -911,15 +907,8 @@ for i in range (int(simStart),int(simEnd)):
 <span>def <span class="ident">Tsous_sol</span></span>(<span>self, z, i)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>La température du sous-sol est une fonction sinusoidale :</p>
-<ul>
-<li>
-<p>de période = une année</p>
-</li>
-<li>
-<p>de pulsation w ,obtenue à partir de l'équation de la propagation de la chaleur dans le sous-sol.</p>
-</li>
-</ul>
+<div class="desc"><p>La température du sous-sol est une fonction sinusoidale, obtenue à partir de l'équation de la propagation de la chaleur dans le sous-sol.</p>
+<p>La pulsation w a été ajusté dans setPertes pour que la période soit une année</p>
 <p>z : profondeur en mètres</p>
 <p>i : indice temporel dans la discrétisation</p></div>
 <details class="source">
@@ -928,11 +917,9 @@ for i in range (int(simStart),int(simEnd)):
 </summary>
 <pre><code class="python">def Tsous_sol(self,z,i):
     &#34;&#34;&#34;
-    La température du sous-sol est une fonction sinusoidale :
+    La température du sous-sol est une fonction sinusoidale, obtenue à partir de l&#39;équation de la propagation de la chaleur dans le sous-sol.
     
-    - de période = une année
-    
-    - de pulsation w ,obtenue à partir de l&#39;équation de la propagation de la chaleur dans le sous-sol.
+    La pulsation w a été ajusté dans setPertes pour que la période soit une année
     
     z : profondeur en mètres
     
