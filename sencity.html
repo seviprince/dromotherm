@@ -234,7 +234,6 @@ class SenCityOne:
         Test négatif : goto cas 2 (dromotherme à l&#39;arrêt) + on passe la valeur de agenda_dro[i] à 0
           
         Test positif : alimentation du stockage
-        ```
 
         ********************************************************************************       
         cas 2: le dromotherme est à l&#39;arrêt - débit nul
@@ -248,7 +247,6 @@ class SenCityOne:
         pas d&#39;évolution des températures du stockage
         
         `Tsor_sto[i]=Tsor_sto[i-1]` et `Tinj_sto[i]=Tinj_sto[i-1]`
-        ```
           
         &#34;&#34;&#34;
         # étape 1    
@@ -623,7 +621,6 @@ for i in range (int(simStart),int(simEnd)):
         Test négatif : goto cas 2 (dromotherme à l&#39;arrêt) + on passe la valeur de agenda_dro[i] à 0
           
         Test positif : alimentation du stockage
-        ```
 
         ********************************************************************************       
         cas 2: le dromotherme est à l&#39;arrêt - débit nul
@@ -637,7 +634,6 @@ for i in range (int(simStart),int(simEnd)):
         pas d&#39;évolution des températures du stockage
         
         `Tsor_sto[i]=Tsor_sto[i-1]` et `Tinj_sto[i]=Tinj_sto[i-1]`
-        ```
           
         &#34;&#34;&#34;
         # étape 1    
@@ -827,20 +823,13 @@ for i in range (int(simStart),int(simEnd)):
 <p>Test = Tsor_dro &gt; Tsable ?</p>
 <p>Test négatif : goto cas 2 (dromotherme à l'arrêt) + on passe la valeur de agenda_dro[i] à 0</p>
 <p>Test positif : alimentation du stockage</p>
-<pre><code>
-********************************************************************************       
-cas 2: le dromotherme est à l'arrêt - débit nul
-
-l'échangeur de séparation de réseau ne tourne pas
-
-pas de prélèvement par l'échangeur de séparation de réseau
-
-`Tinj_dro[i] = Tsor_dro[i]`
-
-pas d'évolution des températures du stockage
-
-`Tsor_sto[i]=Tsor_sto[i-1]` et `Tinj_sto[i]=Tinj_sto[i-1]`
-</code></pre></div>
+<hr>
+<p>cas 2: le dromotherme est à l'arrêt - débit nul</p>
+<p>l'échangeur de séparation de réseau ne tourne pas</p>
+<p>pas de prélèvement par l'échangeur de séparation de réseau</p>
+<p><code>Tinj_dro[i] = Tsor_dro[i]</code></p>
+<p>pas d'évolution des températures du stockage</p>
+<p><code>Tsor_sto[i]=Tsor_sto[i-1]</code> et <code>Tinj_sto[i]=Tinj_sto[i-1]</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -867,7 +856,6 @@ pas d'évolution des températures du stockage
     Test négatif : goto cas 2 (dromotherme à l&#39;arrêt) + on passe la valeur de agenda_dro[i] à 0
       
     Test positif : alimentation du stockage
-    ```
 
     ********************************************************************************       
     cas 2: le dromotherme est à l&#39;arrêt - débit nul
@@ -881,7 +869,6 @@ pas d'évolution des températures du stockage
     pas d&#39;évolution des températures du stockage
     
     `Tsor_sto[i]=Tsor_sto[i-1]` et `Tinj_sto[i]=Tinj_sto[i-1]`
-    ```
       
     &#34;&#34;&#34;
     # étape 1    
