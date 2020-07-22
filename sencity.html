@@ -228,12 +228,10 @@ class SenCityOne:
         cas 1: le dromotherme est en marche
         
         le fluide circule avec un débit unitaire qdro_u
-        
-        Test = Tsor_dro &gt; Tsable ?
           
-        Test négatif : goto cas 2 (dromotherme à l&#39;arrêt) + on passe la valeur de agenda_dro[i] à 0
+        Si Tsor_dro &lt;= Tsable : goto cas 2 (dromotherme à l&#39;arrêt) + on passe la valeur de agenda_dro[i] à 0
           
-        Test positif : alimentation du stockage
+        Si Tsor_dro &gt; Tsable : alimentation du stockage
 
         ********************************************************************************       
         cas 2: le dromotherme est à l&#39;arrêt - débit nul
@@ -615,12 +613,10 @@ for i in range (int(simStart),int(simEnd)):
         cas 1: le dromotherme est en marche
         
         le fluide circule avec un débit unitaire qdro_u
-        
-        Test = Tsor_dro &gt; Tsable ?
           
-        Test négatif : goto cas 2 (dromotherme à l&#39;arrêt) + on passe la valeur de agenda_dro[i] à 0
+        Si Tsor_dro &lt;= Tsable : goto cas 2 (dromotherme à l&#39;arrêt) + on passe la valeur de agenda_dro[i] à 0
           
-        Test positif : alimentation du stockage
+        Si Tsor_dro &gt; Tsable : alimentation du stockage
 
         ********************************************************************************       
         cas 2: le dromotherme est à l&#39;arrêt - débit nul
@@ -820,9 +816,8 @@ for i in range (int(simStart),int(simEnd)):
 <hr>
 <p>cas 1: le dromotherme est en marche</p>
 <p>le fluide circule avec un débit unitaire qdro_u</p>
-<p>Test = Tsor_dro &gt; Tsable ?</p>
-<p>Test négatif : goto cas 2 (dromotherme à l'arrêt) + on passe la valeur de agenda_dro[i] à 0</p>
-<p>Test positif : alimentation du stockage</p>
+<p>Si Tsor_dro &lt;= Tsable : goto cas 2 (dromotherme à l'arrêt) + on passe la valeur de agenda_dro[i] à 0</p>
+<p>Si Tsor_dro &gt; Tsable : alimentation du stockage</p>
 <hr>
 <p>cas 2: le dromotherme est à l'arrêt - débit nul</p>
 <p>l'échangeur de séparation de réseau ne tourne pas</p>
@@ -850,12 +845,10 @@ for i in range (int(simStart),int(simEnd)):
     cas 1: le dromotherme est en marche
     
     le fluide circule avec un débit unitaire qdro_u
-    
-    Test = Tsor_dro &gt; Tsable ?
       
-    Test négatif : goto cas 2 (dromotherme à l&#39;arrêt) + on passe la valeur de agenda_dro[i] à 0
+    Si Tsor_dro &lt;= Tsable : goto cas 2 (dromotherme à l&#39;arrêt) + on passe la valeur de agenda_dro[i] à 0
       
-    Test positif : alimentation du stockage
+    Si Tsor_dro &gt; Tsable : alimentation du stockage
 
     ********************************************************************************       
     cas 2: le dromotherme est à l&#39;arrêt - débit nul
