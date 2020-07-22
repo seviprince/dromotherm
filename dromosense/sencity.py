@@ -206,7 +206,6 @@ class SenCityOne:
         Test négatif : goto cas 2 (dromotherme à l'arrêt) + on passe la valeur de agenda_dro[i] à 0
           
         Test positif : alimentation du stockage
-        ```
 
         ********************************************************************************       
         cas 2: le dromotherme est à l'arrêt - débit nul
@@ -220,7 +219,6 @@ class SenCityOne:
         pas d'évolution des températures du stockage
         
         `Tsor_sto[i]=Tsor_sto[i-1]` et `Tinj_sto[i]=Tinj_sto[i-1]`
-        ```
           
         """
         # étape 1    
