@@ -309,7 +309,7 @@ class SenCityOne:
         """
         La température du sous-sol est une fonction sinusoidale, obtenue à partir de l'équation de la propagation de la chaleur dans le sous-sol.
         
-        La pulsation w a été ajusté dans setPertes pour que la période soit une année
+        La pulsation w a été ajustée dans setPertes pour que la période soit une année
         
         z : profondeur en mètres
         
