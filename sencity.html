@@ -52,6 +52,8 @@ class SenCityOne:
     
     On initialise Tinj_dro et Tsor_dro à 10
     
+    pertes : pertes instantannées dans le stockage en W (prérequis : nécessite l&#39;utilisation de setPertes)
+    
     agenda_dro et agenda_pac : agendas de fonctionnement du dromotherme et de la PAC
     
     Pgeo : puissance géothermique à extraire pour satisfaire le besoin du bâtiment en W
@@ -92,6 +94,7 @@ class SenCityOne:
         &#34;&#34;&#34;
         self.simPertes = 0
         self.step=step
+        
         self.Tinj_sto=np.zeros(size)
         self.Tsor_sto=np.zeros(size)
         
@@ -103,8 +106,7 @@ class SenCityOne:
         
         self.Tinj_dro=10*np.ones(size)
         self.Tsor_dro=10*np.ones(size)
-        
-        
+
         self.agenda_dro=np.zeros(size)
         self.agenda_pac=np.zeros(size)
         
@@ -134,9 +136,7 @@ class SenCityOne:
         
         cpac : capacité calorifique massique du fluide dans la PAC en J/(K.kg)
         
-        
         &#34;&#34;&#34;
-        
         
         self.eff=eff
         self.k=k
@@ -179,6 +179,8 @@ class SenCityOne:
         3) pas d&#39;appel d&#39;énergie en provenance du bâtiment + dromotherme en marche
         
         4) pas d&#39;appel d&#39;énergie en provenance du bâtiment + dromotherme arrêté
+        
+        modélise les pertes dans le stockage si la méthode setPertes a été utilisée
         &#34;&#34;&#34;
         
         if self.simPertes==0:
@@ -192,8 +194,6 @@ class SenCityOne:
             pertes_Base=self.SB_iso*(self.Tsable[i]-self.Tsous_sol(-2.25,i))
             
             self.pertes[i]=self.u_th*(pertes_Laterales+ pertes_Base)
-        
-        
         
         pac=self.agenda_pac[i]
         dro=self.agenda_dro[i]
@@ -288,32 +288,35 @@ class SenCityOne:
 
         
              
-    def setPertes(self,Tmoy,Tamp,lambda_sable,rho_sable,e_iso,SL_iso,SB_iso,lambda_iso):
-         
+    def setPertes(self,Tmoy,Tamp,lambda_sable,rho_sable,e_iso,SL_iso,SB_iso,lambda_iso):   
         &#34;&#34;&#34;
-        simPertes= boléen(0 or 1) pour la sélection de la simulation avec ou sans pertes
+        paramètres à prendre en compte pour la modélisation des pertes
+         
+        Tmoy : Température moyenne annuelle du sous-sol en °C
         
-        Tmoy= Température moyenne annuelle du sous-sol
+        Tamp : l&#39;amplitude annuelle de la température i.e Tmax-Tmin en °C
         
-        Tamp= l&#39;amplitude annulle de la température i.e Tmax-Tmin
+        tf : jour correspondant à la température minimale du sous-sol (18 janvier à Chambéry) en secondes écoulées depuis le début de l&#39;année
         
-        tf=Le jour correspondant à la température minimale du sous-sol ( le 18 janvier à chambéry)
+        lambda_sable : conductivité thermique du sous-sol en W/(K.m)
+
+        rho_sable : masse volumique du sable en kg/m^3
         
-        lambda_sable= conductivité thermique du sous-sol
+        lambda_iso : conductivité thermique de l&#39;isolant autour du stockage en W/(K.m)
         
-        lambda_iso= conductivité thermique de l&#39;isolant autour du stockage
+        SL_iso : surface de l&#39;isolant le long des parois latéraux du stockage en m2
         
-        SL_iso= surface de l&#39;isolant le long des parois latéraux du stockage
+        SB_iso : surface de l&#39;isolant posée à la base du stockage en m2
         
-        SB_iso= surface de l&#39;isolant posée à la base du stockage
+        e_iso : épaisseur de l&#39;isolant en m
         
-        e_iso= épaisseur de l&#39;isolant
-          
         &#34;&#34;&#34;
         
         self.simPertes=1
          
-        self.tf=18*24*self.step
+        self.tf=18*24*3600
+        # w pulsation exprimée en s-1
+        self.w = 2*math.pi / (8760*3600)
          
         self.Tmoy=Tmoy 
         
@@ -325,18 +328,13 @@ class SenCityOne:
 
         # a diffusivité thermique du sous-sol, en m2/s
         a = lambda_sable / (self.cpsable * rho_sable)
-        
-        # w pulsation exprimée en s-1
-        self.w = 2*math.pi / (8760*3600)
-        
+
         self.za = math.sqrt( 2 * a / self.w )
         
         self.u_th = lambda_iso / e_iso
         
     
     def Tsous_sol(self,z,i):
-        
-             
         &#34;&#34;&#34;
         La température du sous-sol est une fonction sinusoidale :
         - de période = une année
@@ -347,9 +345,6 @@ class SenCityOne:
         i : indice temporel dans la discrétisation
             
         &#34;&#34;&#34;
-        
-        
-       
         
         factor = math.cos(self.w * (self.step * i - self.tf) + z/self.za ) * math.exp(z /self.za)
             
@@ -389,6 +384,7 @@ class SenCityOne:
 <p>Tinj_dro : température d'injection dans le dromotherme</p>
 <p>Tsor_dro : température de sortie du dromotherme</p>
 <p>On initialise Tinj_dro et Tsor_dro à 10</p>
+<p>pertes : pertes instantannées dans le stockage en W (prérequis : nécessite l'utilisation de setPertes)</p>
 <p>agenda_dro et agenda_pac : agendas de fonctionnement du dromotherme et de la PAC</p>
 <p>Pgeo : puissance géothermique à extraire pour satisfaire le besoin du bâtiment en W</p>
 <p>par exemple, avec une PAC de COP 3, la puissance géothermique à extraire vaut 2/3 du besoin total du bâtiment</p>
@@ -442,6 +438,8 @@ for i in range (int(simStart),int(simEnd)):
     
     On initialise Tinj_dro et Tsor_dro à 10
     
+    pertes : pertes instantannées dans le stockage en W (prérequis : nécessite l&#39;utilisation de setPertes)
+    
     agenda_dro et agenda_pac : agendas de fonctionnement du dromotherme et de la PAC
     
     Pgeo : puissance géothermique à extraire pour satisfaire le besoin du bâtiment en W
@@ -482,6 +480,7 @@ for i in range (int(simStart),int(simEnd)):
         &#34;&#34;&#34;
         self.simPertes = 0
         self.step=step
+        
         self.Tinj_sto=np.zeros(size)
         self.Tsor_sto=np.zeros(size)
         
@@ -493,8 +492,7 @@ for i in range (int(simStart),int(simEnd)):
         
         self.Tinj_dro=10*np.ones(size)
         self.Tsor_dro=10*np.ones(size)
-        
-        
+
         self.agenda_dro=np.zeros(size)
         self.agenda_pac=np.zeros(size)
         
@@ -524,9 +522,7 @@ for i in range (int(simStart),int(simEnd)):
         
         cpac : capacité calorifique massique du fluide dans la PAC en J/(K.kg)
         
-        
         &#34;&#34;&#34;
-        
         
         self.eff=eff
         self.k=k
@@ -569,6 +565,8 @@ for i in range (int(simStart),int(simEnd)):
         3) pas d&#39;appel d&#39;énergie en provenance du bâtiment + dromotherme en marche
         
         4) pas d&#39;appel d&#39;énergie en provenance du bâtiment + dromotherme arrêté
+        
+        modélise les pertes dans le stockage si la méthode setPertes a été utilisée
         &#34;&#34;&#34;
         
         if self.simPertes==0:
@@ -582,8 +580,6 @@ for i in range (int(simStart),int(simEnd)):
             pertes_Base=self.SB_iso*(self.Tsable[i]-self.Tsous_sol(-2.25,i))
             
             self.pertes[i]=self.u_th*(pertes_Laterales+ pertes_Base)
-        
-        
         
         pac=self.agenda_pac[i]
         dro=self.agenda_dro[i]
@@ -678,32 +674,35 @@ for i in range (int(simStart),int(simEnd)):
 
         
              
-    def setPertes(self,Tmoy,Tamp,lambda_sable,rho_sable,e_iso,SL_iso,SB_iso,lambda_iso):
-         
+    def setPertes(self,Tmoy,Tamp,lambda_sable,rho_sable,e_iso,SL_iso,SB_iso,lambda_iso):   
         &#34;&#34;&#34;
-        simPertes= boléen(0 or 1) pour la sélection de la simulation avec ou sans pertes
+        paramètres à prendre en compte pour la modélisation des pertes
+         
+        Tmoy : Température moyenne annuelle du sous-sol en °C
         
-        Tmoy= Température moyenne annuelle du sous-sol
+        Tamp : l&#39;amplitude annuelle de la température i.e Tmax-Tmin en °C
         
-        Tamp= l&#39;amplitude annulle de la température i.e Tmax-Tmin
+        tf : jour correspondant à la température minimale du sous-sol (18 janvier à Chambéry) en secondes écoulées depuis le début de l&#39;année
         
-        tf=Le jour correspondant à la température minimale du sous-sol ( le 18 janvier à chambéry)
+        lambda_sable : conductivité thermique du sous-sol en W/(K.m)
+
+        rho_sable : masse volumique du sable en kg/m^3
         
-        lambda_sable= conductivité thermique du sous-sol
+        lambda_iso : conductivité thermique de l&#39;isolant autour du stockage en W/(K.m)
         
-        lambda_iso= conductivité thermique de l&#39;isolant autour du stockage
+        SL_iso : surface de l&#39;isolant le long des parois latéraux du stockage en m2
         
-        SL_iso= surface de l&#39;isolant le long des parois latéraux du stockage
+        SB_iso : surface de l&#39;isolant posée à la base du stockage en m2
         
-        SB_iso= surface de l&#39;isolant posée à la base du stockage
+        e_iso : épaisseur de l&#39;isolant en m
         
-        e_iso= épaisseur de l&#39;isolant
-          
         &#34;&#34;&#34;
         
         self.simPertes=1
          
-        self.tf=18*24*self.step
+        self.tf=18*24*3600
+        # w pulsation exprimée en s-1
+        self.w = 2*math.pi / (8760*3600)
          
         self.Tmoy=Tmoy 
         
@@ -715,18 +714,13 @@ for i in range (int(simStart),int(simEnd)):
 
         # a diffusivité thermique du sous-sol, en m2/s
         a = lambda_sable / (self.cpsable * rho_sable)
-        
-        # w pulsation exprimée en s-1
-        self.w = 2*math.pi / (8760*3600)
-        
+
         self.za = math.sqrt( 2 * a / self.w )
         
         self.u_th = lambda_iso / e_iso
         
     
     def Tsous_sol(self,z,i):
-        
-             
         &#34;&#34;&#34;
         La température du sous-sol est une fonction sinusoidale :
         - de période = une année
@@ -737,9 +731,6 @@ for i in range (int(simStart),int(simEnd)):
         i : indice temporel dans la discrétisation
             
         &#34;&#34;&#34;
-        
-        
-       
         
         factor = math.cos(self.w * (self.step * i - self.tf) + z/self.za ) * math.exp(z /self.za)
             
@@ -758,7 +749,8 @@ for i in range (int(simStart),int(simEnd)):
 <p>1) appel d'énergie en provenance du bâtiment + dromotherme en marche</p>
 <p>2) appel d'énergie en provenance du bâtiment + dromotherme arrêté</p>
 <p>3) pas d'appel d'énergie en provenance du bâtiment + dromotherme en marche</p>
-<p>4) pas d'appel d'énergie en provenance du bâtiment + dromotherme arrêté</p></div>
+<p>4) pas d'appel d'énergie en provenance du bâtiment + dromotherme arrêté</p>
+<p>modélise les pertes dans le stockage si la méthode setPertes a été utilisée</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -780,6 +772,8 @@ for i in range (int(simStart),int(simEnd)):
     3) pas d&#39;appel d&#39;énergie en provenance du bâtiment + dromotherme en marche
     
     4) pas d&#39;appel d&#39;énergie en provenance du bâtiment + dromotherme arrêté
+    
+    modélise les pertes dans le stockage si la méthode setPertes a été utilisée
     &#34;&#34;&#34;
     
     if self.simPertes==0:
@@ -793,8 +787,6 @@ for i in range (int(simStart),int(simEnd)):
         pertes_Base=self.SB_iso*(self.Tsable[i]-self.Tsous_sol(-2.25,i))
         
         self.pertes[i]=self.u_th*(pertes_Laterales+ pertes_Base)
-    
-    
     
     pac=self.agenda_pac[i]
     dro=self.agenda_dro[i]
@@ -935,8 +927,6 @@ Tsor_sto[i]=Tsor_sto[i-1] et Tinj_sto[i]=Tinj_sto[i-1]
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def Tsous_sol(self,z,i):
-    
-         
     &#34;&#34;&#34;
     La température du sous-sol est une fonction sinusoidale :
     - de période = une année
@@ -947,9 +937,6 @@ Tsor_sto[i]=Tsor_sto[i-1] et Tinj_sto[i]=Tinj_sto[i-1]
     i : indice temporel dans la discrétisation
         
     &#34;&#34;&#34;
-    
-    
-   
     
     factor = math.cos(self.w * (self.step * i - self.tf) + z/self.za ) * math.exp(z /self.za)
         
@@ -996,9 +983,7 @@ Tsor_sto[i]=Tsor_sto[i-1] et Tinj_sto[i]=Tinj_sto[i-1]
     
     cpac : capacité calorifique massique du fluide dans la PAC en J/(K.kg)
     
-    
     &#34;&#34;&#34;
-    
     
     self.eff=eff
     self.k=k
@@ -1029,45 +1014,49 @@ Tsor_sto[i]=Tsor_sto[i-1] et Tinj_sto[i]=Tinj_sto[i-1]
 <span>def <span class="ident">setPertes</span></span>(<span>self, Tmoy, Tamp, lambda_sable, rho_sable, e_iso, SL_iso, SB_iso, lambda_iso)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>simPertes= boléen(0 or 1) pour la sélection de la simulation avec ou sans pertes</p>
-<p>Tmoy= Température moyenne annuelle du sous-sol</p>
-<p>Tamp= l'amplitude annulle de la température i.e Tmax-Tmin</p>
-<p>tf=Le jour correspondant à la température minimale du sous-sol ( le 18 janvier à chambéry)</p>
-<p>lambda_sable= conductivité thermique du sous-sol</p>
-<p>lambda_iso= conductivité thermique de l'isolant autour du stockage</p>
-<p>SL_iso= surface de l'isolant le long des parois latéraux du stockage</p>
-<p>SB_iso= surface de l'isolant posée à la base du stockage</p>
-<p>e_iso= épaisseur de l'isolant</p></div>
+<div class="desc"><p>paramètres à prendre en compte pour la modélisation des pertes</p>
+<p>Tmoy : Température moyenne annuelle du sous-sol en °C</p>
+<p>Tamp : l'amplitude annuelle de la température i.e Tmax-Tmin en °C</p>
+<p>tf : jour correspondant à la température minimale du sous-sol (18 janvier à Chambéry) en secondes écoulées depuis le début de l'année</p>
+<p>lambda_sable : conductivité thermique du sous-sol en W/(K.m)</p>
+<p>rho_sable : masse volumique du sable en kg/m^3</p>
+<p>lambda_iso : conductivité thermique de l'isolant autour du stockage en W/(K.m)</p>
+<p>SL_iso : surface de l'isolant le long des parois latéraux du stockage en m2</p>
+<p>SB_iso : surface de l'isolant posée à la base du stockage en m2</p>
+<p>e_iso : épaisseur de l'isolant en m</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def setPertes(self,Tmoy,Tamp,lambda_sable,rho_sable,e_iso,SL_iso,SB_iso,lambda_iso):
-     
+<pre><code class="python">def setPertes(self,Tmoy,Tamp,lambda_sable,rho_sable,e_iso,SL_iso,SB_iso,lambda_iso):   
     &#34;&#34;&#34;
-    simPertes= boléen(0 or 1) pour la sélection de la simulation avec ou sans pertes
+    paramètres à prendre en compte pour la modélisation des pertes
+     
+    Tmoy : Température moyenne annuelle du sous-sol en °C
     
-    Tmoy= Température moyenne annuelle du sous-sol
+    Tamp : l&#39;amplitude annuelle de la température i.e Tmax-Tmin en °C
     
-    Tamp= l&#39;amplitude annulle de la température i.e Tmax-Tmin
+    tf : jour correspondant à la température minimale du sous-sol (18 janvier à Chambéry) en secondes écoulées depuis le début de l&#39;année
     
-    tf=Le jour correspondant à la température minimale du sous-sol ( le 18 janvier à chambéry)
+    lambda_sable : conductivité thermique du sous-sol en W/(K.m)
+
+    rho_sable : masse volumique du sable en kg/m^3
     
-    lambda_sable= conductivité thermique du sous-sol
+    lambda_iso : conductivité thermique de l&#39;isolant autour du stockage en W/(K.m)
     
-    lambda_iso= conductivité thermique de l&#39;isolant autour du stockage
+    SL_iso : surface de l&#39;isolant le long des parois latéraux du stockage en m2
     
-    SL_iso= surface de l&#39;isolant le long des parois latéraux du stockage
+    SB_iso : surface de l&#39;isolant posée à la base du stockage en m2
     
-    SB_iso= surface de l&#39;isolant posée à la base du stockage
+    e_iso : épaisseur de l&#39;isolant en m
     
-    e_iso= épaisseur de l&#39;isolant
-      
     &#34;&#34;&#34;
     
     self.simPertes=1
      
-    self.tf=18*24*self.step
+    self.tf=18*24*3600
+    # w pulsation exprimée en s-1
+    self.w = 2*math.pi / (8760*3600)
      
     self.Tmoy=Tmoy 
     
@@ -1079,10 +1068,7 @@ Tsor_sto[i]=Tsor_sto[i-1] et Tinj_sto[i]=Tinj_sto[i-1]
 
     # a diffusivité thermique du sous-sol, en m2/s
     a = lambda_sable / (self.cpsable * rho_sable)
-    
-    # w pulsation exprimée en s-1
-    self.w = 2*math.pi / (8760*3600)
-    
+
     self.za = math.sqrt( 2 * a / self.w )
     
     self.u_th = lambda_iso / e_iso</code></pre>
