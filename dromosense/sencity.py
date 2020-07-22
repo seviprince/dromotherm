@@ -308,7 +308,9 @@ class SenCityOne:
     def Tsous_sol(self,z,i):
         """
         La température du sous-sol est une fonction sinusoidale :
+        
         - de période = une année
+        
         - de pulsation w ,obtenue à partir de l'équation de la propagation de la chaleur dans le sous-sol.
         
         z : profondeur en mètres
