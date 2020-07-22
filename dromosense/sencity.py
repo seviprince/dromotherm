@@ -196,27 +196,30 @@ class SenCityOne:
         
         3) On réalise ensuite une itération de dromotherme selon 2 cas distincts
         
-        ```
-        cas 1: le dromotherme est en marche 
+        ********************************************************************************
+        cas 1: le dromotherme est en marche
+        
         le fluide circule avec un débit unitaire qdro_u
+        
         Test = Tsor_dro > Tsable ?
           
-        Test négatif : pas d'échange d'énergie entre la route et le stock, 
-        cf dromotherme à l'arrêt + on passe la valeur de agenda_dro[i] à 0
+        Test négatif : goto cas 2 (dromotherme à l'arrêt) + on passe la valeur de agenda_dro[i] à 0
           
         Test positif : alimentation du stockage
         ```
 
-        ```        
-        cas 2: le dromotherme est à l'arrêt
-        le débit est nul
+        ********************************************************************************       
+        cas 2: le dromotherme est à l'arrêt - débit nul
+        
         l'échangeur de séparation de réseau ne tourne pas
         
         pas de prélèvement par l'échangeur de séparation de réseau
-        Tinj_dro[i] = Tsor_dro[i]
-           
-        fonctionnement à perte nulle pour le stockage
-        Tsor_sto[i]=Tsor_sto[i-1] et Tinj_sto[i]=Tinj_sto[i-1]
+        
+        `Tinj_dro[i] = Tsor_dro[i]`
+        
+        pas d'évolution des températures du stockage
+        
+        `Tsor_sto[i]=Tsor_sto[i-1]` et `Tinj_sto[i]=Tinj_sto[i-1]`
         ```
           
         """
