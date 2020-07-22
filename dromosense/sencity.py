@@ -200,12 +200,10 @@ class SenCityOne:
         cas 1: le dromotherme est en marche
         
         le fluide circule avec un débit unitaire qdro_u
-        
-        Test = Tsor_dro > Tsable ?
           
-        Test négatif : goto cas 2 (dromotherme à l'arrêt) + on passe la valeur de agenda_dro[i] à 0
+        Si Tsor_dro <= Tsable : goto cas 2 (dromotherme à l'arrêt) + on passe la valeur de agenda_dro[i] à 0
           
-        Test positif : alimentation du stockage
+        Si Tsor_dro > Tsable : alimentation du stockage
 
         ********************************************************************************       
         cas 2: le dromotherme est à l'arrêt - débit nul
