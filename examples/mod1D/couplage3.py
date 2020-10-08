@@ -12,22 +12,15 @@ import sys
 from matplotlib.sankey import Sankey
 """
 Fonctionnement en mode API
-
 Le script peut être piloté en ligne de commande
-
 Pour lancer le cas d'usage 0 avec ECS, il faut taper la commande suivante :
-
 ```
 python couplage.py True 0
 ```
-
 premier paramètre : True ou False pour activer ou non la production d'ECS
-
 second paramètre : numéro du cas d'usage
-
 Pour en plus enregistrer le graphe sortant dans le répertoire courant, 
 il faut rajouter un troisième paramètre indiquant le nom à utiliser pour le graphique, sans préciser l'extension:
-
 ```
 python couplage.py True 0 "SummerProdECS"
 ```
@@ -64,25 +57,27 @@ def graphe(s,e):
     plt.ylabel('dromotherme\n{} m2'.format(int(Surface_dro)))
     
     ax1.plot(xrange, RSB.agenda_dro[s:e], color=clearblue, label="dro ON/OFF")
-    ax1.legend(loc="lower left")
+    ax1.legend(loc="upper left")
     
     ax11 = ax1.twinx()
     ax11.plot(xrange, RSB.Tsor_dro[s:e], label="Tsor_dro", color="red")
     ax11.plot(xrange, RSB.Tinj_dro[s:e], label="Tinj_dro", color="purple")
-    ax11.legend(loc="upper right")
+    ax11.legend(loc="upper right")  
+    ax11.set_ylabel('°C')
+    
     
     ## graphe 2 - l'énergie
     ax2 = plt.subplot(512, sharex=ax1)
     
     ax2.plot(xrange, Surface_dro*meteo[s:e,2], label="RTD", color="yellow")
-    ax2.plot(xrange, Surface_dro*(RSB.agenda_dro*meteo[:,2])[s:e], label="RDO > {} KWh".format(int(Esolaire)), color="#f8cccc"); 
-    ax2.plot(xrange, Pdro[s:e], label="ECD > {} kWh / rendement {} %".format(int(Edro), int(Taux)), color="green"); 
+    ax2.plot(xrange, Surface_dro*(RSB.agenda_dro*meteo[:,2])[s:e], label="RDO = {} KWh".format(int(Esolaire)), color="#f8cccc"); 
+    ax2.plot(xrange, Pdro[s:e], label="ECD = {} kWh / rendement {} %".format(int(Edro), int(Taux)), color="green"); 
     plt.ylabel('Puissances \n W')
     ax2.legend()
     
     ## graphe 3 - le stockage
     ax3 = plt.subplot(513, sharex=ax1)
-    plt.ylabel('stockage\n {} kg'.format(int(m_sable)))
+    plt.ylabel('stockage\n {} m^3'.format(int(V_sable)))
     
    # ax3.plot(xrange, RSB.diff[s:e], color=clearblue, label="derivée de Tsable en °C/s ou K/s")
     #ax3.legend(loc="upper left")
@@ -94,6 +89,7 @@ def graphe(s,e):
    
     
     ax31.legend(loc="upper right")
+    ax31.set_ylabel('°C')
     
     ## graphe 4 - la PAC
     ax4 = plt.subplot(514, sharex=ax1)
@@ -106,16 +102,18 @@ def graphe(s,e):
     ax41.plot(xrange, RSB.Tinj_pac[s:e], label="Tinj_pac", color="red")
     ax41.plot(xrange, RSB.Tsor_pac[s:e], label="Tsor_pac", color="#7cb0ff")
     ax41.legend(loc="upper right")
+    ax41.set_ylabel('°C')
+    
     
     ## graphe 5 - le besoin du bâtiment
     ax5 = plt.subplot(515, sharex=ax1)
-    plt.ylabel('Bâtiment')
+    plt.ylabel('Bâtiment \n W')
     plt.xlabel("Temps - 1 unité = {} s".format(step))
     
    
     
    
-    ax5.plot(xrange, besoin_total[s:e], label="besoin {} en W > {} kWh > Elec {} kWh".format(heating,int(conso_bat),int(Eelec)), color="orange")
+    ax5.plot(xrange, besoin_total[s:e], label="besoin {}  = {} kWh / Elec {} kWh".format(heating,int(conso_bat),int(Eelec)), color="orange")
     ax5.legend(loc="lower right")
     
     plt.show()
@@ -123,6 +121,8 @@ def graphe(s,e):
     if len(sys.argv) > 3:
         if sys.argv[3]:
             figure.savefig("{}.png".format(sys.argv[3]))
+    
+    
 
 def ECSPower(min, max, size):
     """
@@ -131,7 +131,6 @@ def ECSPower(min, max, size):
     cette fonction est complètement calée sur un fichier météo qui commence au 1er janvier mais qui peut être pluriannuel
     
     min : température minimale d'injection de l'eau du réseau dans le ballon
-
     max : température maximale d'injection de l'eau du réseau dans le ballon
     """
     T_water=np.zeros(size)
@@ -153,7 +152,6 @@ IMPORTATION DES DONNES METEOS
 2 : rayonnement global (en W/m2)
 3 : rayonnement atmospherique (en W/m2)
 4 : vitesse du vent (en m/s)
-
 NOTA : principe d'un échantillonnage temporel à l'année = il faut donner à ce script un fichier meteo annuel
  
 la variable npy représente le nombre de points dans une année complète
@@ -167,14 +165,17 @@ pour respecter la condition de stabilité du schema numérique utilisé au nivea
 meteo = np.loadtxt('../../datas/corr1_RT2012_H1c_toute_annee.txt')
 npy = meteo.shape[0]
 ##meteo=np.concatenate((meteo,meteo,meteo,meteo,meteo,meteo,meteo,meteo,meteo,meteo))
-meteo=np.concatenate((meteo,meteo))
-meteo[npy:meteo.shape[0],0]=meteo[npy:meteo.shape[0],0]+npy
+year=3
+meteo=np.concatenate((meteo,meteo,meteo))# La simulation sur plus de deux années permet de faire converger les solutions
+for i in range(year):
+    meteo[i*npy:(i+1)*npy,0]=meteo[i*npy:(i+1)*npy,0]+i*npy
+
 print(meteo.shape)
 f2 = 1000.0*1.1*(0.0036*meteo[:,4]+0.00423)
 f1 = (1.0-albedo)*meteo[:,2] + meteo[:,3] + f2*(meteo[:,1]+kelvin)
 
 # longueur et largeur de l'échangeur, exprimées en m
-lincha=3
+lincha=7.5
 larcha=4
 Surface_dro=larcha*lincha
 dx=0.75
@@ -210,7 +211,7 @@ massif de stockage
 """
 m_sable=70200.0 # masse de sable humide (sable sec + eau ) en kg
 Cp_sable=1470.0 # capacité calorifique massique du sable humide en J/Kg.K
-
+V_sable=45 # volume du stockage (en m^3)
 """
 paramètres définissant le système géothermique équipant le stockage
 """
@@ -305,10 +306,10 @@ besoin_chauffage = besoinBrut - apport_solaire
 """
 on efface les besoins de chauffage sur les étés
 """
+for i in range(year):
+#besoin_chauffage[i_summerStart:i_summerEnd] = np.zeros(i_summerEnd-i_summerStart)
 
-besoin_chauffage[i_summerStart:i_summerEnd] = np.zeros(i_summerEnd-i_summerStart)
-
-besoin_chauffage[i_summerStart+npy:i_summerEnd+npy]=np.zeros(i_summerEnd-i_summerStart)
+    besoin_chauffage[i_summerStart+i*npy:i_summerEnd+i*npy]=np.zeros(i_summerEnd-i_summerStart)
 
 """
 Besoin en ECS
@@ -347,7 +348,7 @@ if len(sys.argv) > 2:
     usecase= int(sys.argv[2])
 else:    
     ECSupply=True
-    usecase=3
+    usecase=0
 """
 *************************************
 *************************************
@@ -365,8 +366,6 @@ RSB.Pgeo = (COP-1) * besoin_total / COP
 label = ""
 
 
-
-
 """
 Management des usecases
 1) fixer les indices simStart et simEnd pour définir la fenêtre de simulation
@@ -379,7 +378,9 @@ POUR CREER UN NOUVEAU USECASE, IL FAUT DONC A MINIMA DEFINIR simStart, simEnd, a
 if usecase == 0:
     # ECS only pendant l'été
     simStart = i_summerStart
-    simEnd = i_summerEnd
+    simEnd = i_summerEnd+365*24*(year-1)
+    k1=simStart+365*24*(year-2)
+    k2=simEnd-365*24*(year-2)
     RSB.agenda_dro[simStart:simEnd]=np.ones(simEnd-simStart)
     RSB.agenda_pac[simStart:simEnd]=np.ones(simEnd-simStart)
     heating = "ECS"
@@ -387,14 +388,19 @@ if usecase == 0:
 if usecase == 1:
     # dromotherme durant l'été
     simStart = i_summerStart
-    simEnd=i_summerEnd+2000
+    simEnd=i_summerStart+365*24*(year-1)
+    k1=simStart+365*24*(year-2)
+    k2=simEnd
     RSB.agenda_dro[simStart:i_summerEnd]=np.ones(i_summerEnd-simStart)
+    RSB.agenda_dro[simStart+365*24*1:i_summerEnd+365*24*1]=np.ones(i_summerEnd-simStart)
     RSB.agenda_pac[simStart:simEnd]=np.ones(simEnd-simStart)
 
 if usecase == 2:
     # simulation annuelle
     simStart = i_summerStart
-    simEnd=i_summerStart+365*24
+    simEnd=i_summerStart+365*24*(year-1)
+    k1=simStart+365*24*(year-2)
+    k2=simEnd
     RSB.agenda_dro[simStart:simEnd]=np.ones(simEnd-simStart)
     RSB.agenda_pac[simStart:simEnd]=np.ones(simEnd-simStart)
 
@@ -402,7 +408,9 @@ if usecase == 3:
     # simulation annuelle
     # dromotherme l'été et par intermittence l'hiver quant le rayonnement global est au dessus de 250 W/m2
     simStart = i_summerStart
-    simEnd=i_summerStart+365*24
+    simEnd=i_summerStart+365*24*(year-1)
+    k1=simStart+365*24*(year-2)
+    k2=simEnd
     RSB.agenda_dro[simStart:i_summerEnd]=np.ones(i_summerEnd-simStart)
     RSB.agenda_pac[simStart:simEnd]=np.ones(simEnd-simStart)
     level=250
@@ -411,20 +419,12 @@ if usecase == 3:
         if meteo[i,2] >= level:
             RSB.agenda_dro[i]=1
  
-
+    
 if usecase == 4:
-    #Hivers Only
-    simStart =i_summerEnd
-    simEnd = i_summerStart+365*24
-    RSB.agenda_dro[simStart:simEnd]=np.ones(simEnd-simStart)
-    RSB.agenda_pac[simStart:simEnd]=np.ones(simEnd-simStart)
-   # heating = "ECS"    
-    
-    
-if usecase == 5:
-    # ECS only pendant l'année
     simStart = i_summerStart
-    simEnd=i_summerStart+365*24
+    simEnd=i_summerStart+365*24*(year-1)
+    k1=simStart+365*24*(year-2)
+    k2=simEnd
     RSB.agenda_dro[simStart:simEnd]=np.ones(simEnd-simStart)
     RSB.agenda_pac[simStart:simEnd]=np.zeros(simEnd-simStart)
     heating = "Pas de besoin"    
@@ -433,10 +433,6 @@ if usecase == 5:
 for i in range(simStart,simEnd):
     if RSB.Pgeo[i]==0:
         RSB.agenda_pac[i]=0            
-
-
-
-
 
 
 """
@@ -456,19 +452,47 @@ BILAN ENERGETIQUE
 dromotherme
 """
 
-Pdro = mdro * cpdro * RSB.agenda_dro * ( RSB.Tsor_dro - RSB.Tinj_dro )
+Pdro = mdro * cpdro * RSB.agenda_dro * (RSB.Tsor_dro - RSB.Tinj_dro )
 # toutes valeurs en kWh/m^2
-Edro=np.sum(Pdro)*step/(3600*1000)
-Esolaire=np.sum(step*RSB.agenda_dro*meteo[:,2]*Surface_dro)/(3600*1000)
+Edro=np.sum(Pdro[k1:k2])*step/(3600*1000)
+Esolaire=(1-albedo)*np.sum(step*RSB.agenda_dro[k1:k2]*meteo[k1:k2,2]*Surface_dro)/(3600*1000)
 # taux de récupération en %
 Taux=Edro*100/Esolaire
 
 """
 bâtiment
 """
-conso_bat=np.sum(RSB.agenda_pac*besoin_total)*step/(3600*1000)
+conso_bat=np.sum(RSB.agenda_pac[k1:k2]*besoin_total[k1:k2])*step/(3600*1000)
 Eelec=conso_bat/COP
 Eprimaire=2.58*Eelec
 
-graphe(simStart,simEnd)
+"""
+LES PERTES
+Version provisoire du calcul des pertes. Cette partie sera "transférée" vers un des modules
+"""
 
+Pertes_rad=np.zeros(meteo.shape[0])# Les pertes radiatives instantanées
+Pertes_conv=np.zeros(meteo.shape[0])# Les pertes convectives instantanées
+
+for i in range (k1,k2):
+    Pertes_rad[i]=RSB.agenda_dro[i]*(epsilon*sigma*(dromo.T[i,0,-1])**4-meteo[i,3])
+    Pertes_conv[i]=RSB.agenda_dro[i]*(1000.0*1.1*(0.0036*meteo[i,4]+0.00423))*(dromo.T[i,0,-1]-kelvin-meteo[i,1])
+
+Prad=Surface_dro*np.sum(Pertes_rad)*step/(3600*1000) # Pertes radiatives totales
+Pconv=Surface_dro*np.sum(Pertes_conv)*step/(1000*3600) # Pertes convectives totales
+Psto=np.sum(RSB.pertes[k1:k2])*step/(1000*3600) # Pertes totales au niveau du stockage
+Egeo=np.sum(RSB.agenda_pac[k1:k2]*RSB.Pgeo[k1:k2])*step/(1000*3600) # Energie géothermique 
+Echauff=np.sum(RSB.agenda_pac[k1:k2]*besoin_chauffage[k1:k2])*step/(1000*3600) # Consommation du chuaffage
+print("Esolaire=",Esolaire)
+print("Prad=", Prad)
+print("Edro=", Edro)
+print("Pconv=", Pconv)
+print("Psto", Psto)
+
+integralite=False # booléen donnant l'intégralité ou non du graphique
+if integralite:
+    k1=simStart
+    k2=simEnd
+
+graphe(k1,k2)    
+    
