@@ -483,11 +483,11 @@ Pconv=Surface_dro*np.sum(Pertes_conv)*step/(1000*3600) # Pertes convectives tota
 Psto=np.sum(RSB.pertes[k1:k2])*step/(1000*3600) # Pertes totales au niveau du stockage
 Egeo=np.sum(RSB.agenda_pac[k1:k2]*RSB.Pgeo[k1:k2])*step/(1000*3600) # Energie géothermique 
 Echauff=np.sum(RSB.agenda_pac[k1:k2]*besoin_chauffage[k1:k2])*step/(1000*3600) # Consommation du chuaffage
-print("Esolaire=",Esolaire)
-print("Prad=", Prad)
-print("Edro=", Edro)
-print("Pconv=", Pconv)
-print("Psto", Psto)
+print("Energie solaire reçue={} kWh ".format(Esolaire))
+print("Pertes radiatives ={} kWh".format(Prad))
+print("Energie recue par le dromotherm ={} kWh".format(Edro))
+print("Pertes convectives ={} kWh".format(Pconv))
+print("Pertes conductives au niveau du stockage={} kWh".format(Psto))
 
 integralite=False # booléen donnant l'intégralité ou non du graphique
 if integralite:
