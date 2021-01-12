@@ -12,9 +12,7 @@ import sys
 
 """
 Fonctionnement en mode API
-
 Le script peut être piloté en ligne de commande
-
 Pour lancer le cas d'usage 0 avec ECS, il faut taper la commande suivante :
 
 ```
