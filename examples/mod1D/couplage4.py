@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from dromosense.tools import *
 from dromosense.constantes import rho_eau,Cpf,kelvin
 
-
 from dromosense.sencity2 import *
 from dromosense.fstorage import *
 import math
@@ -148,19 +147,7 @@ Si on choisit un autre pas, il faut changer la variable step, exprimée en secon
 Dansc ce cas, si on désigne par dt1 le nouveau pas de temps, il va falloir multiplier le pas d'espace dx par dt1/3600 
 pour respecter la condition de stabilité du schema numérique utilisé au niveau du domotherm.
 """
-from PyFina import getMeta, PyFina
 
-
-# Feeds ID
-feeds = {
-    "temp_ext": 13,
-    "netRad":14,
-    "ray_atmo":81,
-    "windSpeed": 84,
-    }
-step=3600
-# Path of the PyFina File
-dir = "D:/Utilisateurs/sevif/Documents/GitHub/Tuto_Pierre/data/emoncms-backup-2023-03-09/phpfina/"
 
 
 
@@ -177,7 +164,19 @@ print(meteo.shape)
 f2 = 1000.0*1.1*(0.0036*meteo[:,4]+0.00423)
 f1 = (1.0-albedo)*meteo[:,2] + meteo[:,3] + f2*(meteo[:,1]+kelvin)
 
+from PyFina import getMeta, PyFina
 
+
+# Feeds ID
+feeds = {
+    "temp_ext": 13,
+    "netRad":14,
+    "ray_atmo":81,
+    "windSpeed": 84,
+    }
+step=3600
+# Path of the PyFina File
+dir = "D:/Utilisateurs/sevif/Documents/GitHub/Tuto_Pierre/data/emoncms-backup-2023-03-09/phpfina/"
 # longueur et largeur de l'échangeur, exprimées en m
 lincha=7.5
 larcha=4
@@ -307,7 +306,7 @@ sable={"lambda":1.7,"rho":1700.0,"cp":1470.0}
 eau={"lambda":0.56,"rho":1000.0,"cp":4181.0}
 
 glace={"lambda":2.24,"rho":910.0,"cp":2100}
-L=333000 #chaleur latente de fusion de l'eau à 0°c en J/kg
+
 
 
 """
@@ -532,12 +531,12 @@ timestamp_start =int( dt.datetime.timestamp(dt.datetime.strptime(localstart_stri
 timestamp_end =int( dt.datetime.timestamp(dt.datetime.strptime(localend_string, '%Y-%m-%d %H:%M:%S')))
 nbpts=(timestamp_end -timestamp_start)//step
 npt=k2-k1
-#Tdro_expe=np.zeros(npy)
-Tdro_expe=PyFina(feeds["ChDrAmTh1"],dir,timestamp_start ,step,npt)+PyFina(feeds["ChDrAmTh2"],dir,timestamp_start ,step,npt) \
-    +PyFina(feeds["ChDrCeTh1"],dir,timestamp_start ,step,npt)+PyFina(feeds["ChDrCeTh2"],dir,timestamp_start ,step,npt) \
-    +PyFina(feeds["ChDrAvTh2"],dir,timestamp_start ,step,npt)+PyFina(feeds["ChDrAvTh4"],dir,timestamp_start ,step,npt)    
 
-Tdro_expe=Tdro_expe/6
+   
+Tdro_expe2=np.mean(np.array([PyFina(feeds["ChDrAmTh1"],dir,timestamp_start ,step,npt),PyFina(feeds["ChDrAmTh2"],dir,timestamp_start ,step,npt) \
+    ,PyFina(feeds["ChDrCeTh1"],dir,timestamp_start ,step,npt),PyFina(feeds["ChDrCeTh2"],dir,timestamp_start ,step,npt) \
+    ,PyFina(feeds["ChDrAvTh2"],dir,timestamp_start ,step,npt),PyFina(feeds["ChDrAvTh4"],dir,timestamp_start ,step,npt)]),axis=0)
+
 
 Tsto=PyFina(feeds["StC1EsOu1"],dir,timestamp_start ,step,npt)+PyFina(feeds["StC1EsOu2"],dir,timestamp_start ,step,npt)\
     +PyFina(feeds["StC1EsOu3"],dir,timestamp_start ,step,npt)+PyFina(feeds["StC1EsOu4"],dir,timestamp_start ,step,npt)\
@@ -554,7 +553,24 @@ Tsto=PyFina(feeds["StC1EsOu1"],dir,timestamp_start ,step,npt)+PyFina(feeds["StC1
     +PyFina(feeds["StC5EsOu1"],dir,timestamp_start ,step,npt)+PyFina(feeds["StC5EsOu2"],dir,timestamp_start ,step,npt)\
     +PyFina(feeds["StC5EsOu3"],dir,timestamp_start ,step,npt)+PyFina(feeds["StC5EsOu4"],dir,timestamp_start ,step,npt)\
     +PyFina(feeds["StC5EsOu5"],dir,timestamp_start ,step,npt)\
-  
+
+Tsto2=np.mean(np.array([PyFina(feeds["StC1EsOu1"],dir,timestamp_start ,step,npt),PyFina(feeds["StC1EsOu2"],dir,timestamp_start ,step,npt)\
+    ,PyFina(feeds["StC1EsOu3"],dir,timestamp_start ,step,npt),PyFina(feeds["StC1EsOu4"],dir,timestamp_start ,step,npt)\
+    ,PyFina(feeds["StC1EsOu5"],dir,timestamp_start ,step,npt)\
+    ,PyFina(feeds["StC2EsOu1"],dir,timestamp_start ,step,npt),PyFina(feeds["StC2EsOu2"],dir,timestamp_start ,step,npt)\
+    ,PyFina(feeds["StC2EsOu3"],dir,timestamp_start ,step,npt),PyFina(feeds["StC2EsOu4"],dir,timestamp_start ,step,npt)\
+    ,PyFina(feeds["StC2EsOu5"],dir,timestamp_start ,step,npt)\
+    ,PyFina(feeds["StC3EsOu1"],dir,timestamp_start ,step,npt),PyFina(feeds["StC3EsOu2"],dir,timestamp_start ,step,npt)\
+    ,PyFina(feeds["StC3EsOu3"],dir,timestamp_start ,step,npt),PyFina(feeds["StC3EsOu4"],dir,timestamp_start ,step,npt)\
+    ,PyFina(feeds["StC3EsOu5"],dir,timestamp_start ,step,npt)\
+    ,PyFina(feeds["StC4EsOu1"],dir,timestamp_start ,step,npt),PyFina(feeds["StC4EsOu2"],dir,timestamp_start ,step,npt)\
+    ,PyFina(feeds["StC4EsOu3"],dir,timestamp_start ,step,npt),PyFina(feeds["StC4EsOu4"],dir,timestamp_start ,step,npt)\
+    ,PyFina(feeds["StC4EsOu5"],dir,timestamp_start ,step,npt)\
+    ,PyFina(feeds["StC5EsOu1"],dir,timestamp_start ,step,npt),PyFina(feeds["StC5EsOu2"],dir,timestamp_start ,step,npt)\
+    ,PyFina(feeds["StC5EsOu3"],dir,timestamp_start ,step,npt),PyFina(feeds["StC5EsOu4"],dir,timestamp_start ,step,npt)\
+    ,PyFina(feeds["StC5EsOu5"],dir,timestamp_start ,step,npt)\
+]),axis=0)
+    
 Tsto=Tsto/25  
 Tpac_sor_sto=PyFina(feeds["PaSoStPT"],dir,timestamp_start ,step,npt)
 Tpac_ent_sto=PyFina(feeds["PaEnStPT"],dir,timestamp_start ,step,npt)
