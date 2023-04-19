@@ -46,9 +46,9 @@ class SenCityTwo:
     ```
     # instanciation
     # RSB = route stock bâtiment
-    RSB=SenCityTwo(meteo.shape[0],3600)
+    RSB=SenCityTwo(3600,meteo.shape[0],nc)
     # définition du système
-    RSB.set(eff,k,coeff,cste,lambda_be,ath_be,lambda_iso,ath_iso,lambda_l,ath_l,lambda_s,ath_s,msto,cpsto,mpac,cpac)
+    RSB.set(eff,k,coeff,cste,lambda_be,ath_be,lambda_iso,ath_iso,lambda_l,ath_l,rho_l,Cp_l,lambda_s,ath_s,rho_s,msto,cpsto,mpac,cpac,Rthf,Sb)
     # injection du besoin
     RSB.Pgeo = Pgeo (via les données expérimentales)
     # définition de la fenêtre de simulation et paramétrage des agendas
@@ -63,7 +63,7 @@ class SenCityTwo:
     # dromo : échangeur dromotherme selon la classe OneDModel, traversé par un débit unitaire qdro_u en m3/s
     # unitaire s'entendant par mètre linéaire selon le profil en long
     for i in range (int(simStart),int(simEnd)):
-        RSB.SystemLoop(i,qdro_u,dromo)
+        RSB.SystemLoop(n,qdro_u,dromo)
     ```
     """    
 
@@ -92,9 +92,8 @@ class SenCityTwo:
         self.T_iso1=5*np.ones(size)
         self.T_iso2=5*np.ones(size)
         
-
         
-       # self.Text=5*np.ones(size)
+        self.Text=10*np.ones(size)
         
 
         self.agenda_dro=np.zeros(size)
@@ -112,6 +111,9 @@ class SenCityTwo:
         
         self.Pgeo=2000*np.ones(size)
         
+
+        self.P_1=1000*np.ones(size)        
+        self.P_2=1000*np.ones(size)
 
 
 
@@ -353,7 +355,7 @@ class SenCityTwo:
 
         
         self.Tinter=Tinter
-        self.Tin=Tinter
+        self.Tin=Tin
         self.m=m
              
         if self.m==0:
@@ -444,6 +446,7 @@ class SenCityTwo:
             
        a_5,b_5,c_5=self.coeffs(Tl5,T4_5,T5_i,Z4_5,Z5_i)
        a_iso2,b_iso2,c_iso2=self.coeffs(Tiso2,T5_i,self.Tsous_sol(Zs_sol,n+1),Z5_i,Zs_sol) 
+      # a_iso2,b_iso2,c_iso2=self.coeffs(Tiso2,T5_i,5,Z5_i,Zs_sol) 
          
          
        #équations
@@ -482,6 +485,7 @@ class SenCityTwo:
 
          
        self.eq_5i=self.T_interface(T4_5,Tl5,T5_i,Tiso2,self.Tsous_sol(Zs_sol,n+1),Z4_5,Z5_i,Zs_sol,self.lambda_l,self.lambda_iso)
+       #self.eq_5i=self.T_interface(T4_5,Tl5,T5_i,Tiso2,5,Z4_5,Z5_i,Zs_sol,self.lambda_l,self.lambda_iso)
          
        # isolant 2
          
@@ -516,7 +520,11 @@ class SenCityTwo:
        #print("The data types of tuple in order are : " + str(res))
     
        # return ze
-       return self.eq_be,self.eq_bi,self.eq_iso1,self.eqi_1,self.eq_s1,self.eq_l1,self.eq_zfu1,self.eq_12,self.eq_s2,self.eq_l2,self.eq_zfu2,self.eq_23,self.eq_s3,self.eq_l3,self.eq_zfu3,self.eq_34,self.eq_s4,self.eq_l4,self.eq_zfu4,self.eq_45,self.eq_l5,self.eq_5i,self.eq_iso2, self.eq_inj_pac1, self.eq_inj_pac2, self.eq_sor_pac1, self.eq_sor_pac2,self.eq_inj_sto1, self.eq_inj_sto2,self.eq_sor_sto1,self.eq_sor_sto2
+       return self.eq_be,self.eq_bi,self.eq_iso1,self.eqi_1,self.eq_s1,self.eq_l1,self.eq_zfu1,self.eq_12\
+              ,self.eq_s2,self.eq_l2,self.eq_zfu2,self.eq_23,self.eq_s3,self.eq_l3,self.eq_zfu3,self.eq_34\
+              ,self.eq_s4,self.eq_l4,self.eq_zfu4,self.eq_45,self.eq_l5,self.eq_5i,self.eq_iso2\
+              ,self.eq_inj_pac1, self.eq_inj_pac2, self.eq_sor_pac1, self.eq_sor_pac2,self.eq_inj_sto1\
+              ,self.eq_inj_sto2,self.eq_sor_sto1,self.eq_sor_sto2
     #----------------------------------------------------------------------------------------------------------------------------------
       
 
@@ -626,20 +634,20 @@ class SenCityTwo:
                 self.zfu[n,2]=Z3_4+(self.rho_l/self.rho_s)*(self.Cp_l/L)*self.T_inter[n,4]*z3/2
                 self.zfu[n,3]=Z3_4-(self.rho_l/self.rho_s)*(self.Cp_l/L)*self.T_inter[n,4]*z4/2
                 
-      #  y=np.mean(self.Tl[n,:],axis=1)
-        y=(self.Tl[n,0]+self.Tl[n,1]+self.Tl[n,2]+self.Tl[n,3]+self.Tl[n,4])/5
+
           
         if dro==1:
             
             
             dromo.iterate(n+1,self.Tinj_dro[n]+kelvin,qdro_u)
+            
             self.Tsor_dro[n+1]=dromo.T[n+1,1,-1]-kelvin
             
             if self.Tsor_dro[n+1]< self.T_inter[n,3] or self.Tsor_dro[n+1]< self.T_inter[n,5]:
                 
-                
+                self.agenda_dro[n+1]=0
                 solution=fsolve(self.equations,initial,args=(n,p1,p2,p3,p4)) # Calcul de la solution du système à l'instant n+1
-                      
+                            
                 self.Tinj_dro[n+1] = self.Tsor_dro[n+1]
             else:
                     
@@ -653,9 +661,8 @@ class SenCityTwo:
             
             dromo.iterate(n+1,self.Tinj_dro[n]+kelvin,qdro_u)
             self.Tsor_dro[n+1]=dromo.T[n+1,1,-1]-kelvin        
-            
-            solution=fsolve(self.equations,initial,args=(n,p1,p2,p3,p4)) # Calcul de la solution du système à l'instant n+1
-              
+            self.agenda_dro[n+1]=0  
+            solution=fsolve(self.equations,initial,args=(n,p1,p2,p3,p4)) # Calcul de la solution du système à l'instant n+1       
             self.Tinj_dro[n+1] = self.Tsor_dro[n+1]
              
                 
@@ -697,7 +704,8 @@ class SenCityTwo:
         else:
             
             self.run_z3=True       
-                 
+        self.P_1[n+1]=self.mpac*self.cpac*(self.Tinj_pac[n+1,0]-self.Tsor_pac[n+1,0])    
+        self.P_2[n+1]=(self.T_inter[n+1,2]-0.5*(self.Tinj_pac[n+1,0]+self.Tsor_pac[n+1,0]))/self.Rthf                   
     def setPertes(self,Tmoy,Tamp,lambda_sable,rho_sable,e_iso,SL_iso,SB_iso,lambda_iso):   
         """
         paramètres à prendre en compte pour la modélisation des pertes
