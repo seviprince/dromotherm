@@ -70,6 +70,7 @@ class SenCityTwo:
             
     def __init__(self,step,size,nc):
         
+        self.size=size
         self.step=step
         self.nc=nc
         self.Tinj_sto=5*np.ones((size,2))
@@ -81,19 +82,19 @@ class SenCityTwo:
         self.Tinj_pac=-1*np.ones((size,2))
         self.Tmoy_inj_pac=-1*np.ones(size)
         self.Tmoy_sor_pac=-1*np.ones(size)       
-        self.Tinj_dro=5*np.ones(size)
-        self.Tsor_dro=5*np.ones(size)  
+        self.Tinj_dro=10*np.ones(size)
+        self.Tsor_dro=10*np.ones(size)  
         
         self.Ts=0*np.ones((size,nc))
         self.Tl=5*np.ones((size,nc))
-        
+        self.Tl[:,0]=6
         self.T_inter=5*np.ones((size,7))
         self.T_be=5*np.ones(size)
         self.T_iso1=5*np.ones(size)
         self.T_iso2=5*np.ones(size)
         
         
-        self.Text=10*np.ones(size)
+        self.Text=5*np.ones(size)
         
 
         self.agenda_dro=np.zeros(size)
@@ -109,15 +110,16 @@ class SenCityTwo:
         self.run_z1=True
         self.run_z3=True
         
-        self.Pgeo=2000*np.ones(size)
+        self.Pgeo=0*np.ones(size)
         
-
+        #self.Pgeo[int(self.size/3):int(self.size)]=0
         self.P_1=1000*np.ones(size)        
         self.P_2=1000*np.ones(size)
 
 
 
-    def set(self,eff,k,coeff,cste,lambda_be,ath_be,lambda_iso,ath_iso,lambda_l,ath_l,rho_l,Cp_l,lambda_s,ath_s,rho_s,msto,cpsto,mpac,cpac,Rthf,Sb):
+    def set(self,eff,k,coeff,cste,lambda_be,ath_be,lambda_iso,ath_iso,lambda_l,ath_l,rho_l,Cp_l\
+        ,lambda_s,ath_s,rho_s,msto,cpsto,mpac,cpac,Rthf,Sb):
         
         """
         paramètres permettant de caractériser le système couplé
@@ -166,6 +168,8 @@ class SenCityTwo:
         self.Sb=Sb
         
         self.Cp_l=Cp_l
+        
+        self.Cp_f=cpac
        
         
         """
@@ -182,7 +186,7 @@ class SenCityTwo:
         print("C vaut {}".format(self.C))        
 
         
-    
+  #----------------------------------------------------------------------------------------------------------------------  
     def coeffs(self,T,Tsup,Tinf,Zsup,Zinf):
         
         """
@@ -220,10 +224,7 @@ class SenCityTwo:
         self.Zinf=Zinf
         
         
-        
-        if self.Zinf==self.Zsup:
-        
-            return 0,0,0
+
     
         if self.Zinf==0.0 or self.Zsup==0.0:
             self.a=3*(-2*self.T+self.Tsup+self.Tinf)/(self.Zsup-self.Zinf)**2
@@ -249,12 +250,12 @@ class SenCityTwo:
             Z2=x1*Tsup-x2*Tinf
             Z3=x1*T-x3*Tinf
     
-            self.c=(Y2*Z3-Y3*Z2)/(Y2*W3-Y3*W2-1e-15) # j'ai fait -1-e-15 pour eviter les warnings du type : divide by zero
+            self.c=(Y2*Z3-Y3*Z2)/(Y2*W3-Y3*W2-1e-30) # j'ai fait -1-e-15 pour eviter les warnings du type : divide by zero
             self.b=(Z2-W2*self.c)/Y2
             self.a=(Tinf-y1*self.b-self.c)/x1
             # On peut aussi utiliser la fonction linalg de numpy mais elle est coûteuse en temps d'éxécution     
         return self.a,self.b,self.c
-    
+  #----------------------------------------------------------------------------------------------------------------------  
     
     def T_interface(self,Tsup1,T1,Tinter,T2,Tinf2,Zsup1,Zinter,Zinf2,lambda1,lambda2,**kwargs):
    
@@ -326,89 +327,43 @@ class SenCityTwo:
                 
                 A=(1/(2*self.m*Cpf)+self.Rthf)*self.Sb
                 B=-self.lambda1*(2*self.a1*self.Zinter+self.b1)+self.lambda2*(2*self.a2*self.Zinter+self.b2)
+               # print(B*self.Sb)
                 return self.Tinter-self.Tin-A*B
-
-    def TfluidePac(self,Tinter,Tin,m,n):
-        """
+#----------------------------------------------------------------------------------------------------------------------
+    def TfluidePac(self,Tinter,Tin,m,Q):
         
-
-        Parameters
-        ----------
-        Tinter : float
-            Température de l'interface (ou tu tube)
-        Tin : float
-            Température d'entrée du fluide
-        m : float
-            Débit massqiue du fluide
-        n : float
-            Le pas de temps
-
-        Returns
-        -------
-        Tout
-            La température de sortie du fluide
-        Tin_new
-            La nouvelle température d'entrée du fluide
-
-        """
-        
-
-        
-        self.Tinter=Tinter
-        self.Tin=Tin
-        self.m=m
-             
-        if self.m==0:
-            self.Tout=self.Tinter
-            self.Tin_new=self.Tinter
+       
+        if m==0:
+            Tout=Tinter
+            Tin_new=Tinter
     
         else:
       
-            A=self.m*self.cpac*self.Rthf-0.5
-            B=self.m*self.cpac*self.Rthf+0.5
-            self.Tout=(self.Tinter+A*self.Tin)/B                      
-            self.Tin_new=self.Tout-self.Pgeo[n+1]/(2*self.m*self.cpac)
+            A=m*self.cpac*self.Rthf-0.5
+            B=m*self.cpac*self.Rthf+0.5
+            Tout=(Tinter+A*Tin)/B                      
+            Tin_new=Tout-Q/(2*m*self.cpac)
             
-        return self.Tout, self.Tin_new
-
-    def TfluideSto(self,Tinter,m,n):
-        """
-        
-
-        Parameters
-        ----------
-        Tinter : float
-            Température de l'interface (ou tu tube)
-        Tin : float
-            Température d'entrée du fluide
-        m : float
-            Débit massqiue du fluide
-        n : float
-            Le pas de temps
-
-        Returns
-        -------
-        Tout
-            La température de sortie du fluide
-        Tin_new
-            La nouvelle température d'entrée du fluide
-
-        """        
-        self.m=m       
-        self.Tinter=Tinter
-              
-        if self.m==0:
-            self.Tout=Tinter
-            self.Tin_new=Tinter
+        return Tout, Tin_new
+#----------------------------------------------------------------------------------------------------------------------    
+    def TfluideSto(self,Tinter,Tin,Tsor_dro,m,eff):
+    
+       
+        if m==0:
+            Tout=Tinter
+            Tin_new=Tinter
     
         else:
-    
-            self.Tout = ( self.k * self.Tinter + self.B * self.Tsor_dro[n+1] ) / ( self.k + self.B)
-            self.Tin_new = self.Tout + self.coeff * self.eff * (self.Tsor_dro[n+1] - self.Tout)
-
             
-        return self.Tout, self.Tin_new  
+            A=m*self.Cp_f*self.Rthf-0.5
+            B=m*self.Cp_f*self.Rthf+0.5     
 
+            Tout=(Tinter+A*Tin)/B                      
+            Tin_new=Tsor_dro-self.eff*(Tsor_dro-Tout)
+            
+        return Tout, Tin_new     
+   
+#----------------------------------------------------------------------------------------------------------------------
     def equations(self,Y,*p):
             
         
@@ -424,31 +379,99 @@ class SenCityTwo:
         
     
         """ 
-  
         
-       (Tbe,Tbe_i,Tiso1,Ti_1,Ts1,Tl1,zfu1,T1_2,Ts2,Tl2,zfu2,T2_3,Ts3,Tl3,zfu3,T3_4,Ts4,Tl4,zfu4,T4_5,Tl5,T5_i,Tiso2,Tinj_pac1,Tinj_pac2,Tsor_pac1,Tsor_pac2,Tinj_sto1,Tinj_sto2,Tsor_sto1,Tsor_sto2)=Y
+        
+       (Tbe,Tbe_i,Tiso1,Ti_1,Ts1,Tl1,zfu1,T1_2,Ts2,Tl2,zfu2,T2_3,Ts3,Tl3,zfu3,T3_4,Ts4,Tl4,zfu4,T4_5,Tl5\
+       ,T5_i,Tiso2,Tinj_pac1,Tinj_pac2,Tsor_pac1,Tsor_pac2,Tinj_sto1,Tinj_sto2,Tsor_sto1,Tsor_sto2)=Y
        
        (n,p1,p2,p3,p4)=p
-       a_be,b_be,c_be=self.coeffs(Tbe,self.Text[n+1],Tbe_i,Z0,Zbe_i)
-       a_iso1,b_iso1,c_iso1=self.coeffs(Tiso1,Tbe_i,Ti_1,Zbe_i,Zi_1)
-            
-       a_1,b_1,c_1=self.coeffs(Tl1,Ti_1,T1_2*p1+p2*Tf,Zi_1,Z1_2*p1+p2*zfu1)
-       a_p1,b_p1,c_p1=self.coeffs(Ts1,Tf,T1_2,zfu1,Z1_2)
+       
+       Ts_sol=self.Tsous_sol(-Zs_sol,n+1)
+
+       if p==(n,1,0,1,0):
+           
+           a_be,b_be,c_be=self.coeffs(Tbe,self.Text[n+1],Tbe_i,Z0,Zbe_i)
+           a_iso1,b_iso1,c_iso1=self.coeffs(Tiso1,Tbe_i,Ti_1,Zbe_i,Zi_1)
+                
+           a_1,b_1,c_1=self.coeffs(Tl1,Ti_1,T1_2*p1+p2*Tf,Zi_1,Z1_2*p1+p2*zfu1)
+           a_p1,b_p1,c_p1=(0,0,0)
+             
+           a_p2,b_p2,c_p2=(0,0,0)
+           a_2,b_2,c_2=self.coeffs(Tl2,T1_2*p1+p2*Tf,T2_3,Z1_2*p1+p2*zfu2,Z2_3)
+             
+           a_3,b_3,c_3=self.coeffs(Tl3,T2_3,p3*T3_4+p4*Tf,Z2_3,p3*Z3_4+p4*zfu3)
+           a_p3,b_p3,c_p3=(0,0,0)
+             
+           a_p4,b_p4,c_p4=(0,0,0)
+           a_4,b_4,c_4=self.coeffs(Tl4,T3_4*p3+p4*Tf,T4_5,p3*Z3_4+p4*zfu4,Z4_5)
+                
+           a_5,b_5,c_5=self.coeffs(Tl5,T4_5,T5_i,Z4_5,Z5_i)
+           a_iso2,b_iso2,c_iso2=self.coeffs(Tiso2,T5_i,self.Tsous_sol(-Zs_sol,n+1),Z5_i,Zs_sol) 
+          # a_iso2,b_iso2,c_iso2=self.coeffs(Tiso2,T5_i,Ts_sol,Z5_i,Zs_sol) 
+           
+
+           
+       if p==(n,0,1,1,0):
+           a_be,b_be,c_be=self.coeffs(Tbe,self.Text[n+1],Tbe_i,Z0,Zbe_i)
+           a_iso1,b_iso1,c_iso1=self.coeffs(Tiso1,Tbe_i,Ti_1,Zbe_i,Zi_1)
+                
+           a_1,b_1,c_1=self.coeffs(Tl1,Ti_1,T1_2*p1+p2*Tf,Zi_1,Z1_2*p1+p2*zfu1)
+           a_p1,b_p1,c_p1=self.coeffs(Ts1,Tf,T1_2,zfu1,Z1_2)
+             
+           a_p2,b_p2,c_p2=self.coeffs(Ts2,T1_2,Tf,Z1_2,zfu2)
+           a_2,b_2,c_2=self.coeffs(Tl2,T1_2*p1+p2*Tf,T2_3,Z1_2*p1+p2*zfu2,Z2_3)
+             
+           a_3,b_3,c_3=self.coeffs(Tl3,T2_3,p3*T3_4+p4*Tf,Z2_3,p3*Z3_4+p4*zfu3)
+           a_p3,b_p3,c_p3=(0,0,0)
+             
+           a_p4,b_p4,c_p4=(0,0,0)
+           a_4,b_4,c_4=self.coeffs(Tl4,T3_4*p3+p4*Tf,T4_5,p3*Z3_4+p4*zfu4,Z4_5)
+                
+           a_5,b_5,c_5=self.coeffs(Tl5,T4_5,T5_i,Z4_5,Z5_i)
+           a_iso2,b_iso2,c_iso2=self.coeffs(Tiso2,T5_i,self.Tsous_sol(-Zs_sol,n+1),Z5_i,Zs_sol) 
+       #    a_iso2,b_iso2,c_iso2=self.coeffs(Tiso2,T5_i,Ts_sol,Z5_i,Zs_sol) 
          
-       a_p2,b_p2,c_p2=self.coeffs(Ts2,T1_2,Tf,Z1_2,zfu2)
-       a_2,b_2,c_2=self.coeffs(Tl2,T1_2*p1+p2*Tf,T2_3,Z1_2*p1+p2*zfu2,Z2_3)
-         
-       a_3,b_3,c_3=self.coeffs(Tl3,T2_3,p3*T3_4+p4*Tf,Z2_3,p3*Z3_4+p4*zfu3)
-       a_p3,b_p3,c_p3=self.coeffs(Ts3,Tf,T3_4,zfu3,Z3_4)
-         
-       a_p4,b_p4,c_p4=self.coeffs(Ts4,T3_4,Tf,Z3_4,zfu4)
-       a_4,b_4,c_4=self.coeffs(Tl4,T3_4*p3+p4*Tf,T4_5,p3*Z3_4+p4*zfu4,Z4_5)
-            
-       a_5,b_5,c_5=self.coeffs(Tl5,T4_5,T5_i,Z4_5,Z5_i)
-       a_iso2,b_iso2,c_iso2=self.coeffs(Tiso2,T5_i,self.Tsous_sol(Zs_sol,n+1),Z5_i,Zs_sol) 
-      # a_iso2,b_iso2,c_iso2=self.coeffs(Tiso2,T5_i,5,Z5_i,Zs_sol) 
-         
-         
+       if p==(n,1,0,0,1):
+           
+           a_be,b_be,c_be=self.coeffs(Tbe,self.Text[n+1],Tbe_i,Z0,Zbe_i)
+           a_iso1,b_iso1,c_iso1=self.coeffs(Tiso1,Tbe_i,Ti_1,Zbe_i,Zi_1)
+                
+           a_1,b_1,c_1=self.coeffs(Tl1,Ti_1,T1_2*p1+p2*Tf,Zi_1,Z1_2*p1+p2*zfu1)
+           a_p1,b_p1,c_p1=(0,0,0)
+             
+           a_p2,b_p2,c_p2=(0,0,0)
+           a_2,b_2,c_2=self.coeffs(Tl2,T1_2*p1+p2*Tf,T2_3,Z1_2*p1+p2*zfu2,Z2_3)
+             
+           a_3,b_3,c_3=self.coeffs(Tl3,T2_3,p3*T3_4+p4*Tf,Z2_3,p3*Z3_4+p4*zfu3)
+           a_p3,b_p3,c_p3=self.coeffs(Ts3,Tf,T3_4,zfu3,Z3_4)
+             
+           a_p4,b_p4,c_p4=self.coeffs(Ts4,T3_4,Tf,Z3_4,zfu4)
+           a_4,b_4,c_4=self.coeffs(Tl4,T3_4*p3+p4*Tf,T4_5,p3*Z3_4+p4*zfu4,Z4_5)
+                
+           a_5,b_5,c_5=self.coeffs(Tl5,T4_5,T5_i,Z4_5,Z5_i)
+           a_iso2,b_iso2,c_iso2=self.coeffs(Tiso2,T5_i,self.Tsous_sol(-Zs_sol,n+1),Z5_i,Zs_sol) 
+          # a_iso2,b_iso2,c_iso2=self.coeffs(Tiso2,T5_i,Ts_sol,Z5_i,Zs_sol) 
+                              
+       if p==(n,0,1,0,1):            
+           a_be,b_be,c_be=self.coeffs(Tbe,self.Text[n+1],Tbe_i,Z0,Zbe_i)
+           a_iso1,b_iso1,c_iso1=self.coeffs(Tiso1,Tbe_i,Ti_1,Zbe_i,Zi_1)
+                
+           a_1,b_1,c_1=self.coeffs(Tl1,Ti_1,T1_2*p1+p2*Tf,Zi_1,Z1_2*p1+p2*zfu1)
+           a_p1,b_p1,c_p1=self.coeffs(Ts1,Tf,T1_2,zfu1,Z1_2)
+             
+           a_p2,b_p2,c_p2=self.coeffs(Ts2,T1_2,Tf,Z1_2,zfu2)
+           a_2,b_2,c_2=self.coeffs(Tl2,T1_2*p1+p2*Tf,T2_3,Z1_2*p1+p2*zfu2,Z2_3)
+             
+           a_3,b_3,c_3=self.coeffs(Tl3,T2_3,p3*T3_4+p4*Tf,Z2_3,p3*Z3_4+p4*zfu3)
+           a_p3,b_p3,c_p3=self.coeffs(Ts3,Tf,T3_4,zfu3,Z3_4)
+             
+           a_p4,b_p4,c_p4=self.coeffs(Ts4,T3_4,Tf,Z3_4,zfu4)
+           a_4,b_4,c_4=self.coeffs(Tl4,T3_4*p3+p4*Tf,T4_5,p3*Z3_4+p4*zfu4,Z4_5)
+                
+           a_5,b_5,c_5=self.coeffs(Tl5,T4_5,T5_i,Z4_5,Z5_i)
+           a_iso2,b_iso2,c_iso2=self.coeffs(Tiso2,T5_i,self.Tsous_sol(-Zs_sol,n+1),Z5_i,Zs_sol) 
+          # a_iso2,b_iso2,c_iso2=self.coeffs(Tiso2,T5_i,Ts_sol,Z5_i,Zs_sol) 
+                   
        #équations
          
        self.eq_be=Tbe-self.T_be[n]-2*self.ath_be*a_be*self.step
@@ -458,34 +481,40 @@ class SenCityTwo:
        self.eqi_1=self.T_interface(Tbe_i,Tiso1,Ti_1,Tl1,T1_2*p1+p2*Tf,Zbe_i,Zi_1,Z1_2*p1+p2*zfu1,self.lambda_iso,self.lambda_l)
          
        self.eq_l1=Tl1-self.Tl[n,0]-2*self.ath_l*a_1*self.step
-       self.eq_s1=(Ts1-self.Ts[n,0]-2*self.ath_s*a_p1*self.step)*p2
-       self.eq_zfu1=(zfu1-self.zfu[n,0]-self.cste*(self.lambda_s*(2*a_p1*zfu1+b_p1)-self.lambda_l*(2*a_1*zfu1+b_1)))*p2
+       self.eq_s1=(Ts1-self.Ts[n,0])-2*self.ath_s*a_p1*self.step*p2
+       self.eq_zfu1=(zfu1-self.zfu[n,0])-self.cste*(self.lambda_s*(2*a_p1*zfu1+b_p1)-self.lambda_l*(2*a_1*zfu1+b_1))*p2
          
-       self.eq_12=self.T_interface(Ti_1*p1+p2*Tf,Tl1*p1+p2*Ts1, T1_2,p1*Tl2+p2*Ts2, p1*T2_3+p2*Tf, p1*Zi_1+p2*zfu1, Z1_2, p1*Z2_3+p2*zfu2,p1*self.lambda_l+p2*self.lambda_s,p1*self.lambda_l+p2*self.lambda_s,m=self.mpac*self.agenda_pac[n+1],Tin=self.Tsor_pac[n+1,0])
+       self.eq_12=self.T_interface(Ti_1*p1+p2*Tf,Tl1*p1+p2*Ts1, T1_2,p1*Tl2+p2*Ts2, p1*T2_3+p2*Tf, p1*Zi_1+p2*zfu1, Z1_2\
+                , p1*Z2_3+p2*zfu2,p1*self.lambda_l+p2*self.lambda_s,p1*self.lambda_l+p2*self.lambda_s\
+                ,m=self.mpac*self.agenda_pac[n+1],Tin=Tsor_pac1)
             
        self.eq_l2=Tl2-self.Tl[n,1]-2*self.ath_l*a_2*self.step
-       self.eq_s2=(Ts2-self.Ts[n,1]-2*self.ath_s*a_p2*self.step)*p2
-       self.eq_zfu2=(zfu2-self.zfu[n,1]-self.cste*(self.lambda_s*(2*a_p2*zfu2+b_p2)-self.lambda_l*(2*a_2*zfu2+b_2)))*p2  
+       self.eq_s2=(Ts2-self.Ts[n,1])-2*self.ath_s*a_p2*self.step*p2
+       self.eq_zfu2=(zfu2-self.zfu[n,1])-self.cste*(self.lambda_s*(2*a_p2*zfu2+b_p2)-self.lambda_l*(2*a_2*zfu2+b_2))*p2  
            
-       self.eq_23=self.T_interface(p1*T1_2+p2*Tf, Tl2, T2_3, Tl3, p3*T3_4+p4*Tf, p1*Z1_2+p2*zfu2, Z2_3, p3*Z3_4+p4*zfu3, self.lambda_l, self.lambda_l,m=self.msto*self.agenda_dro[n+1],Tin=self.Tinj_sto[n+1,0])
+       self.eq_23=self.T_interface(p1*T1_2+p2*Tf, Tl2, T2_3, Tl3, p3*T3_4+p4*Tf, p1*Z1_2+p2*zfu2, Z2_3, p3*Z3_4+p4*zfu3\
+                , self.lambda_l, self.lambda_l,m=self.msto*self.agenda_dro[n+1],Tin=Tinj_sto1)
          
        self.eq_l3=Tl3-self.Tl[n,2]-2*self.ath_l*a_3*self.step
-       self.eq_s3=(Ts3-self.Ts[n,2]-2*self.ath_s*a_p3*self.step)*p4
-       self.eq_zfu3=(zfu3-self.zfu[n,2]-self.cste*(self.lambda_s*(2*a_p3*zfu3+b_p3)-self.lambda_l*(2*a_3*zfu3+b_3)))*p4
+       self.eq_s3=(Ts3-self.Ts[n,2])-2*self.ath_s*a_p3*self.step*p4
+       self.eq_zfu3=(zfu3-self.zfu[n,2])-self.cste*(self.lambda_s*(2*a_p3*zfu3+b_p3)-self.lambda_l*(2*a_3*zfu3+b_3))*p4
          
-       self.eq_34=self.T_interface(p3*T2_3+p4*Tf, p3*Tl3+p4*Ts3, T3_4,p3*Tl4+p4*Ts4, p3*T4_5+p4*Tf, p3*Z2_3+p4*zfu3, Z3_4, p3*Z4_5+p4*zfu4, p3*self.lambda_l+p4*self.lambda_s,  p3*self.lambda_l+p4*self.lambda_s,m=self.mpac*self.agenda_pac[n+1],Tin=self.Tsor_pac[n+1,1])
+       self.eq_34=self.T_interface(p3*T2_3+p4*Tf, p3*Tl3+p4*Ts3, T3_4,p3*Tl4+p4*Ts4, p3*T4_5+p4*Tf, p3*Z2_3+p4*zfu3\
+                , Z3_4, p3*Z4_5+p4*zfu4, p3*self.lambda_l+p4*self.lambda_s,  p3*self.lambda_l+p4*self.lambda_s\
+                ,m=self.mpac*self.agenda_pac[n+1],Tin=Tsor_pac2)
          
        self.eq_l4=Tl4-self.Tl[n,3]-2*self.ath_l*a_4*self.step
-       self.eq_s4=(Ts4-self.Ts[n,3]-2*self.ath_s*a_p4*self.step)*p4
-       self.eq_zfu4=(zfu4-self.zfu[n,3]-self.cste*(self.lambda_s*(2*a_p4*zfu4+b_p4)-self.lambda_l*(2*a_4*zfu4+b_4)))*p4   
+       self.eq_s4=(Ts4-self.Ts[n,3])-2*self.ath_s*a_p4*self.step*p4
+       self.eq_zfu4=(zfu4-self.zfu[n,3])-self.cste*(self.lambda_s*(2*a_p4*zfu4+b_p4)-self.lambda_l*(2*a_4*zfu4+b_4))*p4   
          
-       self.eq_45=self.T_interface(p3*T3_4+p4*Tf, Tl4, T4_5, Tl5, T5_i, p3*Z3_4+p4*zfu4, Z4_5, Z5_i, self.lambda_l, self.lambda_l,m=self.msto*self.agenda_dro[n+1],Tin=self.Tinj_sto[n+1,1])
+       self.eq_45=self.T_interface(p3*T3_4+p4*Tf, Tl4, T4_5, Tl5, T5_i, p3*Z3_4+p4*zfu4, Z4_5, Z5_i, self.lambda_l, self.lambda_l\
+                ,m=self.msto*self.agenda_dro[n+1],Tin=Tinj_sto2)
          
        self.eq_l5=Tl5-self.Tl[n,4]-2*self.ath_l*a_5*self.step
 
          
-       self.eq_5i=self.T_interface(T4_5,Tl5,T5_i,Tiso2,self.Tsous_sol(Zs_sol,n+1),Z4_5,Z5_i,Zs_sol,self.lambda_l,self.lambda_iso)
-       #self.eq_5i=self.T_interface(T4_5,Tl5,T5_i,Tiso2,5,Z4_5,Z5_i,Zs_sol,self.lambda_l,self.lambda_iso)
+       self.eq_5i=self.T_interface(T4_5,Tl5,T5_i,Tiso2,Ts_sol,Z4_5,Z5_i,Zs_sol,self.lambda_l,self.lambda_iso)
+       self.eq_5i=self.T_interface(T4_5,Tl5,T5_i,Tiso2,Ts_sol,Z4_5,Z5_i,Zs_sol,self.lambda_l,self.lambda_iso)
          
        # isolant 2
          
@@ -493,19 +522,19 @@ class SenCityTwo:
        
        # Les fluides
        
-       
+
           
-       Tpo1,Tpi1=self.TfluidePac(T1_2,Tsor_pac1,self.mpac*self.agenda_pac[n+1],n)
-       Tpo2,Tpi2=self.TfluidePac(T3_4,Tsor_pac2,self.mpac*self.agenda_pac[n+1],n)
+       Tpo1,Tpi1=self.TfluidePac(T1_2,Tsor_pac1,self.mpac*self.agenda_pac[n+1],self.Pgeo[n+1])
+       Tpo2,Tpi2=self.TfluidePac(T3_4,Tsor_pac2,self.mpac*self.agenda_pac[n+1],self.Pgeo[n+1])
        
        self.eq_inj_pac1=Tinj_pac1-Tpo1
        self.eq_inj_pac2=Tinj_pac2-Tpo2
        self.eq_sor_pac1=Tsor_pac1-Tpi1
        self.eq_sor_pac2=Tsor_pac2-Tpi2
     
-    
-       Tdo1,Tdi1=self.TfluideSto(T2_3,self.msto*self.agenda_dro[n+1],n)
-       Tdo2,Tdi2=self.TfluideSto(T4_5,self.msto*self.agenda_dro[n+1],n)
+      
+       Tdo1,Tdi1=self.TfluideSto(T2_3,Tinj_sto1,self.Tsor_dro[n+1],self.msto*self.agenda_dro[n+1],self.eff)
+       Tdo2,Tdi2=self.TfluideSto(T4_5,Tinj_sto2,self.Tsor_dro[n+1],self.msto*self.agenda_dro[n+1],self.eff)
 
         
        self.eq_sor_sto1=Tsor_sto1-Tdo1
@@ -519,7 +548,7 @@ class SenCityTwo:
         # printing result
        #print("The data types of tuple in order are : " + str(res))
     
-       # return ze
+
        return self.eq_be,self.eq_bi,self.eq_iso1,self.eqi_1,self.eq_s1,self.eq_l1,self.eq_zfu1,self.eq_12\
               ,self.eq_s2,self.eq_l2,self.eq_zfu2,self.eq_23,self.eq_s3,self.eq_l3,self.eq_zfu3,self.eq_34\
               ,self.eq_s4,self.eq_l4,self.eq_zfu4,self.eq_45,self.eq_l5,self.eq_5i,self.eq_iso2\
@@ -567,8 +596,7 @@ class SenCityTwo:
      
         dro=self.agenda_dro[n]
         pac=self.agenda_pac[n]
-        initial=(self.T_be[n],self.T_inter[n,0],self.T_iso1[n],self.Tl[n,1],self.Ts[n,0],self.Tl[n,0],self.zfu[n,0],self.T_inter[n,2],self.Ts[n,1],self.Tl[n,1],self.zfu[n,1],self.T_inter[n,3],self.Ts[n,2],self.Tl[n,2],self.zfu[n,2],self.T_inter[n,4],self.Ts[n,3],self.Tl[n,3],self.zfu[n,3],self.T_inter[n,5],self.Tl[n,4],self.T_inter[n,6],self.T_iso2[n],self.Tinj_pac[n,0],self.Tinj_pac[n,1],self.Tsor_pac[n,0],self.Tsor_pac[n,1],self.Tinj_sto[n,0],self.Tinj_sto[n,1],self.Tsor_sto[n,0],self.Tsor_sto[n,1]) # conditions initilaes à chaque itération
-     
+ 
         if self.T_inter[n,2]>=0 and self.T_inter[n,4]>=0:
             
             p1=1
@@ -582,18 +610,17 @@ class SenCityTwo:
             p2=1
             p3=1
             p4=0
-                                
+            
+                            
             if self.run_z1==True:
           
-       
+              #  print("cas 1")
                 z1=-self.T_inter[n,2]*e_c/(self.Tl[n,0]-self.T_inter[n,2])
                 z2=-self.T_inter[n,2]*e_c/(self.Tl[n,1]-self.T_inter[n,2])
                 
                 self.zfu[n,0]=Z1_2+(self.rho_l/self.rho_s)*(self.Cp_l/L)*self.T_inter[n,2]*z1/2
                 self.zfu[n,1]=Z1_2-(self.rho_l/self.rho_s)*(self.Cp_l/L)*self.T_inter[n,2]*z2/2
-           
-        
-           
+      
         if self.T_inter[n,2]>0 and self.T_inter[n,4]<0  : 
                   
             p1=1
@@ -603,7 +630,7 @@ class SenCityTwo:
         
                 
             if self.run_z3==True:
-     
+      
                 z3=-self.T_inter[n,4]*e_c/(self.Tl[n,2]-self.T_inter[n,4])
                 z4=-self.T_inter[n,4]*e_c/(self.Tl[n,3]-self.T_inter[n,4])
     
@@ -618,7 +645,7 @@ class SenCityTwo:
             p2=1
             p3=0
             p4=1
-           
+          
             if self.run_z1==True:
 
                 z1=-self.T_inter[n,2]*e_c/(self.Tl[n,0]-self.T_inter[n,2])
@@ -646,12 +673,27 @@ class SenCityTwo:
             if self.Tsor_dro[n+1]< self.T_inter[n,3] or self.Tsor_dro[n+1]< self.T_inter[n,5]:
                 
                 self.agenda_dro[n+1]=0
+                initial=(self.T_be[n],self.T_inter[n,0],self.T_iso1[n],self.Tl[n,1],self.Ts[n,0]\
+                 ,self.Tl[n,0],self.zfu[n,0],self.T_inter[n,2],self.Ts[n,1],self.Tl[n,1]\
+                ,self.zfu[n,1],self.T_inter[n,3],self.Ts[n,2],self.Tl[n,2],self.zfu[n,2]\
+                ,self.T_inter[n,4],self.Ts[n,3],self.Tl[n,3],self.zfu[n,3]\
+                ,self.T_inter[n,5],self.Tl[n,4],self.T_inter[n,6],self.T_iso2[n]\
+                ,self.Tinj_pac[n,0],self.Tinj_pac[n,1],self.Tsor_pac[n,0],self.Tsor_pac[n,1]\
+                ,self.Tinj_sto[n,0],self.Tinj_sto[n,1],self.Tsor_sto[n,0],self.Tsor_sto[n,1]) # conditions initilaes à chaque itération
+     
                 solution=fsolve(self.equations,initial,args=(n,p1,p2,p3,p4)) # Calcul de la solution du système à l'instant n+1
                             
                 self.Tinj_dro[n+1] = self.Tsor_dro[n+1]
             else:
                     
-            
+                initial=(self.T_be[n],self.T_inter[n,0],self.T_iso1[n],self.Tl[n,1],self.Ts[n,0]\
+                 ,self.Tl[n,0],self.zfu[n,0],self.T_inter[n,2],self.Ts[n,1],self.Tl[n,1]\
+                ,self.zfu[n,1],self.T_inter[n,3],self.Ts[n,2],self.Tl[n,2],self.zfu[n,2]\
+                ,self.T_inter[n,4],self.Ts[n,3],self.Tl[n,3],self.zfu[n,3]\
+                ,self.T_inter[n,5],self.Tl[n,4],self.T_inter[n,6],self.T_iso2[n]\
+                ,self.Tinj_pac[n,0],self.Tinj_pac[n,1],self.Tsor_pac[n,0],self.Tsor_pac[n,1]\
+                ,self.Tinj_sto[n,0],self.Tinj_sto[n,1],self.Tsor_sto[n,0],self.Tsor_sto[n,1]) # conditions initilaes à chaque itération
+                self.o=np.zeros(self.size)   
                 solution=fsolve(self.equations,initial,args=(n,p1,p2,p3,p4)) # Calcul de la solution du système à l'instant n+1
     
                 self.Tmoy_sor_sto[n+1]=(solution[29]+solution[30])/2    
@@ -662,10 +704,18 @@ class SenCityTwo:
             dromo.iterate(n+1,self.Tinj_dro[n]+kelvin,qdro_u)
             self.Tsor_dro[n+1]=dromo.T[n+1,1,-1]-kelvin        
             self.agenda_dro[n+1]=0  
+            initial=(self.T_be[n],self.T_inter[n,0],self.T_iso1[n],self.Tl[n,1],self.Ts[n,0]\
+                 ,self.Tl[n,0],self.zfu[n,0],self.T_inter[n,2],self.Ts[n,1],self.Tl[n,1]\
+                ,self.zfu[n,1],self.T_inter[n,3],self.Ts[n,2],self.Tl[n,2],self.zfu[n,2]\
+                ,self.T_inter[n,4],self.Ts[n,3],self.Tl[n,3],self.zfu[n,3]\
+                ,self.T_inter[n,5],self.Tl[n,4],self.T_inter[n,6],self.T_iso2[n]\
+                ,self.Tinj_pac[n,0],self.Tinj_pac[n,1],self.Tsor_pac[n,0],self.Tsor_pac[n,1]\
+                ,self.Tinj_sto[n,0],self.Tinj_sto[n,1],self.Tsor_sto[n,0],self.Tsor_sto[n,1]) # conditions initilaes à chaque itération
+  
             solution=fsolve(self.equations,initial,args=(n,p1,p2,p3,p4)) # Calcul de la solution du système à l'instant n+1       
             self.Tinj_dro[n+1] = self.Tsor_dro[n+1]
-             
-                
+      
+
         self.T_be[n+1]=solution[0]
         self.T_iso1[n+1]=solution[2]
         self.T_inter[n+1,:]=solution[[1,3,7,11,15,19,21]]
@@ -688,7 +738,7 @@ class SenCityTwo:
         self.Tmoy_sor_pac[n+1]=(self.Tsor_pac[n+1,0]+self.Tsor_pac[n+1,1])/2
         self.Tmoy_inj_pac[n+1]=(self.Tinj_pac[n+1,0]+self.Tinj_pac[n+1,1])/2
      
-        if self.T_inter[n+1,2]<0 and  self.T_inter[n,2]<0: 
+        if self.T_inter[n+1,2]<=0 and  self.T_inter[n,2]<=0: 
             
             self.run_z1=False
             
@@ -697,59 +747,19 @@ class SenCityTwo:
             self.run_z1=True
             
             
-        if self.T_inter[n+1,4]<0 and  self.T_inter[n,4]<0: 
+        if self.T_inter[n+1,4]<=0 and  self.T_inter[n,4]<=0: 
            
            self.run_z3=False
            
         else:
             
-            self.run_z3=True       
+            self.run_z3=True
+            
+        #print(self.run_z1)
+            
         self.P_1[n+1]=self.mpac*self.cpac*(self.Tinj_pac[n+1,0]-self.Tsor_pac[n+1,0])    
-        self.P_2[n+1]=(self.T_inter[n+1,2]-0.5*(self.Tinj_pac[n+1,0]+self.Tsor_pac[n+1,0]))/self.Rthf                   
-    def setPertes(self,Tmoy,Tamp,lambda_sable,rho_sable,e_iso,SL_iso,SB_iso,lambda_iso):   
-        """
-        paramètres à prendre en compte pour la modélisation des pertes
-         
-        Tmoy : Température moyenne annuelle du sous-sol en °C
-        
-        Tamp : l'amplitude annuelle de la température i.e Tmax-Tmin en °C
-        
-        tf : jour correspondant à la température minimale du sous-sol (18 janvier à Chambéry) en secondes écoulées depuis le début de l'année
-        
-        lambda_sable : conductivité thermique du sous-sol en W/(K.m)
-        rho_sable : masse volumique du sable en kg/m^3
-        
-        lambda_iso : conductivité thermique de l'isolant autour du stockage en W/(K.m)
-        
-        SL_iso : surface de l'isolant le long des parois latéraux du stockage en m2
-        
-        SB_iso : surface de l'isolant posée à la base du stockage en m2
-        
-        e_iso : épaisseur de l'isolant en m
-        
-        """
-        
-        self.simPertes=1
-         
-        self.tf=18*24*3600
-        # w pulsation exprimée en s-1
-        self.w = 2*math.pi / (8760*3600)
-         
-        self.Tmoy=Tmoy 
-        
-        self.Tamp=Tamp
-        
-        self.SL_iso=SL_iso
-        
-        self.SB_iso=SB_iso
-
-        # a diffusivité thermique du sous-sol, en m2/s
-        a = lambda_sable / (self.cpsable * rho_sable)
-
-        self.za = math.sqrt( 2 * a / self.w )
-        
-        self.u_th = lambda_iso / e_iso
-        
+       # self.P_2[n+1]=(self.T_inter[n+1,2]-0.5*(self.Tinj_pac[n+1,0]+self.Tsor_pac[n+1,0]))/self.Rthf                   
+        self.P_2[n+1]=self.mpac*self.cpac*(self.Tinj_pac[n+1,1]-self.Tsor_pac[n+1,1])  
     
     def Tsous_sol(self,z,i):
         """
