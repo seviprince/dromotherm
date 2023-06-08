@@ -43,42 +43,41 @@ def graphe(s,e):
     
     ax1 = plt.subplot(511)
 
-    ## graphe 1 - la route
-    plt.ylabel('couche stockage \n °C')
-    plt.ylabel("Température (°C)")
+    ## graphe 1 - le stockage
 
     ax1.plot(RSB.Tl[s:e,0],label="Tl couche1 modèle",color="red")
     ax1.plot(Tcouche1,label="T couche1 expé",color="k")
+    plt.ylabel("Température (°C)")
     ax1.legend(loc="upper right")    
-    ## graphe 2 - Le stocakge
+  
     ax2 = plt.subplot(512, sharex=ax1)
     
-    plt.ylabel('couche stockage \n °C')
-    plt.ylabel("Température (°C)")
-    
-    ## graphe 3 - Le stocakge
+
     ax2.plot(RSB.Tl[s:e,1],label="Tl couche2 modèle",color="red")          
     ax2.plot(Tcouche2,label="T couche2 expé",color="k")
+    plt.ylabel("Température (°C)")
     ax2.legend(loc="upper right")
     
     ax3 = plt.subplot(513, sharex=ax1)
+   
     ax3.plot(RSB.Tl[s:e,2],label="Tl couche3 modèle",color="red")
     ax3.plot(Tcouche2,label="T couche3 expé",color="k")
+    plt.ylabel("Température (°C)")    
     ax3.legend(loc="upper right")
 
-    ## graphe 5 - le stockage
+
     ax4 = plt.subplot(514, sharex=ax1)
-    plt.ylabel('stockage \n °C')
-    ax4.plot(RSB.Tl[s:e,3],label="Tl couche3 modèle",color="red")
-    ax4.plot(Tcouche4,label="Tcouche3 expé",color="k")
+   
+    ax4.plot(RSB.Tl[s:e,3],label="Tl couche4 modèle",color="red")
+    ax4.plot(Tcouche4,label="Tcouche4 expé",color="k")
+    plt.ylabel("Température (°C)")       
     ax4.legend(loc="upper right")
 
 
-    ## graphe 5 - le stockage
     ax5 = plt.subplot(515, sharex=ax1)
-    plt.ylabel('stockage \n °C')
     ax5.plot(RSB.Tl[s:e,4],label="Tl couche5 modèle",color="red")
     ax5.plot(Tcouche5,label="T couche5 expé",color="k")
+    plt.ylabel("Température (°C)")       
     ax5.legend(loc="upper right")
     plt.xlabel("Time - 1 unit = {} s".format(step))    
  
@@ -102,54 +101,41 @@ def graphe(s,e):
     ax11 = ax1.twinx()
     ax11.plot(xrange, Tdro_expe, label="T drainant expé", color="black")
     ax11.plot(xrange, RSB.Tsor_dro[s:e], label="Tdrainant modèle", color="red")
-    #ax11.plot(xrange, RSB.Tinj_dro[s:e], label="Tinj_dro", color="purple")
     ax11.legend(loc="upper right")  
     ax11.set_ylabel('°C')
-    
-    
- 
-    
-    ## graphe 2 - Le stocakge
+      
+    ## graphe 2 - La PAC
     ax2 = plt.subplot(512, sharex=ax1)
 
     plt.ylabel('couche stockage \n °C')
     plt.ylabel("Température (°C)")
     ax2.plot(xrange, RSB.Tmoy_inj_pac[s:e], label="Tinj pac modèle", color="red")   
-   # ax2.plot(xrange, RSB.Tmoy_sor_pac[s:e], label="Tsor pac modèle", color="blue")        
-  #  ax2.plot(xrange, Tpac_sor_sto, label="Tsor pac expé")   
     ax2.plot(xrange, Tpac_ent_sto, label="Tinj pac expé",color="k")        
     ax2.legend(loc="upper right")
      ## graphe 3 - le stockage   
     ax3 = plt.subplot(513, sharex=ax1)
 
-    plt.ylabel('couche stockage \n °C')
+
     plt.ylabel("Température (°C)")
-    #♥ax3.plot(xrange, RSB.Tmoy_inj_pac[s:e], label="Tinj pac modèle", color="red")   
     ax3.plot(xrange, RSB.Tmoy_sor_pac[s:e], label="Tsor pac modèle", color="red")        
-    ax3.plot(xrange, Tpac_sor_sto, label="Tsor pac expé", color="k")   
-    #ax3.plot(xrange, Tpac_ent_sto, label="Tinj pac expé")        
+    ax3.plot(xrange, Tpac_sor_sto, label="Tsor pac expé", color="k")      
     ax3.legend(loc="upper right")
     
-    ## graphe 4 - le stockage
+    ## graphe 3 - le stockage
     ax4 = plt.subplot(514, sharex=ax1)
-    plt.ylabel('stockage \n °C')
-   # ax2.plot(xrange, RSB.Tmoy_inj_sto[s:e], label="Tinj storage", color="red")   
-   # ax2.plot(xrange, RSB.Tmoy_sor_sto[s:e], label="Tsor storage", color="blue") 
-   # ax2.plot(xrange, np.mean(RSB.Tl[s:e,:]), label="T storage", color="k") 
-    ax4.plot(xrange, RSB.T_inter[s:e,2], label="T1/2", color="red")   
-    ax4.plot(xrange, RSB.T_inter[s:e,4], label="T3/4", color="blue")          
+    plt.ylabel('Température (°C)')
+    ax4.plot(xrange, RSB.T_inter[s:e,2], label="T1/2: tube 1 PAC", color="red")   
+    ax4.plot(xrange, RSB.T_inter[s:e,4], label="T3/4 : Tube 2 PAC", color="blue")          
     ax4.legend(loc="upper right")
 
     ## graphe 5 - le stockage
     ax5 = plt.subplot(515, sharex=ax1)
-    plt.ylabel('stockage \n Puissance W')
-   # ax2.plot(xrange, RSB.Tmoy_inj_sto[s:e], label="Tinj storage", color="red")   
-   # ax2.plot(xrange, RSB.Tmoy_sor_sto[s:e], label="Tsor storage", color="blue") 
-   # ax2.plot(xrange, np.mean(RSB.Tl[s:e,:]), label="T storage", color="k") 
+    plt.ylabel('Puissance (W)')
     ax5.plot(xrange, RSB.Pgeo[s:e], label="Puissange extraite du stockage", color="k")   
     plt.xlabel("Time - 1 unit = {} s".format(step))       
     ax5.legend(loc="upper right")
 
+ #------------------------------------------------------   
     figure3 = plt.figure(figsize = (10, 10))
     matplotlib.rc('font', size=10)
 
@@ -158,74 +144,50 @@ def graphe(s,e):
     
     ax1 = plt.subplot(511)
 
-    ## graphe 1 - la route
-    plt.ylabel('couche stockage \n °C')
     plt.ylabel("Température (°C)")
-
     ax1.plot(RSB.Ts[s:e,0],label="Ts couche1 modèl",color="red")
-    #ax1.plot(Tcouche1,label="T couche1 expé",color="k")
     ax1.legend(loc="upper right")    
-    ## graphe 2 - Le stocakge
+
     ax2 = plt.subplot(512, sharex=ax1)
     
-    plt.ylabel('couche stockage \n °C')
     plt.ylabel("Température (°C)")
-    
-    ## graphe 3 - Le stocakge
     ax2.plot(RSB.Ts[s:e,1],label="Ts couche2 modèl",color="red")          
-  #  ax2.plot(Tcouche2,label="T couche2 expé",color="k")
     ax2.legend(loc="upper right")
     
     ax3 = plt.subplot(513, sharex=ax1)
+    plt.ylabel("Température (°C)")    
     ax3.plot(RSB.Ts[s:e,2],label="Ts couche3 modèl",color="red")
-   # ax3.plot(Tcouche2,label="T couche3 expé",color="k")
     ax3.legend(loc="upper right")
 
-    ## graphe 5 - le stockage
+
     ax4 = plt.subplot(514, sharex=ax1)
-    plt.ylabel('stockage \n °C')
+   
+    plt.ylabel("Température (°C)")
     ax4.plot(RSB.Ts[s:e,3],label="Ts couche4 modèl",color="red")
-    #ax4.plot(Tcouche4,label="Tcouche3 expé",color="k")
     ax4.legend(loc="upper right")
 
-
-    ## graphe 5 - le stockage
     ax5 = plt.subplot(515, sharex=ax1)
-    plt.ylabel('stockage \n °C')
+    plt.ylabel("Température (°C)")
     ax5.plot(RSB.Ts[s:e,4],label="Ts couche5  modèl",color="red")
-    #ax5.plot(Tcouche5,label="T couche5 expé",color="k")
     ax5.legend(loc="upper right")
     plt.xlabel("Time - 1 unit = {} s".format(step))    
- 
+  
+    #------------------------------------------------------   
     figure4 = plt.figure(figsize = (10, 10))
     matplotlib.rc('font', size=10)
 
     xrange = meteo[s:e,0]-s
     clearblue = "#8dd8ff"
-    plt.ylabel("stockage\n zfu (cm)")
-    plt.plot(xrange,RSB.zfu[s:e,0]*100,label="zfu1")
-    plt.plot(xrange,RSB.zfu[s:e,1]*100,label="zfu2")
-    plt.plot(xrange,RSB.zfu[s:e,2]*100,label="zfu3")
-    plt.plot(xrange,RSB.zfu[s:e,3]*100,label="zfu4")
-    plt.plot(xrange,RSB.zfu[s:e,4]*100,label="zfu5")
+    plt.ylabel("zfu (cm)")
+    plt.plot(xrange,RSB.zfu[s:e,0],label="zfu1")
+    plt.plot(xrange,RSB.zfu[s:e,1],label="zfu2")
+    plt.plot(xrange,RSB.zfu[s:e,2],label="zfu3")
+    plt.plot(xrange,RSB.zfu[s:e,3],label="zfu4")
+    plt.plot(xrange,RSB.zfu[s:e,4],label="zfu5")
     plt.xlabel("Time - 1 unit = {} s".format(step)) 
     plt.legend(loc="upper right")    
     plt.show()
     
-
-    figure5 = plt.figure(figsize = (10, 10))
-    matplotlib.rc('font', size=10)
-
-    xrange = meteo[s:e,0]-s
-    clearblue = "#8dd8ff"
-    plt.ylabel("stockage\n zfu (cm)")
-    plt.plot(xrange, RSB.Tmoy_inj_pac[s:e], label="Tinj pac modèle")
-    plt.plot(xrange, RSB.Tmoy_sor_pac[s:e], label="Tsor pac modèle")
-   # plt.plot(xrange, Tpac_ent_sto, label="Tinj pac expé")  
-   # plt.plot(xrange, Tpac_sor_sto, label="Tsor pac expé")   
-    plt.xlabel("Time - 1 unit = {} s".format(step)) 
-    plt.legend(loc="upper right")    
-    plt.show()
     
 
 
