@@ -110,11 +110,11 @@ class SenCityTwo:
         self.run_z1=True
         self.run_z3=True
         
-        self.Pgeo=0*np.ones(size)
+        self.Pgeo=4000*np.ones(size)
         
         #self.Pgeo[int(self.size/3):int(self.size)]=0
-        self.P_1=1000*np.ones(size)        
-        self.P_2=1000*np.ones(size)
+        self.P_1=500*np.ones(size)        
+        self.P_2=500*np.ones(size)
 
 
 
@@ -482,7 +482,7 @@ class SenCityTwo:
          
        self.eq_l1=Tl1-self.Tl[n,0]-2*self.ath_l*a_1*self.step
        self.eq_s1=(Ts1-self.Ts[n,0])-2*self.ath_s*a_p1*self.step*p2
-       self.eq_zfu1=(zfu1-self.zfu[n,0])-self.cste*(self.lambda_s*(2*a_p1*zfu1+b_p1)-self.lambda_l*(2*a_1*zfu1+b_1))*p2
+       self.eq_zfu1=((zfu1-self.zfu[n,0])-self.cste*(self.lambda_s*(2*a_p1*zfu1+b_p1)-self.lambda_l*(2*a_1*zfu1+b_1)))*p2
          
        self.eq_12=self.T_interface(Ti_1*p1+p2*Tf,Tl1*p1+p2*Ts1, T1_2,p1*Tl2+p2*Ts2, p1*T2_3+p2*Tf, p1*Zi_1+p2*zfu1, Z1_2\
                 , p1*Z2_3+p2*zfu2,p1*self.lambda_l+p2*self.lambda_s,p1*self.lambda_l+p2*self.lambda_s\
@@ -490,14 +490,14 @@ class SenCityTwo:
             
        self.eq_l2=Tl2-self.Tl[n,1]-2*self.ath_l*a_2*self.step
        self.eq_s2=(Ts2-self.Ts[n,1])-2*self.ath_s*a_p2*self.step*p2
-       self.eq_zfu2=(zfu2-self.zfu[n,1])-self.cste*(self.lambda_s*(2*a_p2*zfu2+b_p2)-self.lambda_l*(2*a_2*zfu2+b_2))*p2  
+       self.eq_zfu2=((zfu2-self.zfu[n,1])-self.cste*(self.lambda_s*(2*a_p2*zfu2+b_p2)-self.lambda_l*(2*a_2*zfu2+b_2)))*p2  
            
        self.eq_23=self.T_interface(p1*T1_2+p2*Tf, Tl2, T2_3, Tl3, p3*T3_4+p4*Tf, p1*Z1_2+p2*zfu2, Z2_3, p3*Z3_4+p4*zfu3\
                 , self.lambda_l, self.lambda_l,m=self.msto*self.agenda_dro[n+1],Tin=Tinj_sto1)
          
        self.eq_l3=Tl3-self.Tl[n,2]-2*self.ath_l*a_3*self.step
        self.eq_s3=(Ts3-self.Ts[n,2])-2*self.ath_s*a_p3*self.step*p4
-       self.eq_zfu3=(zfu3-self.zfu[n,2])-self.cste*(self.lambda_s*(2*a_p3*zfu3+b_p3)-self.lambda_l*(2*a_3*zfu3+b_3))*p4
+       self.eq_zfu3=((zfu3-self.zfu[n,2])-self.cste*(self.lambda_s*(2*a_p3*zfu3+b_p3)-self.lambda_l*(2*a_3*zfu3+b_3)))*p4
          
        self.eq_34=self.T_interface(p3*T2_3+p4*Tf, p3*Tl3+p4*Ts3, T3_4,p3*Tl4+p4*Ts4, p3*T4_5+p4*Tf, p3*Z2_3+p4*zfu3\
                 , Z3_4, p3*Z4_5+p4*zfu4, p3*self.lambda_l+p4*self.lambda_s,  p3*self.lambda_l+p4*self.lambda_s\
@@ -505,7 +505,7 @@ class SenCityTwo:
          
        self.eq_l4=Tl4-self.Tl[n,3]-2*self.ath_l*a_4*self.step
        self.eq_s4=(Ts4-self.Ts[n,3])-2*self.ath_s*a_p4*self.step*p4
-       self.eq_zfu4=(zfu4-self.zfu[n,3])-self.cste*(self.lambda_s*(2*a_p4*zfu4+b_p4)-self.lambda_l*(2*a_4*zfu4+b_4))*p4   
+       self.eq_zfu4=((zfu4-self.zfu[n,3])-self.cste*(self.lambda_s*(2*a_p4*zfu4+b_p4)-self.lambda_l*(2*a_4*zfu4+b_4)))*p4   
          
        self.eq_45=self.T_interface(p3*T3_4+p4*Tf, Tl4, T4_5, Tl5, T5_i, p3*Z3_4+p4*zfu4, Z4_5, Z5_i, self.lambda_l, self.lambda_l\
                 ,m=self.msto*self.agenda_dro[n+1],Tin=Tinj_sto2)
@@ -514,7 +514,7 @@ class SenCityTwo:
 
          
        self.eq_5i=self.T_interface(T4_5,Tl5,T5_i,Tiso2,Ts_sol,Z4_5,Z5_i,Zs_sol,self.lambda_l,self.lambda_iso)
-       self.eq_5i=self.T_interface(T4_5,Tl5,T5_i,Tiso2,Ts_sol,Z4_5,Z5_i,Zs_sol,self.lambda_l,self.lambda_iso)
+
          
        # isolant 2
          
@@ -673,8 +673,8 @@ class SenCityTwo:
             if self.Tsor_dro[n+1]< self.T_inter[n,3] or self.Tsor_dro[n+1]< self.T_inter[n,5]:
                 
                 self.agenda_dro[n+1]=0
-                initial=(self.T_be[n],self.T_inter[n,0],self.T_iso1[n],self.Tl[n,1],self.Ts[n,0]\
-                 ,self.Tl[n,0],self.zfu[n,0],self.T_inter[n,2],self.Ts[n,1],self.Tl[n,1]\
+                initial=(self.T_be[n],self.T_inter[n,0],self.T_iso1[n],self.T_inter[n,1],self.Tl[n,0],self.Ts[n,0]\
+                 ,self.zfu[n,0],self.T_inter[n,2],self.Ts[n,1],self.Tl[n,1]\
                 ,self.zfu[n,1],self.T_inter[n,3],self.Ts[n,2],self.Tl[n,2],self.zfu[n,2]\
                 ,self.T_inter[n,4],self.Ts[n,3],self.Tl[n,3],self.zfu[n,3]\
                 ,self.T_inter[n,5],self.Tl[n,4],self.T_inter[n,6],self.T_iso2[n]\
@@ -685,15 +685,15 @@ class SenCityTwo:
                             
                 self.Tinj_dro[n+1] = self.Tsor_dro[n+1]
             else:
-                    
-                initial=(self.T_be[n],self.T_inter[n,0],self.T_iso1[n],self.Tl[n,1],self.Ts[n,0]\
-                 ,self.Tl[n,0],self.zfu[n,0],self.T_inter[n,2],self.Ts[n,1],self.Tl[n,1]\
+                
+                initial=(self.T_be[n],self.T_inter[n,0],self.T_iso1[n],self.T_inter[n,1],self.Tl[n,0],self.Ts[n,0]\
+                 ,self.zfu[n,0],self.T_inter[n,2],self.Ts[n,1],self.Tl[n,1]\
                 ,self.zfu[n,1],self.T_inter[n,3],self.Ts[n,2],self.Tl[n,2],self.zfu[n,2]\
                 ,self.T_inter[n,4],self.Ts[n,3],self.Tl[n,3],self.zfu[n,3]\
                 ,self.T_inter[n,5],self.Tl[n,4],self.T_inter[n,6],self.T_iso2[n]\
                 ,self.Tinj_pac[n,0],self.Tinj_pac[n,1],self.Tsor_pac[n,0],self.Tsor_pac[n,1]\
                 ,self.Tinj_sto[n,0],self.Tinj_sto[n,1],self.Tsor_sto[n,0],self.Tsor_sto[n,1]) # conditions initilaes à chaque itération
-                self.o=np.zeros(self.size)   
+                    
                 solution=fsolve(self.equations,initial,args=(n,p1,p2,p3,p4)) # Calcul de la solution du système à l'instant n+1
     
                 self.Tmoy_sor_sto[n+1]=(solution[29]+solution[30])/2    
@@ -758,8 +758,8 @@ class SenCityTwo:
         #print(self.run_z1)
             
         self.P_1[n+1]=self.mpac*self.cpac*(self.Tinj_pac[n+1,0]-self.Tsor_pac[n+1,0])    
-       # self.P_2[n+1]=(self.T_inter[n+1,2]-0.5*(self.Tinj_pac[n+1,0]+self.Tsor_pac[n+1,0]))/self.Rthf                   
-        self.P_2[n+1]=self.mpac*self.cpac*(self.Tinj_pac[n+1,1]-self.Tsor_pac[n+1,1])  
+        self.P_2[n+1]=(self.T_inter[n+1,2]-0.5*(self.Tinj_pac[n+1,0]+self.Tsor_pac[n+1,0]))/self.Rthf                   
+        #↓self.P_2[n+1]=self.mpac*self.cpac*(self.Tinj_pac[n+1,1]-self.Tsor_pac[n+1,1])  
     
     def Tsous_sol(self,z,i):
         """
@@ -791,3 +791,4 @@ class SenCityTwo:
         factor = math.cos(self.w * (self.step * i - self.tf) + z/self.za ) * math.exp(z /self.za)
             
         return self.Tmoy - self.Tamp * factor
+        #return 1
